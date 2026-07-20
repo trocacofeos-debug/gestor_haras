@@ -8,7 +8,6 @@ class CavaloCard extends StatelessWidget {
 
   final CavaloModel cavalo;
 
-
   final VoidCallback? onTap;
 
 
@@ -25,22 +24,32 @@ class CavaloCard extends StatelessWidget {
 
 
 
-
-
   @override
   Widget build(BuildContext context){
 
 
-
-    return InkWell(
-
-
-      onTap:
-      onTap,
+    return GestureDetector(
 
 
-      borderRadius:
-      BorderRadius.circular(20),
+      behavior: HitTestBehavior.opaque,
+
+
+      onTap: (){
+
+
+        debugPrint(
+          "CLICOU NO CAVALO: ${cavalo.nome}"
+        );
+
+
+        if(onTap != null){
+
+          onTap!();
+
+        }
+
+
+      },
 
 
 
@@ -49,12 +58,23 @@ class CavaloCard extends StatelessWidget {
       Card(
 
 
-        elevation:
-        4,
+        elevation:4,
+
+
+        margin:
+
+        const EdgeInsets.only(
+
+          bottom:15,
+
+        ),
+
 
 
         clipBehavior:
+
         Clip.antiAlias,
+
 
 
         shape:
@@ -69,88 +89,41 @@ class CavaloCard extends StatelessWidget {
 
 
 
-
         child:
 
         Column(
-
-
-
-          crossAxisAlignment:
-
-          CrossAxisAlignment.start,
-
 
 
           children:[
 
 
 
-
-
-            // =========================
-            // IMAGEM
-            // =========================
-
-
             SizedBox(
 
 
-              height:
-              200,
+              height:200,
 
 
-              width:
-              double.infinity,
+              width:double.infinity,
 
 
 
               child:
-
 
               cavalo.fotos.isNotEmpty
 
 
                   ?
 
-
               Image.network(
-
 
 
                 cavalo.fotos.first,
 
 
-
                 fit:
+
                 BoxFit.cover,
-
-
-
-                loadingBuilder:
-
-                    (context,child,loading){
-
-
-
-                  if(loading == null){
-
-                    return child;
-
-                  }
-
-
-
-                  return const Center(
-
-                    child:
-
-                    CircularProgressIndicator(),
-
-                  );
-
-
-                },
 
 
 
@@ -159,36 +132,23 @@ class CavaloCard extends StatelessWidget {
                     (context,error,stack){
 
 
-
-                  return Container(
-
-
-                    color:
-                    Colors.grey.shade300,
-
-
+                  return const Center(
 
                     child:
 
-                    const Center(
+                    Icon(
 
-                      child:
+                      Icons.broken_image,
 
-                      Icon(
-
-                        Icons.broken_image,
-
-                        size:60,
-
-                      ),
+                      size:60,
 
                     ),
-
 
                   );
 
 
                 },
+
 
 
               )
@@ -198,47 +158,23 @@ class CavaloCard extends StatelessWidget {
                   :
 
 
-
-              Container(
-
-
-                color:
-                Colors.grey.shade300,
-
-
+              const Center(
 
                 child:
 
-                const Center(
+                Icon(
 
-                  child:
+                  Icons.pets,
 
-                  Icon(
-
-                    Icons.pets,
-
-                    size:70,
-
-                  ),
+                  size:70,
 
                 ),
-
 
               ),
 
 
-
             ),
 
-
-
-
-
-
-
-            // =========================
-            // INFORMAÇÕES
-            // =========================
 
 
 
@@ -256,7 +192,6 @@ class CavaloCard extends StatelessWidget {
               Column(
 
 
-
                 crossAxisAlignment:
 
                 CrossAxisAlignment.start,
@@ -267,20 +202,15 @@ class CavaloCard extends StatelessWidget {
 
 
 
-
-
                   Text(
-
 
 
                     cavalo.nome,
 
 
-
                     style:
 
                     const TextStyle(
-
 
 
                       fontSize:22,
@@ -294,212 +224,58 @@ class CavaloCard extends StatelessWidget {
                     ),
 
 
-
                   ),
 
 
 
 
-
-
-
-                  const SizedBox(
-
-                    height:8,
-
-                  ),
-
-
-
-
+                  const SizedBox(height:8),
 
 
 
                   Text(
-
-
-                    cavalo.raca.isEmpty
-
-                        ?
-
-                    "Raça não informada"
-
-                        :
 
                     cavalo.raca,
 
-
-
-                    style:
-
-                    const TextStyle(
-
-
-                      color:
-
-                      Colors.grey,
-
-
-                    ),
-
-
-
                   ),
 
 
 
 
-
-
-
-                  const SizedBox(
-
-                    height:8,
-
-                  ),
-
-
-
-
+                  const SizedBox(height:8),
 
 
 
                   Text(
 
-
-
                     "R\$ ${cavalo.preco.toStringAsFixed(2)}",
-
-
 
                     style:
 
                     const TextStyle(
 
-
-
                       fontSize:20,
-
 
                       fontWeight:
 
                       FontWeight.bold,
 
-
-
-                      color:
-
-                      Color(0xFF5D4037),
-
-
-
                     ),
 
-
-
                   ),
-
-
-
-
-
-
-
-                  const SizedBox(
-
-                    height:8,
-
-                  ),
-
-
-
-
-
-                  Row(
-
-
-
-                    children:[
-
-
-
-                      const Icon(
-
-                        Icons.pets,
-
-                        size:18,
-
-                      ),
-
-
-
-
-                      const SizedBox(
-
-                        width:6,
-
-                      ),
-
-
-
-
-
-                      Text(
-
-
-
-                        cavalo.status.toUpperCase(),
-
-
-
-                        style:
-
-                        const TextStyle(
-
-
-
-                          fontWeight:
-
-                          FontWeight.bold,
-
-
-
-                        ),
-
-
-
-                      ),
-
-
-
-
-                    ],
-
-
-
-                  ),
-
-
 
 
 
                 ],
 
-
-
               ),
-
 
 
             ),
 
 
 
-
-
           ],
-
-
 
         ),
 
@@ -508,12 +284,10 @@ class CavaloCard extends StatelessWidget {
       ),
 
 
-
     );
 
 
   }
-
 
 
 }
