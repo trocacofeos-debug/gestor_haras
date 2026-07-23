@@ -1,0 +1,252 @@
+name: gestor_haras
+
+description: Sistema de gestão de haras, clientes, cavalos e financeiro.
+
+publish_to: "none"
+
+
+version: 1.0.0+1
+
+
+
+environment:
+
+  sdk: ">=3.12.0 <4.0.0"
+
+
+
+
+
+dependencies:
+
+
+  flutter:
+
+    sdk: flutter
+
+
+
+  # ==========================
+  # ICONES
+  # ==========================
+
+  cupertino_icons: ^1.0.8
+
+  font_awesome_flutter: ^10.8.0
+
+
+
+
+  # ==========================
+  # FIREBASE
+  # ==========================
+
+  firebase_core: ^3.15.2
+
+  firebase_auth: ^5.7.0
+
+  cloud_firestore: ^5.6.12
+
+
+
+
+
+  # ==========================
+  # ESTADO
+  # ==========================
+
+  provider: ^6.1.5
+
+
+
+
+
+  # ==========================
+  # INTERNET / API
+  # ==========================
+
+  http: ^1.5.0
+
+  dio: ^5.9.0
+
+
+
+
+
+  # ==========================
+  # FORMATOS
+  # ==========================
+
+  intl: ^0.20.2
+
+  mask_text_input_formatter: ^2.9.0
+
+
+
+
+
+  # ==========================
+  # GRAFICOS / CALENDARIO
+  # ==========================
+
+  fl_chart: ^1.0.0
+
+  table_calendar: ^3.2.0
+
+
+
+
+
+  # ==========================
+  # QR CODE
+  # ==========================
+
+  qr_flutter: ^4.1.0
+
+
+
+
+
+  # ==========================
+  # IMAGENS / ARQUIVOS
+  # ==========================
+
+  image_picker: ^1.1.2
+
+  file_picker: ^10.3.2
+
+  mime: ^2.0.0
+
+
+
+
+
+  # ==========================
+  # ASSINATURA DIGITAL
+  # ==========================
+
+  signature: ^5.5.0
+
+
+
+
+
+  # ==========================
+  # PDF / CONTRATOS
+  # ==========================
+
+  pdf: ^3.11.3
+
+  printing: ^5.14.2
+
+  path_provider: ^2.1.5
+
+  open_filex: ^4.7.0
+
+
+
+
+
+  # ==========================
+  # LINKS
+  # ==========================
+
+  url_launcher: ^6.3.2
+
+
+
+
+
+  # ==========================
+  # COMPARTILHAR
+  # ==========================
+
+  share_plus: ^10.1.4
+
+
+
+
+
+  # ==========================
+  # MULTIPART UPLOAD R2
+  # ==========================
+
+  http_parser: ^4.1.2
+
+
+
+
+
+
+
+dev_dependencies:
+
+
+  flutter_test:
+
+    sdk: flutter
+
+
+
+  flutter_lints: ^6.0.0
+
+
+
+  flutter_launcher_icons: ^0.14.4
+
+
+
+
+
+
+
+# ==========================
+# FLUTTER
+# ==========================
+
+
+flutter:
+
+
+  uses-material-design: true
+
+
+
+  assets:
+
+    - assets/images/
+
+
+
+
+
+
+
+# ==========================
+# GERADOR DE ICONE
+# ==========================
+
+
+flutter_launcher_icons:
+
+
+  android: true
+
+  ios: true
+
+
+  image_path:
+
+    assets/images/icon.png
+
+
+
+  adaptive_icon_background:
+
+    "#5D4037"
+
+
+
+  adaptive_icon_foreground:
+
+    assets/images/icon.png
