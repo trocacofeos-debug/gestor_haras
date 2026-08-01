@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/funcionario_model.dart';
+import '../home/admin_top_bar.dart';
 
 class CadastroFuncionarioPage extends StatefulWidget {
   final FuncionarioModel? funcionarioParaEditar;
@@ -183,14 +184,33 @@ class _CadastroFuncionarioPageState extends State<CadastroFuncionarioPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width >= 1000;
+
     return Scaffold(
       backgroundColor: fundo,
-      appBar: AppBar(
-        backgroundColor: primaria,
-        foregroundColor: Colors.white,
-        title: Text(editando ? 'Editar Funcionário' : 'Cadastro de Funcionário'),
-      ),
-      body: Form(
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              backgroundColor: primaria,
+              foregroundColor: Colors.white,
+              title: Text(editando ? 'Editar Funcionário' : 'Cadastro de Funcionário'),
+            ),
+      body: Column(
+        children: [
+          if (isDesktop) const AdminTopBar(),
+          if (isDesktop)
+            Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              color: Colors.white,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                editando ? 'Editar Funcionário' : 'Cadastro de Funcionário',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+          Expanded(
+            child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -344,6 +364,9 @@ class _CadastroFuncionarioPageState extends State<CadastroFuncionarioPage> {
             ),
           ],
         ),
+      ),
+          ),
+        ],
       ),
     );
   }

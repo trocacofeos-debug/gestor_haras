@@ -747,11 +747,6 @@ class CavaloDetalhesPage extends StatelessWidget {
                     _campo('Raça', cavalo.raca, Icons.category_outlined),
                     _campo('Sexo', cavalo.sexo, Icons.male),
                     _campo('Pelagem', cavalo.pelagem, Icons.palette_outlined),
-                    _campo(
-                      'Valor',
-                      'R\$ ${cavalo.preco.toStringAsFixed(2)}',
-                      Icons.attach_money_rounded,
-                    ),
 
                     const SizedBox(height: 15),
 

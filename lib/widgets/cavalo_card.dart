@@ -73,7 +73,7 @@ class CavaloCard extends StatelessWidget {
 
               subtitle:
               Text(
-                "${cavalo.raca}\nR\$ ${cavalo.preco.toStringAsFixed(2)}",
+                cavalo.raca.isEmpty ? "Raça não informada" : cavalo.raca,
               ),
 
 

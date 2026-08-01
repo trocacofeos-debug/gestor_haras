@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/cavalo_model.dart';
 import '../../models/cliente_model.dart';
+import '../home/admin_top_bar.dart';
 
 class CadastroCavaloPage extends StatefulWidget {
   final CavaloModel? cavaloParaEditar;
@@ -174,14 +175,33 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width >= 1000;
+
     return Scaffold(
       backgroundColor: fundo,
-      appBar: AppBar(
-        backgroundColor: primaria,
-        foregroundColor: Colors.white,
-        title: Text(editando ? 'Editar Cavalo' : 'Cadastro de Cavalo'),
-      ),
-      body: Form(
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              backgroundColor: primaria,
+              foregroundColor: Colors.white,
+              title: Text(editando ? 'Editar Cavalo' : 'Cadastro de Cavalo'),
+            ),
+      body: Column(
+        children: [
+          if (isDesktop) const AdminTopBar(),
+          if (isDesktop)
+            Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              color: Colors.white,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                editando ? 'Editar Cavalo' : 'Cadastro de Cavalo',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+          Expanded(
+            child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -346,6 +366,9 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
             ),
           ],
         ),
+      ),
+          ),
+        ],
       ),
     );
   }

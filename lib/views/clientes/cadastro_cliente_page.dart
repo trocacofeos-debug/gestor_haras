@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../../models/cliente_model.dart';
 import '../../services/cliente_service.dart';
+import '../home/admin_top_bar.dart';
 
 class CadastroClientePage extends StatefulWidget {
   final ClienteModel? cliente;
@@ -278,34 +279,42 @@ class _CadastroClientePageState extends State<CadastroClientePage>
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width >= 1000;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FB),
 
-      appBar: AppBar(
-        title: Text(widget.cliente == null
-            ? 'Novo Cliente'
-            : 'Editar Cliente'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.black,
-          indicatorColor: Colors.blue,
-          tabs: const [
-            Tab(text: 'Física'),
-            Tab(text: 'Jurídica'),
-            Tab(text: 'Rural'),
-          ],
-        ),
-      ),
-
-      body: Form(
-        key: _formKey,
-        child: TabBarView(
-          controller: _tabController,
-          children: [fisica(), juridica(), rural()],
-        ),
+      body: Column(
+        children: [
+          if (isDesktop) const AdminTopBar(),
+          AppBar(
+            title: Text(widget.cliente == null
+                ? 'Novo Cliente'
+                : 'Editar Cliente'),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            elevation: 0,
+            bottom: TabBar(
+              controller: _tabController,
+              labelColor: Colors.black,
+              indicatorColor: Colors.blue,
+              tabs: const [
+                Tab(text: 'Física'),
+                Tab(text: 'Jurídica'),
+                Tab(text: 'Rural'),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: TabBarView(
+                controller: _tabController,
+                children: [fisica(), juridica(), rural()],
+              ),
+            ),
+          ),
+        ],
       ),
 
       floatingActionButton: FloatingActionButton.extended(
