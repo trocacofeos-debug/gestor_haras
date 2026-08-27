@@ -470,14 +470,16 @@ class _RegisterPageDesktopState extends State<RegisterPageDesktop>
         shape: BoxShape.circle,
       ),
 
-      child: Image.asset(
-        "assets/images/logo-prat.png",
-
-        fit: BoxFit.contain,
-
-        errorBuilder: (_, __, ___) {
-          return Icon(Icons.home_work_outlined, size: 32, color: primaria);
-        },
+      child: Center(
+        child: Text(
+          'GH',
+          style: TextStyle(
+            color: primaria,
+            fontSize: 23,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1,
+          ),
+        ),
       ),
     );
   }

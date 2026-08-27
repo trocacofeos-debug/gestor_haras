@@ -194,14 +194,16 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
         shape: BoxShape.circle,
       ),
 
-      child: Image.asset(
-        "assets/images/logo-prat.png",
-
-        fit: BoxFit.contain,
-
-        errorBuilder: (_, __, ___) {
-          return Icon(Icons.home_work_outlined, size: 45, color: primaria);
-        },
+      child: Center(
+        child: Text(
+          'GH',
+          style: TextStyle(
+            color: primaria,
+            fontSize: 30,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1,
+          ),
+        ),
       ),
     );
   }

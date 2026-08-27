@@ -113,148 +113,135 @@ class AdminTopBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF6366F1), Color(0xFF4338CA)],
-                  ),
-                  borderRadius: BorderRadius.circular(9),
-                  boxShadow: const [
-                    BoxShadow(color: Color(0x554F46E5), blurRadius: 10),
-                  ],
-                ),
-                child: const Text(
-                  'GH',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF6366F1), Color(0xFF4338CA)],
               ),
-              const SizedBox(width: 10),
-              const Text(
-                'GESTOR HARAS',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  letterSpacing: .6,
-                ),
+              borderRadius: BorderRadius.circular(9),
+              boxShadow: const [
+                BoxShadow(color: Color(0x554F46E5), blurRadius: 10),
+              ],
+            ),
+            child: const Text(
+              'GH',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                width: 1,
-                height: 22,
-                color: Colors.white.withOpacity(.15),
-              ),
-              _botaoSimples(
-                context: context,
-                titulo: 'Início',
-                icon: Icons.home_rounded,
-                onTap: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const AdminHomeDesktop()),
-                    (route) => false,
-                  );
-                },
-              ),
-              _menuDropdown(
-                context: context,
-                titulo: 'Cadastros',
-                itens: [
-                  _ItemMenu('Novo Cadastro', () => const CadastroHubPage()),
-                  _ItemMenu('Clientes', () => const ClientesPage()),
-                  _ItemMenu('Cavalos', () => const CavalosListPage()),
-                  _ItemMenu('Funcionários', () => const FuncionariosListPage()),
-                  _ItemMenu('Fornecedores', () => const FornecedoresListPage()),
-                ],
-              ),
-              _menuDropdown(
-                context: context,
-                titulo: 'Financeiro',
-                itens: [
-                  _ItemMenu('Dívidas', () => const FinanceiroPage()),
-                  _ItemMenu('Nova Conta', () => const NovaContaPage()),
-                ],
-              ),
-              _menuDropdown(
-                context: context,
-                titulo: 'Propostas',
-                itens: [
-                  _ItemMenu('Propostas', () => const PropostasAdminPage()),
-                  _ItemMenu('Nova Proposta', () => const NovaPropostaPage()),
-                ],
-              ),
-              _menuDropdown(
-                context: context,
-                titulo: 'Site',
-                itens: [
-                  _ItemMenu(
-                    'Cavalos à Venda',
-                    () => const CavalosVendaListPage(),
-                  ),
-                  _ItemMenu('Galeria', () => const GaleriaPage()),
-                  _ItemMenu('Notícias', () => const NoticiasPage()),
-                ],
-              ),
-              Container(
-                margin: const EdgeInsets.only(left: 12, right: 4),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(.08),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: Colors.white.withOpacity(.10)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF34D399),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'ADMIN',
-                      style: TextStyle(
-                        color: Color(0xFFCBD5E1),
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: .5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _menuDropdown(
-                context: context,
-                titulo: 'Ajuda',
-                itens: [
-                  _ItemMenu('Sair', null, acaoDireta: () => _logout(context)),
-                ],
-              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Text(
+            'GESTOR HARAS',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              letterSpacing: .6,
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            width: 1,
+            height: 22,
+            color: Colors.white.withOpacity(.15),
+          ),
+          _botaoSimples(
+            context: context,
+            titulo: 'Início',
+            icon: Icons.home_rounded,
+            onTap: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const AdminHomeDesktop()),
+                (route) => false,
+              );
+            },
+          ),
+          _menuDropdown(
+            context: context,
+            titulo: 'Cadastros',
+            itens: [
+              _ItemMenu('Novo Cadastro', () => const CadastroHubPage()),
+              _ItemMenu('Clientes', () => const ClientesPage()),
+              _ItemMenu('Cavalos', () => const CavalosListPage()),
+              _ItemMenu('Funcionários', () => const FuncionariosListPage()),
+              _ItemMenu('Fornecedores', () => const FornecedoresListPage()),
             ],
           ),
-        ),
+          _menuDropdown(
+            context: context,
+            titulo: 'Financeiro',
+            itens: [
+              _ItemMenu('Dívidas', () => const FinanceiroPage()),
+              _ItemMenu('Nova Conta', () => const NovaContaPage()),
+            ],
+          ),
+          _menuDropdown(
+            context: context,
+            titulo: 'Propostas',
+            itens: [
+              _ItemMenu('Propostas', () => const PropostasAdminPage()),
+              _ItemMenu('Nova Proposta', () => const NovaPropostaPage()),
+            ],
+          ),
+          _menuDropdown(
+            context: context,
+            titulo: 'Site',
+            itens: [
+              _ItemMenu('Cavalos à Venda', () => const CavalosVendaListPage()),
+              _ItemMenu('Galeria', () => const GaleriaPage()),
+              _ItemMenu('Notícias', () => const NoticiasPage()),
+            ],
+          ),
+          Container(
+            margin: const EdgeInsets.only(left: 12, right: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.08),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: Colors.white.withOpacity(.10)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF34D399),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Text(
+                  'ADMIN',
+                  style: TextStyle(
+                    color: Color(0xFFCBD5E1),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: .5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _menuDropdown(
+            context: context,
+            titulo: 'Ajuda',
+            itens: [
+              _ItemMenu('Sair', null, acaoDireta: () => _logout(context)),
+            ],
+          ),
+        ],
       ),
     );
   }
