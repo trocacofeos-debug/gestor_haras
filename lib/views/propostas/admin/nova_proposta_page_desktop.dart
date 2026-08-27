@@ -107,16 +107,9 @@ class _NovaPropostaPageDesktopState
         'valorTotal': valorTotal,
         'parcelas': parcelas,
         'valorParcela': valorParcela,
-        'status':
-            'aguardando_documentos',
+        'status': 'aguardando_aprovacao',
         'contratoLiberado': false,
         'contratoGerado': false,
-        'contratoAssinado': false,
-        'rgUrl': null,
-        'comprovanteUrl': null,
-        'selfieDocumentoUrl': null,
-        'contratoUrl': null,
-        'assinaturaUrl': null,
         'dataCriacao': Timestamp.now(),
       });
 
@@ -247,7 +240,10 @@ class _NovaPropostaPageDesktopState
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           physics: const BouncingScrollPhysics(),
-          child: Row(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1440),
+              child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
@@ -363,6 +359,8 @@ class _NovaPropostaPageDesktopState
 
             ],
           ),
+              ),
+            ),
         ),
       ),
           ),

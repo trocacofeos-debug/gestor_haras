@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../models/proposta_model.dart';
+import '../../../services/proposta_service.dart';
 import 'aprovar_proposta_page.dart';
-import 'gerar_contrato_page.dart';
 
 
 class DetalhesPropostaPageMobile extends StatelessWidget {
@@ -35,34 +35,24 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
 
 
-  Color _corStatus(String status) {
+  Color _corStatus(String status){
 
     switch(status){
 
 
-      case 'aguardando_documentos':
+      case 'aguardando_aprovacao':
         return Colors.orange;
-
-
-      case 'documentos_enviados':
-        return Colors.blue;
-
-
-      case 'em_analise':
-        return Colors.amber;
 
 
       case 'aprovada':
         return Colors.green;
 
 
-      case 'contrato_liberado':
       case 'aguardando_assinatura':
         return Colors.indigo;
 
 
       case 'assinado':
-      case 'contrato_assinado':
         return Colors.teal;
 
 
@@ -79,32 +69,17 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
 
 
-
-
-
   String _tituloStatus(String status){
 
     switch(status){
 
 
-      case 'aguardando_documentos':
-        return 'Aguardando documentos';
-
-
-      case 'documentos_enviados':
-        return 'Documentos enviados';
-
-
-      case 'em_analise':
-        return 'Em análise';
+      case 'aguardando_aprovacao':
+        return 'Aguardando aprovação';
 
 
       case 'aprovada':
         return 'Aprovada';
-
-
-      case 'contrato_liberado':
-        return 'Contrato liberado';
 
 
       case 'aguardando_assinatura':
@@ -112,7 +87,6 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
 
       case 'assinado':
-      case 'contrato_assinado':
         return 'Contrato assinado';
 
 
@@ -1434,7 +1408,7 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
               _titulo(
 
-                "Documentos enviados",
+                "Contrato",
 
                 Icons.folder_copy_rounded,
 
@@ -1461,92 +1435,6 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
 
 
-              _documentoCard(
-
-
-                context:
-
-                context,
-
-
-                titulo:
-
-                "RG ou CNH",
-
-
-                url:
-
-                proposta.rgUrl,
-
-
-                icon:
-
-                Icons.badge,
-
-
-              ),
-
-
-
-
-
-
-
-              _documentoCard(
-
-
-                context:
-
-                context,
-
-
-                titulo:
-
-                "Comprovante de residência",
-
-
-                url:
-
-                proposta.comprovanteUrl,
-
-
-                icon:
-
-                Icons.home,
-
-
-              ),
-
-
-
-
-
-
-
-              _documentoCard(
-
-
-                context:
-
-                context,
-
-
-                titulo:
-
-                "Selfie com documento",
-
-
-                url:
-
-                proposta.selfieDocumentoUrl,
-
-
-                icon:
-
-                Icons.face,
-
-
-              ),
 
 
 
@@ -1651,13 +1539,7 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
               proposta.status ==
 
-                  "documentos_enviados"
-
-                  ||
-
-              proposta.status ==
-
-                  "em_analise"
+                  "aguardando_aprovacao"
 
               )
 
@@ -1703,7 +1585,7 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
                     const Text(
 
 
-                      "ANALISAR DOCUMENTOS",
+                      "ANALISAR PROPOSTA",
 
 
 
@@ -1958,45 +1840,36 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
 
 
-                    onPressed:(){
-
-
-
-                      Navigator.push(
-
-
-
-                        context,
-
-
-
-                        MaterialPageRoute(
-
-
-
-                          builder:(_)=>
-
-
-                              GerarContratoPage(
-
-
-
-                                propostaId:
-
-                                proposta.id,
-
-
-                              ),
-
-
+                    onPressed: () async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Gerando contrato e criando envelope no ClickSign...",
+                          ),
                         ),
-
-
-
                       );
 
+                      try {
+                        await PropostaService().gerarContrato(proposta.id);
 
+                        if (!context.mounted) return;
 
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.green,
+                            content: Text("Contrato gerado com sucesso."),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text("Erro: $e"),
+                          ),
+                        );
+                      }
                     },
 
 
@@ -2027,12 +1900,6 @@ class DetalhesPropostaPageMobile extends StatelessWidget {
 
 
               if(
-
-              proposta.status ==
-
-                  "contrato_liberado"
-
-                  ||
 
               proposta.status ==
 

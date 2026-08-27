@@ -8,6 +8,7 @@ import '../../models/funcionario_model.dart';
 import 'funcionario_detalhes_page.dart';
 import 'cadastro_funcionario_page.dart';
 import '../home/admin_top_bar.dart';
+import '../../widgets/desktop_window.dart';
 
 // =====================================================
 // FuncionariosListPageDesktop
@@ -55,11 +56,12 @@ class _FuncionariosListPageDesktopState
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
-          Navigator.push(
+          openDesktopWindow(
             context,
-            MaterialPageRoute(
-              builder: (_) => const CadastroFuncionarioPage(),
-            ),
+            title: 'Novo funcionário',
+            icon: Icons.badge_rounded,
+            width: 1100,
+            builder: (_) => const CadastroFuncionarioPage(),
           );
         },
       ),
@@ -146,109 +148,119 @@ class _FuncionariosListPageDesktopState
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: corBorda),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          headingRowColor:
-                              MaterialStateProperty.all(fundo),
-                          columns: const [
-                            DataColumn(label: Text('Nome')),
-                            DataColumn(label: Text('Cargo')),
-                            DataColumn(label: Text('Telefone')),
-                            DataColumn(label: Text('Salário')),
-                            DataColumn(label: Text('Status')),
-                            DataColumn(label: Text('Ações')),
-                          ],
-                          rows: funcionarios.map((funcionario) {
-                            return DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    funcionario.nome.isEmpty
-                                        ? 'Sem nome'
-                                        : funcionario.nome,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    funcionario.cargo.isEmpty
-                                        ? '-'
-                                        : funcionario.cargo,
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    funcionario.telefone.isEmpty
-                                        ? '-'
-                                        : funcionario.telefone,
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    'R\$ ${funcionario.salario.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: primaria,
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: (funcionario.ativo
-                                              ? Colors.green
-                                              : Colors.red)
-                                          .withOpacity(.12),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      funcionario.ativo ? 'Ativo' : 'Inativo',
-                                      style: TextStyle(
-                                        color: funcionario.ativo
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1440),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: corBorda),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              headingRowColor: MaterialStateProperty.all(fundo),
+                              columns: const [
+                                DataColumn(label: Text('Nome')),
+                                DataColumn(label: Text('Cargo')),
+                                DataColumn(label: Text('Telefone')),
+                                DataColumn(label: Text('Salário')),
+                                DataColumn(label: Text('Status')),
+                                DataColumn(label: Text('Ações')),
+                              ],
+                              rows: funcionarios.map((funcionario) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(
+                                      Text(
+                                        funcionario.nome.isEmpty
+                                            ? 'Sem nome'
+                                            : funcionario.nome,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                DataCell(
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 15,
-                                      color: primaria,
+                                    DataCell(
+                                      Text(
+                                        funcionario.cargo.isEmpty
+                                            ? '-'
+                                            : funcionario.cargo,
+                                      ),
                                     ),
-                                    tooltip: 'Ver detalhes',
-                                    onPressed: () => _abrirPopupFuncionario(
-                                      context,
-                                      funcionario,
+                                    DataCell(
+                                      Text(
+                                        funcionario.telefone.isEmpty
+                                            ? '-'
+                                            : funcionario.telefone,
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
-                              onSelectChanged: (_) => _abrirPopupFuncionario(
-                                context,
-                                funcionario,
-                              ),
-                            );
-                          }).toList(),
+                                    DataCell(
+                                      Text(
+                                        'R\$ ${funcionario.salario.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: primaria,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              (funcionario.ativo
+                                                      ? Colors.green
+                                                      : Colors.red)
+                                                  .withOpacity(.12),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          funcionario.ativo
+                                              ? 'Ativo'
+                                              : 'Inativo',
+                                          style: TextStyle(
+                                            color: funcionario.ativo
+                                                ? Colors.green
+                                                : Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 15,
+                                          color: primaria,
+                                        ),
+                                        tooltip: 'Ver detalhes',
+                                        onPressed: () => _abrirPopupFuncionario(
+                                          context,
+                                          funcionario,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  onSelectChanged: (_) =>
+                                      _abrirPopupFuncionario(
+                                        context,
+                                        funcionario,
+                                      ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -281,169 +293,182 @@ class _FuncionariosListPageDesktopState
           child: Container(
             width: 720,
             padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: primaria.withOpacity(.10),
-                      child: Text(
-                        funcionario.nome.isEmpty
-                            ? '?'
-                            : funcionario.nome.substring(0, 1).toUpperCase(),
-                        style: const TextStyle(
-                          color: primaria,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundColor: primaria.withOpacity(.10),
+                          child: Text(
                             funcionario.nome.isEmpty
-                                ? 'Funcionário'
-                                : funcionario.nome,
+                                ? '?'
+                                : funcionario.nome
+                                      .substring(0, 1)
+                                      .toUpperCase(),
                             style: const TextStyle(
-                              fontSize: 19,
+                              color: primaria,
                               fontWeight: FontWeight.bold,
-                              color: corTexto,
+                              fontSize: 22,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                funcionario.cargo.isEmpty
-                                    ? 'Cargo não informado'
-                                    : funcionario.cargo,
+                                funcionario.nome.isEmpty
+                                    ? 'Funcionário'
+                                    : funcionario.nome,
                                 style: const TextStyle(
-                                  color: primaria,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                  color: corTexto,
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: (funcionario.ativo
-                                          ? Colors.green
-                                          : Colors.red)
-                                      .withOpacity(.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  funcionario.ativo ? 'Ativo' : 'Inativo',
-                                  style: TextStyle(
-                                    color: funcionario.ativo
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11.5,
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    funcionario.cargo.isEmpty
+                                        ? 'Cargo não informado'
+                                        : funcionario.cargo,
+                                    style: const TextStyle(
+                                      color: primaria,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          (funcionario.ativo
+                                                  ? Colors.green
+                                                  : Colors.red)
+                                              .withOpacity(.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      funcionario.ativo ? 'Ativo' : 'Inativo',
+                                      style: TextStyle(
+                                        color: funcionario.ativo
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            color: corTextoSecundario,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: corTextoSecundario),
-                      onPressed: () => Navigator.pop(context),
+
+                    const SizedBox(height: 20),
+                    const Divider(color: corBorda, height: 1),
+                    const SizedBox(height: 20),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _campoPopup('CPF', funcionario.cpf),
+                              _campoPopup('Telefone', funcionario.telefone),
+                              _campoPopup('Email', funcionario.email),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _campoPopup(
+                                'Salário',
+                                'R\$ ${funcionario.salario.toStringAsFixed(2)}',
+                              ),
+                              _campoPopup(
+                                'Data de admissão',
+                                _formatarData(funcionario.dataAdmissao),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (funcionario.observacoes.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      _campoPopup('Observações', funcionario.observacoes),
+                    ],
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Fechar'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaria,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            openDesktopWindow(
+                              context,
+                              title: 'Perfil do funcionário',
+                              icon: Icons.badge_rounded,
+                              builder: (_) => FuncionarioDetalhesPage(
+                                funcionarioId: funcionario.id,
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.open_in_new,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'Ver perfil completo',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 20),
-                const Divider(color: corBorda, height: 1),
-                const SizedBox(height: 20),
-
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _campoPopup('CPF', funcionario.cpf),
-                          _campoPopup('Telefone', funcionario.telefone),
-                          _campoPopup('Email', funcionario.email),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _campoPopup(
-                            'Salário',
-                            'R\$ ${funcionario.salario.toStringAsFixed(2)}',
-                          ),
-                          _campoPopup(
-                            'Data de admissão',
-                            _formatarData(funcionario.dataAdmissao),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                if (funcionario.observacoes.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  _campoPopup('Observações', funcionario.observacoes),
-                ],
-
-                const SizedBox(height: 12),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Fechar'),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaria,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => FuncionarioDetalhesPage(
-                              funcionarioId: funcionario.id,
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.open_in_new,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      label: const Text(
-                        'Ver perfil completo',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         );
@@ -459,10 +484,7 @@ class _FuncionariosListPageDesktopState
         children: [
           Text(
             titulo,
-            style: const TextStyle(
-              color: corTextoSecundario,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: corTextoSecundario, fontSize: 12),
           ),
           const SizedBox(height: 3),
           Text(

@@ -8,6 +8,7 @@ import '../../models/fornecedor_model.dart';
 import 'fornecedor_detalhes_page.dart';
 import 'cadastro_fornecedor_page.dart';
 import '../home/admin_top_bar.dart';
+import '../../widgets/desktop_window.dart';
 
 // =====================================================
 // FornecedoresListPageDesktop
@@ -47,11 +48,12 @@ class _FornecedoresListPageDesktopState
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
-          Navigator.push(
+          openDesktopWindow(
             context,
-            MaterialPageRoute(
-              builder: (_) => const CadastroFornecedorPage(),
-            ),
+            title: 'Novo fornecedor',
+            icon: Icons.storefront_rounded,
+            width: 1100,
+            builder: (_) => const CadastroFornecedorPage(),
           );
         },
       ),
@@ -138,107 +140,116 @@ class _FornecedoresListPageDesktopState
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: corBorda),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          headingRowColor:
-                              MaterialStateProperty.all(fundo),
-                          columns: const [
-                            DataColumn(label: Text('Nome')),
-                            DataColumn(label: Text('Categoria')),
-                            DataColumn(label: Text('Telefone')),
-                            DataColumn(label: Text('Email')),
-                            DataColumn(label: Text('Status')),
-                            DataColumn(label: Text('Ações')),
-                          ],
-                          rows: fornecedores.map((fornecedor) {
-                            return DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    fornecedor.nome.isEmpty
-                                        ? 'Sem nome'
-                                        : fornecedor.nome,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    fornecedor.categoria.isEmpty
-                                        ? '-'
-                                        : fornecedor.categoria,
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    fornecedor.telefone.isEmpty
-                                        ? '-'
-                                        : fornecedor.telefone,
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    fornecedor.email.isEmpty
-                                        ? '-'
-                                        : fornecedor.email,
-                                  ),
-                                ),
-                                DataCell(
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: (fornecedor.ativo
-                                              ? Colors.green
-                                              : Colors.red)
-                                          .withOpacity(.12),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      fornecedor.ativo ? 'Ativo' : 'Inativo',
-                                      style: TextStyle(
-                                        color: fornecedor.ativo
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1440),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: corBorda),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              headingRowColor: MaterialStateProperty.all(fundo),
+                              columns: const [
+                                DataColumn(label: Text('Nome')),
+                                DataColumn(label: Text('Categoria')),
+                                DataColumn(label: Text('Telefone')),
+                                DataColumn(label: Text('Email')),
+                                DataColumn(label: Text('Status')),
+                                DataColumn(label: Text('Ações')),
+                              ],
+                              rows: fornecedores.map((fornecedor) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(
+                                      Text(
+                                        fornecedor.nome.isEmpty
+                                            ? 'Sem nome'
+                                            : fornecedor.nome,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                DataCell(
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 15,
-                                      color: primaria,
+                                    DataCell(
+                                      Text(
+                                        fornecedor.categoria.isEmpty
+                                            ? '-'
+                                            : fornecedor.categoria,
+                                      ),
                                     ),
-                                    tooltip: 'Ver detalhes',
-                                    onPressed: () => _abrirPopupFornecedor(
-                                      context,
-                                      fornecedor,
+                                    DataCell(
+                                      Text(
+                                        fornecedor.telefone.isEmpty
+                                            ? '-'
+                                            : fornecedor.telefone,
+                                      ),
                                     ),
+                                    DataCell(
+                                      Text(
+                                        fornecedor.email.isEmpty
+                                            ? '-'
+                                            : fornecedor.email,
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              (fornecedor.ativo
+                                                      ? Colors.green
+                                                      : Colors.red)
+                                                  .withOpacity(.12),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          fornecedor.ativo
+                                              ? 'Ativo'
+                                              : 'Inativo',
+                                          style: TextStyle(
+                                            color: fornecedor.ativo
+                                                ? Colors.green
+                                                : Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 15,
+                                          color: primaria,
+                                        ),
+                                        tooltip: 'Ver detalhes',
+                                        onPressed: () => _abrirPopupFornecedor(
+                                          context,
+                                          fornecedor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  onSelectChanged: (_) => _abrirPopupFornecedor(
+                                    context,
+                                    fornecedor,
                                   ),
-                                ),
-                              ],
-                              onSelectChanged: (_) => _abrirPopupFornecedor(
-                                context,
-                                fornecedor,
-                              ),
-                            );
-                          }).toList(),
+                                );
+                              }).toList(),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -271,161 +282,172 @@ class _FornecedoresListPageDesktopState
           child: Container(
             width: 720,
             padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: primaria.withOpacity(.10),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.storefront_rounded,
-                        color: primaria,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            fornecedor.nome.isEmpty
-                                ? 'Fornecedor'
-                                : fornecedor.nome,
-                            style: const TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                              color: corTexto,
-                            ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: primaria.withOpacity(.10),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                          child: const Icon(
+                            Icons.storefront_rounded,
+                            color: primaria,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                fornecedor.categoria.isEmpty
-                                    ? 'Categoria não informada'
-                                    : fornecedor.categoria,
+                                fornecedor.nome.isEmpty
+                                    ? 'Fornecedor'
+                                    : fornecedor.nome,
                                 style: const TextStyle(
-                                  color: primaria,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                  color: corTexto,
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: (fornecedor.ativo
-                                          ? Colors.green
-                                          : Colors.red)
-                                      .withOpacity(.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  fornecedor.ativo ? 'Ativo' : 'Inativo',
-                                  style: TextStyle(
-                                    color: fornecedor.ativo
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11.5,
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    fornecedor.categoria.isEmpty
+                                        ? 'Categoria não informada'
+                                        : fornecedor.categoria,
+                                    style: const TextStyle(
+                                      color: primaria,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          (fornecedor.ativo
+                                                  ? Colors.green
+                                                  : Colors.red)
+                                              .withOpacity(.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      fornecedor.ativo ? 'Ativo' : 'Inativo',
+                                      style: TextStyle(
+                                        color: fornecedor.ativo
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: corTextoSecundario),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-                const Divider(color: corBorda, height: 1),
-                const SizedBox(height: 20),
-
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _campoPopup('CPF / CNPJ', fornecedor.cpfCnpj),
-                          _campoPopup('Telefone', fornecedor.telefone),
-                          _campoPopup('Email', fornecedor.email),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _campoPopup('Endereço', fornecedor.endereco),
-                          _campoPopup('Categoria', fornecedor.categoria),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                if (fornecedor.observacoes.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  _campoPopup('Observações', fornecedor.observacoes),
-                ],
-
-                const SizedBox(height: 12),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Fechar'),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaria,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => FornecedorDetalhesPage(
-                              fornecedorId: fornecedor.id,
-                            ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            color: corTextoSecundario,
                           ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.open_in_new,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      label: const Text(
-                        'Ver perfil completo',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    const Divider(color: corBorda, height: 1),
+                    const SizedBox(height: 20),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _campoPopup('CPF / CNPJ', fornecedor.cpfCnpj),
+                              _campoPopup('Telefone', fornecedor.telefone),
+                              _campoPopup('Email', fornecedor.email),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _campoPopup('Endereço', fornecedor.endereco),
+                              _campoPopup('Categoria', fornecedor.categoria),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (fornecedor.observacoes.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      _campoPopup('Observações', fornecedor.observacoes),
+                    ],
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Fechar'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaria,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            openDesktopWindow(
+                              context,
+                              title: 'Perfil do fornecedor',
+                              icon: Icons.storefront_rounded,
+                              builder: (_) => FornecedorDetalhesPage(
+                                fornecedorId: fornecedor.id,
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.open_in_new,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'Ver perfil completo',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -441,10 +463,7 @@ class _FornecedoresListPageDesktopState
         children: [
           Text(
             titulo,
-            style: const TextStyle(
-              color: corTextoSecundario,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: corTextoSecundario, fontSize: 12),
           ),
           const SizedBox(height: 3),
           Text(

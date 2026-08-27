@@ -7,16 +7,27 @@ import '../../models/cavalo_venda_model.dart';
 
 import 'cadastro_cavalo_venda_page.dart';
 import '../home/admin_top_bar.dart';
+import '../../widgets/desktop_window.dart';
+import '../../widgets/site_admin_header.dart';
 
 class CavalosVendaListPageDesktop extends StatefulWidget {
   const CavalosVendaListPageDesktop({super.key});
 
   @override
-  State<CavalosVendaListPageDesktop> createState() => _CavalosVendaListPageDesktopState();
+  State<CavalosVendaListPageDesktop> createState() =>
+      _CavalosVendaListPageDesktopState();
 }
 
-class _CavalosVendaListPageDesktopState extends State<CavalosVendaListPageDesktop> {
+class _CavalosVendaListPageDesktopState
+    extends State<CavalosVendaListPageDesktop> {
   String busca = '';
+  final TextEditingController buscaController = TextEditingController();
+
+  @override
+  void dispose() {
+    buscaController.dispose();
+    super.dispose();
+  }
 
   static const Color primaria = Color(0xFF4F46E5);
   static const Color fundo = Color(0xFFF3F4F6);
@@ -66,45 +77,53 @@ class _CavalosVendaListPageDesktopState extends State<CavalosVendaListPageDeskto
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         onPressed: () {
-          Navigator.push(
+          openDesktopWindow(
             context,
-            MaterialPageRoute(
-              builder: (_) => const CadastroCavaloVendaPage(),
-            ),
+            title: 'Novo cavalo à venda',
+            icon: Icons.add_business_rounded,
+            builder: (_) => const CadastroCavaloVendaPage(),
           );
         },
       ),
       body: Column(
         children: [
           const AdminTopBar(),
-          Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            color: Colors.white,
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              'Cavalos à Venda (site)',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+          const SiteAdminHeader(
+            title: 'Cavalos à venda',
+            subtitle: 'Gerencie os animais exibidos na vitrine pública',
+            icon: Icons.pets_rounded,
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Buscar por nome ou raça...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
+            padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: TextField(
+                controller: buscaController,
+                decoration: InputDecoration(
+                  hintText: 'Buscar por nome ou raça...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: busca.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () {
+                            buscaController.clear();
+                            setState(() => busca = '');
+                          },
+                        ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    busca = value.toLowerCase().trim();
+                  });
+                },
               ),
-              onChanged: (value) {
-                setState(() {
-                  busca = value.toLowerCase().trim();
-                });
-              },
             ),
           ),
           Expanded(
@@ -160,13 +179,13 @@ class _CavalosVendaListPageDesktopState extends State<CavalosVendaListPageDeskto
                     final colunas = constraints.maxWidth >= 1200
                         ? 4
                         : constraints.maxWidth >= 900
-                            ? 3
-                            : constraints.maxWidth >= 600
-                                ? 2
-                                : 1;
+                        ? 3
+                        : constraints.maxWidth >= 600
+                        ? 2
+                        : 1;
 
                     return GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 96),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: colunas,
                         crossAxisSpacing: 16,
@@ -180,12 +199,12 @@ class _CavalosVendaListPageDesktopState extends State<CavalosVendaListPageDeskto
                         return _CavaloVendaCard(
                           cavalo: cavalo,
                           onEditar: () {
-                            Navigator.push(
+                            openDesktopWindow(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => CadastroCavaloVendaPage(
-                                  cavaloParaEditar: cavalo,
-                                ),
+                              title: 'Editar anúncio: ${cavalo.nome}',
+                              icon: Icons.edit_rounded,
+                              builder: (_) => CadastroCavaloVendaPage(
+                                cavaloParaEditar: cavalo,
                               ),
                             );
                           },
@@ -203,7 +222,6 @@ class _CavalosVendaListPageDesktopState extends State<CavalosVendaListPageDeskto
     );
   }
 }
-
 
 class _CavaloVendaCard extends StatelessWidget {
   final CavaloVendaModel cavalo;
@@ -229,8 +247,15 @@ class _CavaloVendaCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: corBorda),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x120F172A),
+              blurRadius: 18,
+              offset: Offset(0, 7),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,14 +287,25 @@ class _CavaloVendaCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    cavalo.nome.isEmpty ? 'Sem nome' : cavalo.nome,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: corTextoPrimario,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          cavalo.nome.isEmpty ? 'Sem nome' : cavalo.nome,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: corTextoPrimario,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.edit_outlined,
+                        size: 16,
+                        color: primaria,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(

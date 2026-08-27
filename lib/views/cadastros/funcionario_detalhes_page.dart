@@ -5,14 +5,12 @@ import 'package:flutter/material.dart';
 
 import '../../models/funcionario_model.dart';
 import 'cadastro_funcionario_page.dart';
+import '../../widgets/desktop_window.dart';
 
 class FuncionarioDetalhesPage extends StatelessWidget {
   final String funcionarioId;
 
-  const FuncionarioDetalhesPage({
-    super.key,
-    required this.funcionarioId,
-  });
+  const FuncionarioDetalhesPage({super.key, required this.funcionarioId});
 
   static const Color primaria = Color(0xFF4F46E5);
   static const Color fundo = Color(0xFFF3F4F6);
@@ -23,10 +21,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 10),
         ],
       ),
       child: Row(
@@ -41,10 +36,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
                 color: primaria.withOpacity(.10),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
-                Icons.arrow_back_rounded,
-                color: primaria,
-              ),
+              child: const Icon(Icons.arrow_back_rounded, color: primaria),
             ),
           ),
           const SizedBox(width: 15),
@@ -54,11 +46,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
               color: primaria.withOpacity(.12),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.badge_rounded,
-              color: primaria,
-              size: 30,
-            ),
+            child: const Icon(Icons.badge_rounded, color: primaria, size: 30),
           ),
           const SizedBox(width: 15),
           const Expanded(
@@ -67,10 +55,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
               children: [
                 Text(
                   'Detalhes do Funcionário',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -101,10 +86,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             texto,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -119,10 +101,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.03),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.03), blurRadius: 8),
         ],
       ),
       child: Row(
@@ -142,10 +121,7 @@ class FuncionarioDetalhesPage extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -209,93 +185,93 @@ class FuncionarioDetalhesPage extends StatelessWidget {
                     Stack(
                       children: [
                         Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(25),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: [
-                          BoxShadow(
-                            color: primaria.withOpacity(.25),
-                            blurRadius: 18,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Colors.white,
-                            child: Text(
-                              funcionario.nome.isEmpty
-                                  ? '?'
-                                  : funcionario.nome
-                                      .substring(0, 1)
-                                      .toUpperCase(),
-                              style: const TextStyle(
-                                color: primaria,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(25),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(28),
+                            boxShadow: [
+                              BoxShadow(
+                                color: primaria.withOpacity(.25),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
                               ),
-                            ),
+                            ],
                           ),
-                          const SizedBox(height: 15),
-                          Text(
-                            funcionario.nome.isEmpty
-                                ? 'Funcionário'
-                                : funcionario.nome,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            funcionario.cargo.isEmpty
-                                ? 'Cargo não informado'
-                                : funcionario.cargo,
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          const SizedBox(height: 15),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(.20),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.circle,
-                                  size: 12,
-                                  color: funcionario.ativo
-                                      ? Colors.greenAccent
-                                      : Colors.redAccent,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  funcionario.ativo ? 'Ativo' : 'Inativo',
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.white,
+                                child: Text(
+                                  funcionario.nome.isEmpty
+                                      ? '?'
+                                      : funcionario.nome
+                                            .substring(0, 1)
+                                            .toUpperCase(),
                                   style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
+                                    color: primaria,
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 15),
+                              Text(
+                                funcionario.nome.isEmpty
+                                    ? 'Funcionário'
+                                    : funcionario.nome,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                funcionario.cargo.isEmpty
+                                    ? 'Cargo não informado'
+                                    : funcionario.cargo,
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              const SizedBox(height: 15),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(.20),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.circle,
+                                      size: 12,
+                                      color: funcionario.ativo
+                                          ? Colors.greenAccent
+                                          : Colors.redAccent,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      funcionario.ativo ? 'Ativo' : 'Inativo',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                         ),
 
                         Positioned(
@@ -303,12 +279,12 @@ class FuncionarioDetalhesPage extends StatelessWidget {
                           right: 12,
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(
+                              openDesktopWindow(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => CadastroFuncionarioPage(
-                                    funcionarioParaEditar: funcionario,
-                                  ),
+                                title: 'Editar funcionário',
+                                icon: Icons.edit_rounded,
+                                builder: (_) => CadastroFuncionarioPage(
+                                  funcionarioParaEditar: funcionario,
                                 ),
                               );
                             },
@@ -335,7 +311,11 @@ class FuncionarioDetalhesPage extends StatelessWidget {
                     _titulo('Dados Pessoais', Icons.person_outline_rounded),
 
                     _campo('CPF', funcionario.cpf, Icons.badge_outlined),
-                    _campo('Telefone', funcionario.telefone, Icons.phone_rounded),
+                    _campo(
+                      'Telefone',
+                      funcionario.telefone,
+                      Icons.phone_rounded,
+                    ),
                     _campo('Email', funcionario.email, Icons.email_outlined),
 
                     const SizedBox(height: 15),

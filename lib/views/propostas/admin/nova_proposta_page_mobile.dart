@@ -106,16 +106,9 @@ class _NovaPropostaPageMobileState
         'valorTotal': valorTotal,
         'parcelas': parcelas,
         'valorParcela': valorParcela,
-        'status':
-            'aguardando_documentos',
+        'status': 'aguardando_aprovacao',
         'contratoLiberado': false,
         'contratoGerado': false,
-        'contratoAssinado': false,
-        'rgUrl': null,
-        'comprovanteUrl': null,
-        'selfieDocumentoUrl': null,
-        'contratoUrl': null,
-        'assinaturaUrl': null,
         'dataCriacao': Timestamp.now(),
       });
 

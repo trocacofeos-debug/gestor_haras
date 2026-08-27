@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 
 import '../../models/cliente_model.dart';
 import '../../services/cliente_service.dart';
+import '../../widgets/campos_grid.dart';
+import '../../widgets/desktop_fit_viewport.dart';
 import '../home/admin_top_bar.dart';
 
 class CadastroClientePage extends StatefulWidget {
@@ -85,8 +87,9 @@ class _CadastroClientePageState extends State<CadastroClientePage>
     if (cep.length != 8) return;
 
     try {
-      final res =
-          await http.get(Uri.parse('https://viacep.com.br/ws/$cep/json/'));
+      final res = await http.get(
+        Uri.parse('https://viacep.com.br/ws/$cep/json/'),
+      );
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -104,23 +107,20 @@ class _CadastroClientePageState extends State<CadastroClientePage>
   }
 
   // ================= UI FIELD =================
-  Widget field(String label, TextEditingController c,
-      {bool required = false}) {
+  Widget field(String label, TextEditingController c, {bool required = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
         controller: c,
         validator: required
             ? (v) =>
-                (v == null || v.trim().isEmpty) ? 'Campo obrigatório' : null
+                  (v == null || v.trim().isEmpty) ? 'Campo obrigatório' : null
             : null,
         decoration: InputDecoration(
           labelText: label,
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
     );
@@ -138,18 +138,30 @@ class _CadastroClientePageState extends State<CadastroClientePage>
           prefixIcon: const Icon(Icons.location_on_outlined),
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
     );
   }
 
+  Widget secao(String titulo) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, bottom: 10),
+      child: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
+    );
+  }
+
   Widget card(List<Widget> children) {
+    final conteudo = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+    final desktop = MediaQuery.of(context).size.width >= 1000;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -160,10 +172,16 @@ class _CadastroClientePageState extends State<CadastroClientePage>
               color: Colors.black.withOpacity(0.05),
               blurRadius: 20,
               offset: const Offset(0, 6),
-            )
+            ),
           ],
         ),
-        child: ListView(children: children),
+        child: desktop
+            ? FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topCenter,
+                child: SizedBox(width: 1180, child: conteudo),
+              )
+            : SingleChildScrollView(child: conteudo),
       ),
     );
   }
@@ -171,65 +189,81 @@ class _CadastroClientePageState extends State<CadastroClientePage>
   // ================= ABAS =================
   Widget fisica() {
     return card([
-      field('Nome', nomeController, required: true),
-      field('Sobrenome', sobrenomeController, required: true),
-      field('CPF', cpfCnpjController, required: true),
-      field('Telefone de contato', telefoneController, required: true),
-      field('E-mail', emailController),
-
-      cepField(),
-      field('Endereço', enderecoController),
-      field('Número', numeroController),
-      field('Bairro', bairroController),
-      field('Cidade', cidadeController),
-      field('Estado', estadoController),
+      CamposGrid(
+        campos: [
+          field('Nome', nomeController, required: true),
+          field('Sobrenome', sobrenomeController, required: true),
+          field('CPF', cpfCnpjController, required: true),
+          field('Telefone de contato', telefoneController, required: true),
+          field('E-mail', emailController),
+        ],
+      ),
+      secao('Endereço'),
+      CamposGrid(
+        campos: [
+          cepField(),
+          field('Endereço', enderecoController),
+          field('Número', numeroController),
+          field('Bairro', bairroController),
+          field('Cidade', cidadeController),
+          field('Estado', estadoController),
+        ],
+      ),
     ]);
   }
 
   Widget juridica() {
     return card([
-      field('Razão Social', razaoSocialController, required: true),
-      field('Nome Fantasia', nomeFantasiaController),
-      field('CNPJ', cpfCnpjController, required: true),
-      field('Telefone de contato', telefoneController),
-
-      cepField(),
-      field('Endereço', enderecoController),
-      field('Número', numeroController),
-      field('Bairro', bairroController),
-      field('Cidade', cidadeController),
-      field('Estado', estadoController),
+      CamposGrid(
+        campos: [
+          field('Razão Social', razaoSocialController, required: true),
+          field('Nome Fantasia', nomeFantasiaController),
+          field('CNPJ', cpfCnpjController, required: true),
+          field('Telefone de contato', telefoneController),
+        ],
+      ),
+      secao('Endereço'),
+      CamposGrid(
+        campos: [
+          cepField(),
+          field('Endereço', enderecoController),
+          field('Número', numeroController),
+          field('Bairro', bairroController),
+          field('Cidade', cidadeController),
+          field('Estado', estadoController),
+        ],
+      ),
     ]);
   }
 
   Widget rural() {
     return card([
-      field('Nome', nomeController, required: true),
-      field('Sobrenome', sobrenomeController, required: true),
-      field('CPF', cpfCnpjController, required: true),
-      field('Telefone de contato', telefoneController),
-
-      const SizedBox(height: 10),
-      const Text(
-        "Endereço",
-        style: TextStyle(fontWeight: FontWeight.bold),
+      CamposGrid(
+        campos: [
+          field('Nome', nomeController, required: true),
+          field('Sobrenome', sobrenomeController, required: true),
+          field('CPF', cpfCnpjController, required: true),
+          field('Telefone de contato', telefoneController),
+        ],
       ),
-
-      cepField(),
-      field('Endereço', enderecoController),
-      field('Número', numeroController),
-      field('Bairro', bairroController),
-      field('Cidade', cidadeController),
-      field('Estado', estadoController),
-
-      const SizedBox(height: 10),
-      const Text(
-        "Dados do Haras",
-        style: TextStyle(fontWeight: FontWeight.bold),
+      secao('Endereço'),
+      CamposGrid(
+        campos: [
+          cepField(),
+          field('Endereço', enderecoController),
+          field('Número', numeroController),
+          field('Bairro', bairroController),
+          field('Cidade', cidadeController),
+          field('Estado', estadoController),
+        ],
       ),
-
-      field('Nome do Haras', nomeHarasController, required: true),
-      field('ID Rural', idRuralController, required: true),
+      secao('Dados do Haras'),
+      CamposGrid(
+        campos: [
+          field('Nome do Haras', nomeHarasController, required: true),
+          field('ID Rural', idRuralController, required: true),
+        ],
+      ),
     ]);
   }
 
@@ -288,9 +322,9 @@ class _CadastroClientePageState extends State<CadastroClientePage>
         children: [
           if (isDesktop) const AdminTopBar(),
           AppBar(
-            title: Text(widget.cliente == null
-                ? 'Novo Cliente'
-                : 'Editar Cliente'),
+            title: Text(
+              widget.cliente == null ? 'Novo Cliente' : 'Editar Cliente',
+            ),
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
             elevation: 0,
@@ -317,13 +351,23 @@ class _CadastroClientePageState extends State<CadastroClientePage>
         ],
       ),
 
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _loading ? null : salvar,
-        icon: _loading
-            ? const CircularProgressIndicator(strokeWidth: 2)
-            : const Icon(Icons.save),
-        label: const Text("Salvar"),
-      ),
+      floatingActionButton: isDesktop
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _loading ? null : salvar,
+              icon: _loading
+                  ? const CircularProgressIndicator(strokeWidth: 2)
+                  : const Icon(Icons.save),
+              label: const Text("Salvar"),
+            ),
+      bottomNavigationBar: isDesktop
+          ? DesktopFormActions(
+              primaryLabel: 'Salvar cliente',
+              onPrimary: salvar,
+              onCancel: () => Navigator.maybePop(context),
+              loading: _loading,
+            )
+          : null,
     );
   }
 }

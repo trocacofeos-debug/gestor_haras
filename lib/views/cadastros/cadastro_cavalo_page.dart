@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/cavalo_model.dart';
 import '../../models/cliente_model.dart';
+import '../../widgets/campos_grid.dart';
+import '../../widgets/desktop_fit_viewport.dart';
 import '../home/admin_top_bar.dart';
 
 class CadastroCavaloPage extends StatefulWidget {
@@ -49,8 +51,7 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
       observacoesController.text = c.observacoes;
       sexo = c.sexo.isEmpty ? 'Macho' : c.sexo;
       proprietarioId = c.proprietarioId.isEmpty ? null : c.proprietarioId;
-      proprietarioNome =
-          c.proprietarioNome.isEmpty ? null : c.proprietarioNome;
+      proprietarioNome = c.proprietarioNome.isEmpty ? null : c.proprietarioNome;
     }
   }
 
@@ -98,8 +99,7 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
         preco: widget.cavaloParaEditar?.preco ?? 0,
         fotos: widget.cavaloParaEditar?.fotos ?? const [],
         observacoes: observacoesController.text.trim(),
-        dataCadastro:
-            widget.cavaloParaEditar?.dataCadastro ?? Timestamp.now(),
+        dataCadastro: widget.cavaloParaEditar?.dataCadastro ?? Timestamp.now(),
       );
 
       if (editando) {
@@ -129,9 +129,9 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -197,177 +197,195 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 editando ? 'Editar Cavalo' : 'Cadastro de Cavalo',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
           Expanded(
             child: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    editando ? 'Editar Cavalo' : 'Novo Cavalo',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    editando
-                        ? 'Atualize os dados do animal.'
-                        : 'Cadastre os dados do animal.',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            InkWell(
-              onTap: selecionarProprietario,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
+              key: _formKey,
+              child: DesktopFitViewport(
+                maxWidth: 1120,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.person, color: primaria),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        proprietarioNome ??
-                            'Selecionar Proprietário (opcional)',
-                        style: TextStyle(
-                          color: proprietarioNome == null
-                              ? Colors.grey
-                              : Colors.black,
-                          fontSize: 16,
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            editando ? 'Editar Cavalo' : 'Novo Cavalo',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            editando
+                                ? 'Atualize os dados do animal.'
+                                : 'Cadastre os dados do animal.',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    InkWell(
+                      onTap: selecionarProprietario,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 18,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.person, color: primaria),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                proprietarioNome ??
+                                    'Selecionar Proprietário (opcional)',
+                                style: TextStyle(
+                                  color: proprietarioNome == null
+                                      ? Colors.grey
+                                      : Colors.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.search),
+                          ],
                         ),
                       ),
                     ),
-                    const Icon(Icons.search),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            campo(
-              label: 'Nome do Cavalo',
-              icon: Icons.pets_outlined,
-              controller: nomeController,
-            ),
-
-            campo(
-              label: 'Raça',
-              icon: Icons.category_outlined,
-              controller: racaController,
-              required: false,
-            ),
-
-            campo(
-              label: 'Pelagem',
-              icon: Icons.palette_outlined,
-              controller: pelagemController,
-              required: false,
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: DropdownButtonFormField<String>(
-                  value: sexo,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    prefixIcon: Icon(Icons.male, color: primaria),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'Macho', child: Text('Macho')),
-                    DropdownMenuItem(value: 'Fêmea', child: Text('Fêmea')),
-                  ],
-                  onChanged: (v) {
-                    setState(() {
-                      sexo = v ?? 'Macho';
-                    });
-                  },
-                ),
-              ),
-            ),
-
-            campo(
-              label: 'Observações',
-              icon: Icons.notes_outlined,
-              controller: observacoesController,
-              required: false,
-            ),
-
-            const SizedBox(height: 20),
-
-            SizedBox(
-              height: 55,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaria,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                onPressed: salvando ? null : salvar,
-                icon: salvando
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
+                    const SizedBox(height: 16),
+                    CamposGrid(
+                      campos: [
+                        campo(
+                          label: 'Nome do Cavalo',
+                          icon: Icons.pets_outlined,
+                          controller: nomeController,
                         ),
-                      )
-                    : const Icon(Icons.save, color: Colors.white),
-                label: Text(
-                  salvando
-                      ? 'SALVANDO...'
-                      : (editando ? 'SALVAR ALTERAÇÕES' : 'CADASTRAR CAVALO'),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        campo(
+                          label: 'Raça',
+                          icon: Icons.category_outlined,
+                          controller: racaController,
+                          required: false,
+                        ),
+                        campo(
+                          label: 'Pelagem',
+                          icon: Icons.palette_outlined,
+                          controller: pelagemController,
+                          required: false,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              value: sexo,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                prefixIcon: Icon(Icons.male, color: primaria),
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'Macho',
+                                  child: Text('Macho'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'Fêmea',
+                                  child: Text('Fêmea'),
+                                ),
+                              ],
+                              onChanged: (v) {
+                                setState(() {
+                                  sexo = v ?? 'Macho';
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    campo(
+                      label: 'Observações',
+                      icon: Icons.notes_outlined,
+                      controller: observacoesController,
+                      required: false,
+                    ),
+                    const SizedBox(height: 20),
+                    if (!isDesktop)
+                      SizedBox(
+                        height: 55,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaria,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: salvando ? null : salvar,
+                          icon: salvando
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.save, color: Colors.white),
+                          label: Text(
+                            salvando
+                                ? 'SALVANDO...'
+                                : (editando
+                                      ? 'SALVAR ALTERAÇÕES'
+                                      : 'CADASTRAR CAVALO'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
           ),
+          if (isDesktop)
+            DesktopFormActions(
+              primaryLabel: editando ? 'Salvar alterações' : 'Cadastrar cavalo',
+              onPrimary: salvar,
+              onCancel: () => Navigator.maybePop(context),
+              loading: salvando,
+            ),
         ],
       ),
     );

@@ -26,6 +26,10 @@ class ClienteModel {
   final String telefone;
   final String email;
 
+  // Data de nascimento (necessária para o ClickSign
+  // identificar o signatário na assinatura do contrato)
+  final Timestamp? dataNascimento;
+
   // Endereço Principal
   final String cep;
   final String endereco;
@@ -65,6 +69,7 @@ class ClienteModel {
 
     this.telefone = '',
     this.email = '',
+    this.dataNascimento,
 
     this.cep = '',
     this.endereco = '',
@@ -112,6 +117,9 @@ class ClienteModel {
 
       telefone: map['telefone'] ?? '',
       email: map['email'] ?? '',
+      dataNascimento: map['dataNascimento'] is Timestamp
+          ? map['dataNascimento']
+          : null,
 
       cep: map['cep'] ?? '',
       endereco: map['endereco'] ?? '',
@@ -154,6 +162,7 @@ class ClienteModel {
 
       'telefone': telefone,
       'email': email,
+      'dataNascimento': dataNascimento,
 
       'cep': cep,
       'endereco': endereco,

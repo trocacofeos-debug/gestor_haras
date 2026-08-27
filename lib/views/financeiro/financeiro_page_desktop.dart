@@ -304,7 +304,11 @@ class _FinanceiroPageDesktopState
                 // Coluna direita: lista de dívidas (rolável)
                 Expanded(
 
-                  child: ListView(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: ListView(
 
                     children:[
 
@@ -450,6 +454,8 @@ class _FinanceiroPageDesktopState
 
                     ],
 
+                  ),
+                    ),
                   ),
 
                 ),

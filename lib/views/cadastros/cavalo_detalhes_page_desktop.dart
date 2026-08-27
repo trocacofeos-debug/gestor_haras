@@ -5,15 +5,14 @@ import 'package:flutter/material.dart';
 
 import '../../models/cavalo_model.dart';
 import '../../models/despesa_cavalo_model.dart';
+import '../../widgets/campos_grid.dart';
 import 'cadastro_cavalo_page.dart';
+import '../../widgets/desktop_window.dart';
 
 class CavaloDetalhesPageDesktop extends StatelessWidget {
   final String cavaloId;
 
-  const CavaloDetalhesPageDesktop({
-    super.key,
-    required this.cavaloId,
-  });
+  const CavaloDetalhesPageDesktop({super.key, required this.cavaloId});
 
   static const Color primaria = Color(0xFF4F46E5);
   static const Color fundo = Color(0xFFF3F4F6);
@@ -24,10 +23,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 10),
         ],
       ),
       child: Row(
@@ -42,10 +38,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
                 color: primaria.withOpacity(.10),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
-                Icons.arrow_back_rounded,
-                color: primaria,
-              ),
+              child: const Icon(Icons.arrow_back_rounded, color: primaria),
             ),
           ),
           const SizedBox(width: 15),
@@ -55,11 +48,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
               color: primaria.withOpacity(.12),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.pets_rounded,
-              color: primaria,
-              size: 30,
-            ),
+            child: const Icon(Icons.pets_rounded, color: primaria, size: 30),
           ),
           const SizedBox(width: 15),
           const Expanded(
@@ -68,10 +57,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
               children: [
                 Text(
                   'Detalhes do Cavalo',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -102,10 +88,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             texto,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -120,10 +103,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.03),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.03), blurRadius: 8),
         ],
       ),
       child: Row(
@@ -143,10 +123,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -227,89 +204,117 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
+            final campoData = InkWell(
+              onTap: () async {
+                final novaData = await showDatePicker(
+                  context: context,
+                  initialDate: data,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+
+                if (novaData != null) {
+                  setStateDialog(() {
+                    data = novaData;
+                  });
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 12,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.event, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Data: '
+                      '${data.day.toString().padLeft(2, '0')}/'
+                      '${data.month.toString().padLeft(2, '0')}/'
+                      '${data.year}',
+                    ),
+                  ],
+                ),
+              ),
+            );
+
             return AlertDialog(
               title: const Text('Nova Despesa'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<CategoriaDespesa>(
-                      value: categoria,
-                      decoration: const InputDecoration(
-                        labelText: 'Categoria',
-                      ),
-                      items: CategoriaDespesa.values
-                          .map(
-                            (c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(c.label),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (v) {
-                        setStateDialog(() {
-                          categoria = v ?? CategoriaDespesa.remedio;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: descricaoController,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: valorController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(
-                        labelText: 'Valor',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    InkWell(
-                      onTap: () async {
-                        final novaData = await showDatePicker(
-                          context: context,
-                          initialDate: data,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-
-                        if (novaData != null) {
-                          setStateDialog(() {
-                            data = novaData;
-                          });
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade400),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
+              content: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                ),
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    width: 560,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.event, size: 20),
-                            const SizedBox(width: 10),
-                            Text(
-                              'Data: '
-                              '${data.day.toString().padLeft(2, '0')}/'
-                              '${data.month.toString().padLeft(2, '0')}/'
-                              '${data.year}',
+                            Expanded(
+                              child: DropdownButtonFormField<CategoriaDespesa>(
+                                value: categoria,
+                                decoration: const InputDecoration(
+                                  labelText: 'Categoria',
+                                ),
+                                items: CategoriaDespesa.values
+                                    .map(
+                                      (c) => DropdownMenuItem(
+                                        value: c,
+                                        child: Text(c.label),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (v) {
+                                  setStateDialog(() {
+                                    categoria = v ?? CategoriaDespesa.remedio;
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: TextField(
+                                controller: valorController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                decoration: const InputDecoration(
+                                  labelText: 'Valor',
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: campoData),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: TextField(
+                                controller: descricaoController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Descrição',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
               actions: [
@@ -332,7 +337,8 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
       return;
     }
 
-    final valor = double.tryParse(
+    final valor =
+        double.tryParse(
           valorController.text.replaceAll('.', '').replaceAll(',', '.'),
         ) ??
         0;
@@ -350,15 +356,15 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Despesa adicionada')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Despesa adicionada')));
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
     }
   }
 
@@ -402,10 +408,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
             .map((doc) => DespesaCavaloModel.fromMap(doc.data(), doc.id))
             .toList();
 
-        final total = despesas.fold<double>(
-          0,
-          (soma, d) => soma + d.valor,
-        );
+        final total = despesas.fold<double>(0, (soma, d) => soma + d.valor);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,11 +427,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
                       color: primaria.withOpacity(.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: primaria,
-                      size: 20,
-                    ),
+                    child: const Icon(Icons.add, color: primaria, size: 20),
                   ),
                 ),
               ],
@@ -588,9 +587,7 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Center(
-                    child: Text('Cavalo não encontrado'),
-                  );
+                  return const Center(child: Text('Cavalo não encontrado'));
                 }
 
                 final cavalo = CavaloModel.fromMap(
@@ -601,234 +598,250 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Coluna esquerda: foto + card com nome/valor
-                      SizedBox(
-                        width: 360,
-                        child: Column(
-                          children: [
-                            if (cavalo.fotos.isNotEmpty)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.network(
-                                  cavalo.fotos.first,
-                                  height: 220,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            else
-                              Container(
-                                height: 180,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: primaria.withOpacity(.08),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Icon(
-                                  Icons.pets_rounded,
-                                  size: 60,
-                                  color: primaria.withOpacity(.4),
-                                ),
-                              ),
-
-                            const SizedBox(height: 20),
-
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF4F46E5),
-                                    Color(0xFF7C7AF0),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: primaria.withOpacity(.25),
-                                    blurRadius: 18,
-                                    offset: const Offset(0, 8),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1440),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Coluna esquerda: foto + card com nome/valor
+                          SizedBox(
+                            width: 360,
+                            child: Column(
+                              children: [
+                                if (cavalo.fotos.isNotEmpty)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Image.network(
+                                      cavalo.fotos.first,
+                                      height: 220,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                else
+                                  Container(
+                                    height: 180,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: primaria.withOpacity(.08),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Icon(
+                                      Icons.pets_rounded,
+                                      size: 60,
+                                      color: primaria.withOpacity(.4),
+                                    ),
                                   ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          cavalo.nome.isEmpty
-                                              ? 'Cavalo'
-                                              : cavalo.nome,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  CadastroCavaloPage(
-                                                cavaloParaEditar: cavalo,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.white.withOpacity(.20),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: const Icon(
-                                            Icons.edit_rounded,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
+
+                                const SizedBox(height: 20),
+
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF4F46E5),
+                                        Color(0xFF7C7AF0),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: primaria.withOpacity(.25),
+                                        blurRadius: 18,
+                                        offset: const Offset(0, 8),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    cavalo.raca.isEmpty
-                                        ? 'Raça não informada'
-                                        : cavalo.raca,
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Column(
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Total em despesas',
-                                        style: TextStyle(
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              cavalo.nome.isEmpty
+                                                  ? 'Cavalo'
+                                                  : cavalo.nome,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              openDesktopWindow(
+                                                context,
+                                                title: 'Editar cavalo',
+                                                icon: Icons.edit_rounded,
+                                                builder: (_) =>
+                                                    CadastroCavaloPage(
+                                                      cavaloParaEditar: cavalo,
+                                                    ),
+                                              );
+                                            },
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(
+                                                  .20,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: const Icon(
+                                                Icons.edit_rounded,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        cavalo.raca.isEmpty
+                                            ? 'Raça não informada'
+                                            : cavalo.raca,
+                                        style: const TextStyle(
                                           color: Colors.white70,
-                                          fontSize: 12,
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
-                                      StreamBuilder<
-                                          QuerySnapshot<
-                                              Map<String, dynamic>>>(
-                                        stream: _despesasRef().snapshots(),
-                                        builder: (context, despesasSnapshot) {
-                                          final total = (despesasSnapshot
-                                                      .data?.docs ??
-                                                  [])
-                                              .map(
-                                                (doc) =>
-                                                    DespesaCavaloModel.fromMap(
-                                                  doc.data(),
-                                                  doc.id,
-                                                ),
-                                              )
-                                              .fold<double>(
-                                                0,
-                                                (soma, d) => soma + d.valor,
-                                              );
-
-                                          return Text(
-                                            'R\$ ${total.toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
+                                      const SizedBox(height: 16),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Total em despesas',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 12,
                                             ),
-                                          );
-                                        },
+                                          ),
+                                          const SizedBox(height: 2),
+                                          StreamBuilder<
+                                            QuerySnapshot<Map<String, dynamic>>
+                                          >(
+                                            stream: _despesasRef().snapshots(),
+                                            builder: (context, despesasSnapshot) {
+                                              final total =
+                                                  (despesasSnapshot
+                                                              .data
+                                                              ?.docs ??
+                                                          [])
+                                                      .map(
+                                                        (doc) =>
+                                                            DespesaCavaloModel.fromMap(
+                                                              doc.data(),
+                                                              doc.id,
+                                                            ),
+                                                      )
+                                                      .fold<double>(
+                                                        0,
+                                                        (soma, d) =>
+                                                            soma + d.valor,
+                                                      );
+
+                                              return Text(
+                                                'R\$ ${total.toStringAsFixed(2)}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(width: 24),
+
+                          // Coluna direita: dados, proprietário, despesas
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _titulo(
+                                  'Dados do Animal',
+                                  Icons.info_outline_rounded,
+                                ),
+                                CamposGrid(
+                                  campos: [
+                                    _campo(
+                                      'Raça',
+                                      cavalo.raca,
+                                      Icons.category_outlined,
+                                    ),
+                                    _campo('Sexo', cavalo.sexo, Icons.male),
+                                    _campo(
+                                      'Pelagem',
+                                      cavalo.pelagem,
+                                      Icons.palette_outlined,
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 15),
+
+                                _titulo(
+                                  'Proprietário',
+                                  Icons.person_outline_rounded,
+                                ),
+                                _campo(
+                                  'Nome',
+                                  cavalo.proprietarioNome,
+                                  Icons.person_rounded,
+                                ),
+
+                                if (cavalo.observacoes.isNotEmpty) ...[
+                                  const SizedBox(height: 15),
+                                  _titulo('Observações', Icons.notes_rounded),
+                                  _campo(
+                                    'Notas',
+                                    cavalo.observacoes,
+                                    Icons.notes_rounded,
+                                  ),
                                 ],
-                              ),
+
+                                const SizedBox(height: 15),
+
+                                _campo(
+                                  'Status',
+                                  cavalo.ativo ? 'Ativo' : 'Inativo',
+                                  cavalo.ativo
+                                      ? Icons.check_circle_outline
+                                      : Icons.cancel_outlined,
+                                ),
+
+                                const SizedBox(height: 15),
+
+                                _despesasSection(context),
+
+                                const SizedBox(height: 30),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-
-                      const SizedBox(width: 24),
-
-                      // Coluna direita: dados, proprietário, despesas
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _titulo(
-                              'Dados do Animal',
-                              Icons.info_outline_rounded,
-                            ),
-                            _campo(
-                              'Raça',
-                              cavalo.raca,
-                              Icons.category_outlined,
-                            ),
-                            _campo('Sexo', cavalo.sexo, Icons.male),
-                            _campo(
-                              'Pelagem',
-                              cavalo.pelagem,
-                              Icons.palette_outlined,
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            _titulo(
-                              'Proprietário',
-                              Icons.person_outline_rounded,
-                            ),
-                            _campo(
-                              'Nome',
-                              cavalo.proprietarioNome,
-                              Icons.person_rounded,
-                            ),
-
-                            if (cavalo.observacoes.isNotEmpty) ...[
-                              const SizedBox(height: 15),
-                              _titulo('Observações', Icons.notes_rounded),
-                              _campo(
-                                'Notas',
-                                cavalo.observacoes,
-                                Icons.notes_rounded,
-                              ),
-                            ],
-
-                            const SizedBox(height: 15),
-
-                            _campo(
-                              'Status',
-                              cavalo.ativo ? 'Ativo' : 'Inativo',
-                              cavalo.ativo
-                                  ? Icons.check_circle_outline
-                                  : Icons.cancel_outlined,
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            _despesasSection(context),
-
-                            const SizedBox(height: 30),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 );
               },

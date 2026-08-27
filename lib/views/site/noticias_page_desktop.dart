@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../models/noticia_model.dart';
 import '../../services/cloudflare_r2_service.dart';
 import '../home/admin_top_bar.dart';
+import '../../widgets/site_admin_header.dart';
 
 class NoticiasPageDesktop extends StatefulWidget {
   const NoticiasPageDesktop({super.key});
@@ -25,12 +26,15 @@ class _NoticiasPageDesktopState extends State<NoticiasPageDesktop> {
   static const Color corBorda = Color(0xFFE5E7EB);
 
   Future<void> _abrirFormulario({NoticiaModel? noticiaParaEditar}) async {
-    final tituloController =
-        TextEditingController(text: noticiaParaEditar?.titulo ?? '');
-    final linkController =
-        TextEditingController(text: noticiaParaEditar?.link ?? '');
-    final descricaoController =
-        TextEditingController(text: noticiaParaEditar?.descricao ?? '');
+    final tituloController = TextEditingController(
+      text: noticiaParaEditar?.titulo ?? '',
+    );
+    final linkController = TextEditingController(
+      text: noticiaParaEditar?.link ?? '',
+    );
+    final descricaoController = TextEditingController(
+      text: noticiaParaEditar?.descricao ?? '',
+    );
 
     PlatformFile? arquivoSelecionado;
     String? imagemAtualUrl = noticiaParaEditar?.imagemUrl;
@@ -45,103 +49,124 @@ class _NoticiasPageDesktopState extends State<NoticiasPageDesktop> {
               title: Text(
                 noticiaParaEditar == null ? 'Nova Notícia' : 'Editar Notícia',
               ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        final resultado = await FilePicker.platform.pickFiles(
-                          type: FileType.image,
-                          withData: true,
-                        );
+              content: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                ),
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    width: 640,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: InkWell(
+                            onTap: () async {
+                              final resultado = await FilePicker.platform
+                                  .pickFiles(
+                                    type: FileType.image,
+                                    withData: true,
+                                  );
 
-                        if (resultado != null && resultado.files.isNotEmpty) {
-                          setStateDialog(() {
-                            arquivoSelecionado = resultado.files.first;
-                          });
-                        }
-                      },
-                      child: Container(
-                        height: 140,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: primaria.withOpacity(.06),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: corBorda),
-                        ),
-                        child: arquivoSelecionado?.bytes != null
-                            ? ClipRRect(
+                              if (resultado != null &&
+                                  resultado.files.isNotEmpty) {
+                                setStateDialog(() {
+                                  arquivoSelecionado = resultado.files.first;
+                                });
+                              }
+                            },
+                            child: Container(
+                              height: 220,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: primaria.withOpacity(.06),
                                 borderRadius: BorderRadius.circular(12),
-                                child: Image.memory(
-                                  arquivoSelecionado!.bytes!,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-                              )
-                            : (imagemAtualUrl != null &&
-                                    imagemAtualUrl!.isNotEmpty)
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
-                                      imagemAtualUrl!,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                    ),
-                                  )
-                                : Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add_photo_alternate_outlined,
-                                        color: primaria,
-                                        size: 32,
+                                border: Border.all(color: corBorda),
+                              ),
+                              child: arquivoSelecionado?.bytes != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.memory(
+                                        arquivoSelecionado!.bytes!,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
                                       ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        'Toque para escolher o banner',
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 12,
+                                    )
+                                  : (imagemAtualUrl != null &&
+                                        imagemAtualUrl!.isNotEmpty)
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.network(
+                                        imagemAtualUrl!,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    )
+                                  : Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          color: primaria,
+                                          size: 32,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                      ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          'Toque para escolher o banner',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller: tituloController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Título',
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: linkController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Link (opcional)',
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: descricaoController,
+                                maxLines: 4,
+                                decoration: const InputDecoration(
+                                  labelText: 'Descrição (opcional)',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: tituloController,
-                      decoration: const InputDecoration(
-                        labelText: 'Título',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: linkController,
-                      decoration: const InputDecoration(
-                        labelText: 'Link (opcional)',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: descricaoController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição (opcional)',
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
               actions: [
                 TextButton(
-                  onPressed:
-                      enviando ? null : () => Navigator.pop(context),
+                  onPressed: enviando ? null : () => Navigator.pop(context),
                   child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
@@ -178,8 +203,8 @@ class _NoticiasPageDesktopState extends State<NoticiasPageDesktop> {
                               imagemUrl: urlFinal,
                               link: linkController.text.trim(),
                               descricao: descricaoController.text.trim(),
-                              dataPublicacao: noticiaParaEditar
-                                      ?.dataPublicacao ??
+                              dataPublicacao:
+                                  noticiaParaEditar?.dataPublicacao ??
                                   Timestamp.now(),
                             );
 
@@ -278,140 +303,145 @@ class _NoticiasPageDesktopState extends State<NoticiasPageDesktop> {
       body: Column(
         children: [
           const AdminTopBar(),
-          Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            color: Colors.white,
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              'Notícias (site)',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+          const SiteAdminHeader(
+            title: 'Notícias',
+            subtitle: 'Publique novidades e mantenha seu público informado',
+            icon: Icons.newspaper_rounded,
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('noticias')
-            .orderBy('dataPublicacao', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              stream: FirebaseFirestore.instance
+                  .collection('noticias')
+                  .orderBy('dataPublicacao', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Erro: ${snapshot.error}'));
-          }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Erro: ${snapshot.error}'));
+                }
 
-          final noticias = (snapshot.data?.docs ?? [])
-              .map((doc) => NoticiaModel.fromMap(doc.data(), doc.id))
-              .toList();
+                final noticias = (snapshot.data?.docs ?? [])
+                    .map((doc) => NoticiaModel.fromMap(doc.data(), doc.id))
+                    .toList();
 
-          if (noticias.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.campaign_outlined,
-                    size: 50,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Nenhuma notícia publicada ainda',
-                    style: TextStyle(color: corTextoSecundario),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-            itemCount: noticias.length,
-            itemBuilder: (context, index) {
-              final noticia = noticias[index];
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: corBorda),
-                ),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.horizontal(
-                        left: Radius.circular(16),
-                      ),
-                      child: noticia.imagemUrl.isNotEmpty
-                          ? Image.network(
-                              noticia.imagemUrl,
-                              width: 100,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: 100,
-                              height: 80,
-                              color: primaria.withOpacity(.08),
-                              child: Icon(
-                                Icons.image_outlined,
-                                color: primaria.withOpacity(.4),
-                              ),
-                            ),
+                if (noticias.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.campaign_outlined,
+                          size: 50,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Nenhuma notícia publicada ainda',
+                          style: TextStyle(color: corTextoSecundario),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            noticia.titulo.isEmpty
-                                ? 'Sem título'
-                                : noticia.titulo,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: corTextoPrimario,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 96),
+                  itemCount: noticias.length,
+                  itemBuilder: (context, index) {
+                    final noticia = noticias[index];
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: corBorda),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x100F172A),
+                            blurRadius: 14,
+                            offset: Offset(0, 5),
                           ),
-                          if (noticia.descricao.isNotEmpty)
-                            Text(
-                              noticia.descricao,
-                              style: const TextStyle(
-                                color: corTextoSecundario,
-                                fontSize: 12.5,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
                         ],
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined, color: primaria),
-                      onPressed: () =>
-                          _abrirFormulario(noticiaParaEditar: noticia),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.redAccent,
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.horizontal(
+                              left: Radius.circular(16),
+                            ),
+                            child: noticia.imagemUrl.isNotEmpty
+                                ? Image.network(
+                                    noticia.imagemUrl,
+                                    width: 140,
+                                    height: 96,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    width: 140,
+                                    height: 96,
+                                    color: primaria.withOpacity(.08),
+                                    child: Icon(
+                                      Icons.image_outlined,
+                                      color: primaria.withOpacity(.4),
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  noticia.titulo.isEmpty
+                                      ? 'Sem título'
+                                      : noticia.titulo,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: corTextoPrimario,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (noticia.descricao.isNotEmpty)
+                                  Text(
+                                    noticia.descricao,
+                                    style: const TextStyle(
+                                      color: corTextoSecundario,
+                                      fontSize: 12.5,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: primaria,
+                            ),
+                            onPressed: () =>
+                                _abrirFormulario(noticiaParaEditar: noticia),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                            ),
+                            onPressed: () => _excluir(noticia),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                       ),
-                      onPressed: () => _excluir(noticia),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

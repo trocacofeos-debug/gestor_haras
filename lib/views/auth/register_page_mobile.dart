@@ -8,27 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class RegisterPageMobile extends StatefulWidget {
-  const RegisterPageMobile({
-    super.key,
-  });
+  const RegisterPageMobile({super.key});
 
   @override
-  State<RegisterPageMobile> createState() =>
-      _RegisterPageMobileState();
+  State<RegisterPageMobile> createState() => _RegisterPageMobileState();
 }
 
-class _RegisterPageMobileState
-    extends State<RegisterPageMobile>
+class _RegisterPageMobileState extends State<RegisterPageMobile>
     with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
 
-  final _formKey =
-      GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final FirebaseAuth _auth =
-      FirebaseAuth.instance;
-
-  final FirebaseFirestore _db =
-      FirebaseFirestore.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   late TabController _tabController;
 
@@ -36,87 +28,61 @@ class _RegisterPageMobileState
 
   bool ocultarSenha = true;
 
-  final Color primaria =
-      const Color(0xFF37474F);
+  final Color primaria = const Color(0xFF37474F);
 
-  final Color fundo =
-      const Color(0xFFF1F3F5);
+  final Color fundo = const Color(0xFFF1F3F5);
 
   // =================================
   // CONTROLLERS
   // =================================
 
-  final nomeController =
-      TextEditingController();
+  final nomeController = TextEditingController();
 
-  final sobrenomeController =
-      TextEditingController();
+  final sobrenomeController = TextEditingController();
 
-  final razaoSocialController =
-      TextEditingController();
+  final razaoSocialController = TextEditingController();
 
-  final nomeFantasiaController =
-      TextEditingController();
+  final nomeFantasiaController = TextEditingController();
 
-  final cpfCnpjController =
-      TextEditingController();
+  final cpfCnpjController = TextEditingController();
 
-  final telefoneController =
-      TextEditingController();
+  final telefoneController = TextEditingController();
 
-  final emailController =
-      TextEditingController();
+  final emailController = TextEditingController();
 
-  final senhaController =
-      TextEditingController();
+  final senhaController = TextEditingController();
 
-  final cepController =
-      TextEditingController();
+  final cepController = TextEditingController();
 
-  final enderecoController =
-      TextEditingController();
+  final enderecoController = TextEditingController();
 
-  final numeroController =
-      TextEditingController();
+  final numeroController = TextEditingController();
 
-  final bairroController =
-      TextEditingController();
+  final bairroController = TextEditingController();
 
-  final cidadeController =
-      TextEditingController();
+  final cidadeController = TextEditingController();
 
-  final estadoController =
-      TextEditingController();
+  final estadoController = TextEditingController();
 
-  final nomeHarasController =
-      TextEditingController();
+  final nomeHarasController = TextEditingController();
 
-  final idRuralController =
-      TextEditingController();
+  final idRuralController = TextEditingController();
 
-  final enderecoHarasController =
-      TextEditingController();
+  final enderecoHarasController = TextEditingController();
 
-  final cidadeHarasController =
-      TextEditingController();
+  final cidadeHarasController = TextEditingController();
 
-  final estadoHarasController =
-      TextEditingController();
+  final estadoHarasController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    _tabController =
-        TabController(
-      length: 2,
-      vsync: this,
-    );
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
-
     nomeController.dispose();
     sobrenomeController.dispose();
 
@@ -150,15 +116,12 @@ class _RegisterPageMobileState
     super.dispose();
   }
 
-    // =================================
+  // =================================
   // BUSCAR CEP
   // =================================
 
   Future<void> buscarCep(String cep) async {
-    cep = cep.replaceAll(
-      RegExp(r'[^0-9]'),
-      '',
-    );
+    cep = cep.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (cep.length != 8) {
       return;
@@ -166,34 +129,27 @@ class _RegisterPageMobileState
 
     try {
       final response = await http.get(
-        Uri.parse(
-          'https://viacep.com.br/ws/$cep/json/',
-        ),
+        Uri.parse('https://viacep.com.br/ws/$cep/json/'),
       );
 
       if (response.statusCode != 200) {
         return;
       }
 
-      final data =
-          jsonDecode(response.body);
+      final data = jsonDecode(response.body);
 
       if (data['erro'] == true) {
         return;
       }
 
       setState(() {
-        enderecoController.text =
-            data['logradouro'] ?? '';
+        enderecoController.text = data['logradouro'] ?? '';
 
-        bairroController.text =
-            data['bairro'] ?? '';
+        bairroController.text = data['bairro'] ?? '';
 
-        cidadeController.text =
-            data['localidade'] ?? '';
+        cidadeController.text = data['localidade'] ?? '';
 
-        estadoController.text =
-            data['uf'] ?? '';
+        estadoController.text = data['uf'] ?? '';
       });
     } catch (_) {}
   }
@@ -203,8 +159,7 @@ class _RegisterPageMobileState
   // =================================
 
   Future<void> register() async {
-    if (!_formKey.currentState!
-        .validate()) {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -213,197 +168,130 @@ class _RegisterPageMobileState
     });
 
     try {
-      final bool pessoaFisica =
-          _tabController.index == 0;
+      final bool pessoaFisica = _tabController.index == 0;
 
-      final userCred =
-          await _auth
-              .createUserWithEmailAndPassword(
-        email:
-            emailController.text.trim(),
-        password:
-            senhaController.text.trim(),
+      final userCred = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: senhaController.text.trim(),
       );
 
-      final uid =
-          userCred.user!.uid;
+      final uid = userCred.user!.uid;
 
-      final tipoCliente =
-          pessoaFisica
-              ? 'fisica'
-              : 'juridica';
+      final tipoCliente = pessoaFisica ? 'fisica' : 'juridica';
 
-      await _db
-          .collection('users')
-          .doc(uid)
-          .set({
+      await _db.collection('users').doc(uid).set({
         'uid': uid,
 
-        'email':
-            emailController.text.trim(),
+        'email': emailController.text.trim(),
 
         'role': 'cliente',
 
-        'tipoCliente':
-            tipoCliente,
+        'tipoCliente': tipoCliente,
 
         'ativo': true,
 
-        'createdAt':
-            FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
-      await _db
-          .collection('clientes')
-          .doc(uid)
-          .set({
+      await _db.collection('clientes').doc(uid).set({
         'id': uid,
 
-        'tipoCliente':
-            tipoCliente,
+        'tipoCliente': tipoCliente,
 
         // =====================
         // PESSOA FÍSICA
         // =====================
+        'nome': nomeController.text.trim(),
 
-        'nome':
-            nomeController.text.trim(),
-
-        'sobrenome':
-            sobrenomeController.text.trim(),
+        'sobrenome': sobrenomeController.text.trim(),
 
         // =====================
         // EMPRESA / HARAS
         // =====================
+        'razaoSocial': razaoSocialController.text.trim(),
 
-        'razaoSocial':
-            razaoSocialController.text.trim(),
-
-        'nomeFantasia':
-            nomeFantasiaController.text.trim(),
+        'nomeFantasia': nomeFantasiaController.text.trim(),
 
         // =====================
         // DADOS GERAIS
         // =====================
+        'cpfCnpj': cpfCnpjController.text.trim(),
 
-        'cpfCnpj':
-            cpfCnpjController.text.trim(),
+        'telefone': telefoneController.text.trim(),
 
-        'telefone':
-            telefoneController.text.trim(),
-
-        'email':
-            emailController.text.trim(),
+        'email': emailController.text.trim(),
 
         // =====================
         // ENDEREÇO
         // =====================
+        'cep': cepController.text.trim(),
 
-        'cep':
-            cepController.text.trim(),
+        'endereco': enderecoController.text.trim(),
 
-        'endereco':
-            enderecoController.text.trim(),
+        'numero': numeroController.text.trim(),
 
-        'numero':
-            numeroController.text.trim(),
+        'bairro': bairroController.text.trim(),
 
-        'bairro':
-            bairroController.text.trim(),
+        'cidade': cidadeController.text.trim(),
 
-        'cidade':
-            cidadeController.text.trim(),
-
-        'estado':
-            estadoController.text.trim(),
+        'estado': estadoController.text.trim(),
 
         // =====================
         // HARAS
         // =====================
+        'nomeHaras': nomeHarasController.text.trim(),
 
-        'nomeHaras':
-            nomeHarasController.text.trim(),
+        'idRural': idRuralController.text.trim(),
 
-        'idRural':
-            idRuralController.text.trim(),
+        'enderecoHaras': enderecoHarasController.text.trim(),
 
-        'enderecoHaras':
-            enderecoHarasController.text.trim(),
+        'cidadeHaras': cidadeHarasController.text.trim(),
 
-        'cidadeHaras':
-            cidadeHarasController.text.trim(),
-
-        'estadoHaras':
-            estadoHarasController.text.trim(),
+        'estadoHaras': estadoHarasController.text.trim(),
 
         // =====================
         // SISTEMA
         // =====================
-
         'ativo': true,
 
-        'dataCadastro':
-            FieldValue.serverTimestamp(),
+        'dataCadastro': FieldValue.serverTimestamp(),
       });
 
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Cadastro realizado com sucesso!',
-          ),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
       );
 
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      String erro =
-          'Erro ao criar conta';
+      String erro = 'Erro ao criar conta';
 
       switch (e.code) {
         case 'email-already-in-use':
-          erro =
-              'Este email já está cadastrado';
+          erro = 'Este email já está cadastrado';
           break;
 
         case 'invalid-email':
-          erro =
-              'Email inválido';
+          erro = 'Email inválido';
           break;
 
         case 'weak-password':
-          erro =
-              'Senha muito fraca';
+          erro = 'Senha muito fraca';
           break;
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-          SnackBar(
-            backgroundColor:
-                Colors.red,
-            content:
-                Text(erro),
-          ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text(erro)),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-          SnackBar(
-            backgroundColor:
-                Colors.red,
-            content:
-                Text(
-              'Erro: $e',
-            ),
-          ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(backgroundColor: Colors.red, content: Text('Erro: $e')),
         );
       }
     }
@@ -415,64 +303,37 @@ class _RegisterPageMobileState
     }
   }
 
-    // =================================
+  // =================================
   // DECORAÇÃO DOS CAMPOS
   // =================================
 
-  InputDecoration _campo(
-    String titulo, {
-    IconData? icon,
-    Widget? suffix,
-  }) {
+  InputDecoration _campo(String titulo, {IconData? icon, Widget? suffix}) {
     return InputDecoration(
       labelText: titulo,
 
-      prefixIcon: icon != null
-          ? Icon(
-              icon,
-              color: primaria,
-            )
-          : null,
+      prefixIcon: icon != null ? Icon(icon, color: primaria) : null,
 
       suffixIcon: suffix,
 
       filled: true,
 
-      fillColor:
-          const Color(0xFFF5F5F5),
+      fillColor: const Color(0xFFF5F5F5),
 
-      border: OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(16),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
 
-      enabledBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(16),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
 
-        borderSide: BorderSide(
-          color:
-              Colors.grey.shade300,
-        ),
+        borderSide: BorderSide(color: primaria, width: 2),
       ),
 
-      focusedBorder:
-          OutlineInputBorder(
-        borderRadius:
-            BorderRadius.circular(16),
-
-        borderSide: BorderSide(
-          color: primaria,
-          width: 2,
-        ),
-      ),
-
-      contentPadding:
-          const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 18,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
     );
   }
 
@@ -488,25 +349,17 @@ class _RegisterPageMobileState
     TextInputType? keyboardType,
   }) {
     return Padding(
-      padding:
-          const EdgeInsets.only(
-        bottom: 15,
-      ),
+      padding: const EdgeInsets.only(bottom: 15),
       child: TextFormField(
         controller: controller,
 
-        keyboardType:
-            keyboardType,
+        keyboardType: keyboardType,
 
-        obscureText:
-            password
-                ? ocultarSenha
-                : false,
+        obscureText: password ? ocultarSenha : false,
 
         validator: required
             ? (value) {
-                if (value == null ||
-                    value.trim().isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return "Campo obrigatório";
                 }
                 return null;
@@ -520,15 +373,12 @@ class _RegisterPageMobileState
           suffix: password
               ? IconButton(
                   icon: Icon(
-                    ocultarSenha
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                    ocultarSenha ? Icons.visibility_off : Icons.visibility,
                     color: primaria,
                   ),
                   onPressed: () {
                     setState(() {
-                      ocultarSenha =
-                          !ocultarSenha;
+                      ocultarSenha = !ocultarSenha;
                     });
                   },
                 )
@@ -544,24 +394,15 @@ class _RegisterPageMobileState
 
   Widget cepField() {
     return Padding(
-      padding:
-          const EdgeInsets.only(
-        bottom: 15,
-      ),
+      padding: const EdgeInsets.only(bottom: 15),
       child: TextFormField(
-        controller:
-            cepController,
+        controller: cepController,
 
-        keyboardType:
-            TextInputType.number,
+        keyboardType: TextInputType.number,
 
         onChanged: buscarCep,
 
-        decoration: _campo(
-          "CEP",
-          icon:
-              Icons.location_on_outlined,
-        ),
+        decoration: _campo("CEP", icon: Icons.location_on_outlined),
       ),
     );
   }
@@ -570,11 +411,8 @@ class _RegisterPageMobileState
   // ÍCONES AUTOMÁTICOS
   // =================================
 
-  IconData _iconeCampo(
-    String label,
-  ) {
-    final texto =
-        label.toLowerCase();
+  IconData _iconeCampo(String label) {
+    final texto = label.toLowerCase();
 
     if (texto.contains("nome")) {
       return Icons.person_outline;
@@ -624,28 +462,21 @@ class _RegisterPageMobileState
       width: 90,
       height: 90,
 
-      padding:
-          const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
 
       decoration: BoxDecoration(
-        color:
-            primaria.withOpacity(.10),
+        color: primaria.withOpacity(.10),
 
         shape: BoxShape.circle,
       ),
 
       child: Image.asset(
-        "assets/images/logo.png",
+        "assets/images/logo-prat.png",
 
         fit: BoxFit.contain,
 
-        errorBuilder:
-            (_, __, ___) {
-          return Icon(
-            Icons.home_work_outlined,
-            size: 45,
-            color: primaria,
-          );
+        errorBuilder: (_, __, ___) {
+          return Icon(Icons.home_work_outlined, size: 45, color: primaria);
         },
       ),
     );
@@ -663,22 +494,15 @@ class _RegisterPageMobileState
           style: TextStyle(
             color: primaria,
             fontSize: 28,
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
           ),
         ),
 
-        const SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
 
         Text(
           "Cadastro de Cliente",
-          style: TextStyle(
-            color:
-                Colors.grey.shade600,
-            fontSize: 15,
-          ),
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
         ),
       ],
     );
@@ -688,56 +512,39 @@ class _RegisterPageMobileState
   // CARD CORPORATIVO
   // =================================
 
-  Widget card(
-    List<Widget> children,
-  ) {
+  Widget card(List<Widget> children) {
     return SingleChildScrollView(
-      padding:
-          const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
 
       child: Center(
         child: Container(
-          constraints:
-              const BoxConstraints(
-            maxWidth: 700,
-          ),
+          constraints: const BoxConstraints(maxWidth: 700),
 
-          padding:
-              const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(28),
 
           decoration: BoxDecoration(
             color: Colors.white,
 
-            borderRadius:
-                BorderRadius.circular(
-              28,
-            ),
+            borderRadius: BorderRadius.circular(28),
 
             boxShadow: [
               BoxShadow(
-                color: Colors.black
-                    .withOpacity(.08),
+                color: Colors.black.withOpacity(.08),
 
                 blurRadius: 25,
 
-                offset:
-                    const Offset(
-                  0,
-                  10,
-                ),
+                offset: const Offset(0, 10),
               ),
             ],
           ),
 
-          child: Column(
-            children: children,
-          ),
+          child: Column(children: children),
         ),
       ),
     );
   }
 
-    // =================================
+  // =================================
   // PESSOA FÍSICA
   // =================================
 
@@ -745,99 +552,58 @@ class _RegisterPageMobileState
     return card([
       _logo(),
 
-      const SizedBox(
-        height: 20,
-      ),
+      const SizedBox(height: 20),
 
       _titulo(),
 
-      const SizedBox(
-        height: 30,
-      ),
+      const SizedBox(height: 30),
 
-      field(
-        "Nome",
-        nomeController,
-        required: true,
-      ),
+      field("Nome", nomeController, required: true),
 
-      field(
-        "Sobrenome",
-        sobrenomeController,
-        required: true,
-      ),
+      field("Sobrenome", sobrenomeController, required: true),
 
       field(
         "CPF",
         cpfCnpjController,
         required: true,
-        keyboardType:
-            TextInputType.number,
+        keyboardType: TextInputType.number,
       ),
 
       field(
         "Telefone",
         telefoneController,
         required: true,
-        keyboardType:
-            TextInputType.phone,
+        keyboardType: TextInputType.phone,
       ),
 
       field(
         "Email",
         emailController,
         required: true,
-        keyboardType:
-            TextInputType.emailAddress,
+        keyboardType: TextInputType.emailAddress,
       ),
 
-      field(
-        "Senha",
-        senhaController,
-        required: true,
-        password: true,
-      ),
+      field("Senha", senhaController, required: true, password: true),
 
-      const SizedBox(
-        height: 10,
-      ),
+      const SizedBox(height: 10),
 
       const Divider(),
 
-      const SizedBox(
-        height: 15,
-      ),
+      const SizedBox(height: 15),
 
       cepField(),
 
-      field(
-        "Endereço",
-        enderecoController,
-      ),
+      field("Endereço", enderecoController),
 
-      field(
-        "Número",
-        numeroController,
-      ),
+      field("Número", numeroController),
 
-      field(
-        "Bairro",
-        bairroController,
-      ),
+      field("Bairro", bairroController),
 
-      field(
-        "Cidade",
-        cidadeController,
-      ),
+      field("Cidade", cidadeController),
 
-      field(
-        "Estado",
-        estadoController,
-      ),
+      field("Estado", estadoController),
 
-      const SizedBox(
-        height: 80,
-      ),
+      const SizedBox(height: 80),
     ]);
   }
 
@@ -849,193 +615,120 @@ class _RegisterPageMobileState
     return card([
       _logo(),
 
-      const SizedBox(
-        height: 20,
-      ),
+      const SizedBox(height: 20),
 
       _titulo(),
 
-      const SizedBox(
-        height: 30,
-      ),
+      const SizedBox(height: 30),
 
       Align(
-        alignment:
-            Alignment.centerLeft,
+        alignment: Alignment.centerLeft,
         child: Text(
           "Dados da Empresa",
           style: TextStyle(
             color: primaria,
             fontSize: 18,
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
 
-      const SizedBox(
-        height: 15,
-      ),
+      const SizedBox(height: 15),
 
-      field(
-        "Razão Social",
-        razaoSocialController,
-        required: true,
-      ),
+      field("Razão Social", razaoSocialController, required: true),
 
-      field(
-        "Nome Fantasia",
-        nomeFantasiaController,
-      ),
+      field("Nome Fantasia", nomeFantasiaController),
 
       field(
         "CNPJ",
         cpfCnpjController,
         required: true,
-        keyboardType:
-            TextInputType.number,
+        keyboardType: TextInputType.number,
       ),
 
       field(
         "Telefone",
         telefoneController,
         required: true,
-        keyboardType:
-            TextInputType.phone,
+        keyboardType: TextInputType.phone,
       ),
 
       field(
         "Email",
         emailController,
         required: true,
-        keyboardType:
-            TextInputType.emailAddress,
+        keyboardType: TextInputType.emailAddress,
       ),
 
-      field(
-        "Senha",
-        senhaController,
-        required: true,
-        password: true,
-      ),
+      field("Senha", senhaController, required: true, password: true),
 
-      const SizedBox(
-        height: 10,
-      ),
+      const SizedBox(height: 10),
 
       const Divider(),
 
-      const SizedBox(
-        height: 15,
-      ),
+      const SizedBox(height: 15),
 
       Align(
-        alignment:
-            Alignment.centerLeft,
+        alignment: Alignment.centerLeft,
         child: Text(
           "Endereço da Empresa",
           style: TextStyle(
             color: primaria,
             fontSize: 18,
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
 
-      const SizedBox(
-        height: 15,
-      ),
+      const SizedBox(height: 15),
 
       cepField(),
 
-      field(
-        "Endereço",
-        enderecoController,
-      ),
+      field("Endereço", enderecoController),
 
-      field(
-        "Número",
-        numeroController,
-      ),
+      field("Número", numeroController),
 
-      field(
-        "Bairro",
-        bairroController,
-      ),
+      field("Bairro", bairroController),
 
-      field(
-        "Cidade",
-        cidadeController,
-      ),
+      field("Cidade", cidadeController),
 
-      field(
-        "Estado",
-        estadoController,
-      ),
+      field("Estado", estadoController),
 
-      const SizedBox(
-        height: 20,
-      ),
+      const SizedBox(height: 20),
 
       const Divider(),
 
-      const SizedBox(
-        height: 15,
-      ),
+      const SizedBox(height: 15),
 
       Align(
-        alignment:
-            Alignment.centerLeft,
+        alignment: Alignment.centerLeft,
         child: Text(
           "Dados do Haras",
           style: TextStyle(
             color: primaria,
             fontSize: 18,
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
 
-      const SizedBox(
-        height: 15,
-      ),
+      const SizedBox(height: 15),
 
-      field(
-        "Nome do Haras",
-        nomeHarasController,
-        required: true,
-      ),
+      field("Nome do Haras", nomeHarasController, required: true),
 
-      field(
-        "ID Rural",
-        idRuralController,
-        required: true,
-      ),
+      field("ID Rural", idRuralController, required: true),
 
-      field(
-        "Endereço do Haras",
-        enderecoHarasController,
-      ),
+      field("Endereço do Haras", enderecoHarasController),
 
-      field(
-        "Cidade do Haras",
-        cidadeHarasController,
-      ),
+      field("Cidade do Haras", cidadeHarasController),
 
-      field(
-        "Estado do Haras",
-        estadoHarasController,
-      ),
+      field("Estado do Haras", estadoHarasController),
 
-      const SizedBox(
-        height: 80,
-      ),
+      const SizedBox(height: 80),
     ]);
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: fundo,
@@ -1047,10 +740,7 @@ class _RegisterPageMobileState
         centerTitle: true,
 
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: primaria,
-          ),
+          icon: Icon(Icons.arrow_back_ios_new, color: primaria),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -1066,58 +756,36 @@ class _RegisterPageMobileState
         ),
 
         bottom: PreferredSize(
-          preferredSize:
-              const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(60),
 
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
             child: Container(
               decoration: BoxDecoration(
-                color:
-                    Colors.grey.shade200,
+                color: Colors.grey.shade200,
 
-                borderRadius:
-                    BorderRadius.circular(
-                  15,
-                ),
+                borderRadius: BorderRadius.circular(15),
               ),
 
               child: TabBar(
-                controller:
-                    _tabController,
+                controller: _tabController,
 
-                dividerColor:
-                    Colors.transparent,
+                dividerColor: Colors.transparent,
 
                 indicator: BoxDecoration(
                   color: primaria,
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    15,
-                  ),
+                  borderRadius: BorderRadius.circular(15),
                 ),
 
-                labelColor:
-                    Colors.white,
+                labelColor: Colors.white,
 
-                unselectedLabelColor:
-                    Colors.grey.shade700,
+                unselectedLabelColor: Colors.grey.shade700,
 
                 tabs: const [
-                  Tab(
-                    text:
-                        "Pessoa Física",
-                  ),
-                  Tab(
-                    text:
-                        "Haras / Empresa",
-                  ),
+                  Tab(text: "Pessoa Física"),
+                  Tab(text: "Haras / Empresa"),
                 ],
               ),
             ),
@@ -1129,82 +797,54 @@ class _RegisterPageMobileState
         key: _formKey,
 
         child: TabBarView(
-          controller:
-              _tabController,
+          controller: _tabController,
 
-          children: [
-            fisica(),
-            juridicaRural(),
-          ],
+          children: [fisica(), juridicaRural()],
         ),
       ),
 
-      floatingActionButton:
-          Container(
+      floatingActionButton: Container(
         decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.circular(
-            18,
-          ),
+          borderRadius: BorderRadius.circular(18),
 
           boxShadow: [
             BoxShadow(
-              color:
-                  primaria.withOpacity(
-                .25,
-              ),
+              color: primaria.withOpacity(.25),
 
               blurRadius: 15,
 
-              offset:
-                  const Offset(
-                0,
-                6,
-              ),
+              offset: const Offset(0, 6),
             ),
           ],
         ),
 
-        child:
-            FloatingActionButton.extended(
-          heroTag:
-              "btnCadastrar",
+        child: FloatingActionButton.extended(
+          heroTag: "btnCadastrar",
 
-          backgroundColor:
-              primaria,
+          backgroundColor: primaria,
 
-          foregroundColor:
-              Colors.white,
+          foregroundColor: Colors.white,
 
           elevation: 0,
 
-          onPressed:
-              loading
-                  ? null
-                  : register,
+          onPressed: loading ? null : register,
 
           icon: loading
               ? const SizedBox(
                   height: 22,
                   width: 22,
-                  child:
-                      CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: Colors.white,
                   ),
                 )
-              : const Icon(
-                  Icons.person_add_alt_1,
-                ),
+              : const Icon(Icons.person_add_alt_1),
 
           label: Text(
-            loading
-                ? "CADASTRANDO..."
-                : "CRIAR CONTA",
+            loading ? "CADASTRANDO..." : "CRIAR CONTA",
 
             style: const TextStyle(
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
 
               letterSpacing: 1.2,
             ),

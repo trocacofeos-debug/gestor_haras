@@ -266,7 +266,7 @@ class _AprovarPropostaPageDesktopState
     try{
 
 
-      await service.liberarContrato(
+      await service.gerarContrato(
         proposta!.id,
       );
 
@@ -577,30 +577,6 @@ class _AprovarPropostaPageDesktopState
                   ),
 
                   const SizedBox(height: 20),
-
-                  const Text(
-                    "Documentos enviados",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  documento("RG ou CNH", p.rgUrl, Icons.badge),
-
-                  documento(
-                    "Comprovante residência",
-                    p.comprovanteUrl,
-                    Icons.home,
-                  ),
-
-                  documento(
-                    "Selfie com documento",
-                    p.selfieDocumentoUrl,
-                    Icons.camera_alt,
-                  ),
 
                 ],
               ),

@@ -122,10 +122,10 @@ dependencies:
 
 
   # ==========================
-  # ASSINATURA DIGITAL
+  # ASSINATURA DIGITAL (CLICKSIGN)
   # ==========================
 
-  signature: ^5.5.0
+  webview_flutter: ^4.10.0
 
 
 

@@ -1,646 +1,165 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firebase_options.dart';
-
 
 // AUTH
 import 'views/auth/login_page.dart';
 import 'views/auth/auth_check_page.dart';
 
-
 // HOME
 import 'views/home/admin_home.dart';
 import 'views/home/cliente_home.dart';
-
 
 // PROPOSTAS
 import 'views/propostas/admin/propostas_admin_page.dart';
 import 'views/propostas/admin/nova_proposta_page.dart';
 
 import 'views/propostas/cliente/minhas_propostas_page.dart';
-import 'views/propostas/cliente/assinatura_page.dart';
+import 'views/propostas/cliente/clicksign_signature_page.dart';
 
-
-
-
+import 'widgets/desktop_app_frame.dart';
 
 Future<void> main() async {
-
-
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await Firebase.initializeApp(
-
-    options:
-
-    DefaultFirebaseOptions.currentPlatform,
-
-  );
-
-
-
-  runApp(
-
-    const GestorHarasApp(),
-
-  );
-
-
+  runApp(const GestorHarasApp());
 }
 
-
-
-
-
-
-
-
-
 class GestorHarasApp extends StatelessWidget {
-
-
-  const GestorHarasApp({
-
-    super.key,
-
-  });
-
-
-
-
+  const GestorHarasApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-
     return MaterialApp(
+      title: "Gestor Haras",
 
+      debugShowCheckedModeBanner: false,
 
-      title:
+      builder: (context, child) =>
+          DesktopAppFrame(child: child ?? const SizedBox.shrink()),
 
-      "Gestor Haras",
+      theme: ThemeData(
+        useMaterial3: true,
 
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
 
+        scaffoldBackgroundColor: const Color(0xffF4F6FA),
 
-      debugShowCheckedModeBanner:
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
 
-      false,
+          elevation: 0,
 
+          backgroundColor: Colors.white,
 
+          foregroundColor: Colors.black,
+        ),
 
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
 
-      theme:
+          fillColor: Colors.white,
 
+          labelStyle: const TextStyle(color: Color(0xFF475569)),
 
-      ThemeData(
+          hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
 
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
 
-        useMaterial3:
-
-        true,
-
-
-
-        colorScheme:
-
-        ColorScheme.fromSeed(
-
-
-          seedColor:
-
-          const Color(
-
-            0xFF1565C0,
-
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
           ),
 
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
 
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 1.6),
+          ),
+
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFDC2626)),
+          ),
         ),
 
-
-
-
-
-
-        scaffoldBackgroundColor:
-
-        const Color(
-
-          0xffF4F6FA,
-
+        cardTheme: CardThemeData(
+          color: Colors.white,
+          elevation: 0,
+          shadowColor: const Color(0x140F172A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
         ),
 
-
-
-
-
-
-
-        appBarTheme:
-
-
-        const AppBarTheme(
-
-
-
-          centerTitle:
-
-          true,
-
-
-
-          elevation:
-
-          0,
-
-
-
-          backgroundColor:
-
-          Colors.white,
-
-
-
-          foregroundColor:
-
-          Colors.black,
-
-
-        ),
-
-
-
-
-
-
-
-
-
-        inputDecorationTheme:
-
-
-
-        InputDecorationTheme(
-
-
-
-          filled:
-
-          true,
-
-
-
-          fillColor:
-
-          Colors.white,
-
-
-
-
-
-          border:
-
-
-          OutlineInputBorder(
-
-
-
-            borderRadius:
-
-            BorderRadius.circular(
-
-              14,
-
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-
-
-
-            borderSide:
-
-            BorderSide.none,
-
-
-
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
           ),
-
-
-
         ),
 
-
-
+        dividerTheme: const DividerThemeData(
+          color: Color(0xFFE2E8F0),
+          thickness: 1,
+          space: 1,
+        ),
       ),
 
+      initialRoute: "/auth-check",
 
-
-
-
-
-
-      initialRoute:
-
-
-      "/auth-check",
-
-
-
-
-
-      routes:{
-
-
-
+      routes: {
         // ==============================
         // AUTH
         // ==============================
+        "/auth-check": (context) => const AuthCheckPage(),
 
-
-        "/auth-check":
-
-
-        (context) =>
-
-
-        const AuthCheckPage(),
-
-
-
-
-
-
-        "/login":
-
-
-        (context) =>
-
-
-        const LoginPage(),
-
-
-
-
-
-
+        "/login": (context) => const LoginPage(),
 
         // ==============================
         // HOME
         // ==============================
+        "/admin": (context) => const AdminHome(),
 
-
-        "/admin":
-
-
-        (context) =>
-
-
-        const AdminHome(),
-
-
-
-
-
-
-        "/cliente":
-
-
-        (context) =>
-
-
-        const ClienteHome(),
-
-
-
-
-
-
-
-
-
-
+        "/cliente": (context) => const ClienteHome(),
 
         // ==============================
         // PROPOSTAS ADMIN
         // ==============================
+        "/propostas-admin": (context) => const PropostasAdminPage(),
 
-
-        "/propostas-admin":
-
-
-        (context) =>
-
-
-        const PropostasAdminPage(),
-
-
-
-
-
-
-
-        "/nova-proposta":
-
-
-        (context) =>
-
-
-        const NovaPropostaPage(),
-
-
-
-
-
-
-
-
-
+        "/nova-proposta": (context) => const NovaPropostaPage(),
 
         // ==============================
         // PROPOSTAS CLIENTE
         // ==============================
-
-
-        "/propostas-cliente":
-
-
-        (context) =>
-
-
-        const PropostasClientePage(),
-
-
-
-
+        "/propostas-cliente": (context) => const PropostasClientePage(),
 
         // ==============================
         // ASSINATURA CONTRATO
         // ==============================
+        "/assinatura-contrato": (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
 
-
-        "/assinatura-contrato":
-
-
-        (context) {
-
-
-
-          final args =
-
-
-          ModalRoute.of(context)
-
-              ?.settings
-
-              .arguments;
-
-
-
-
-
-          if(args == null || args is! String){
-
-
-
+          if (args == null || args is! String) {
             return const Scaffold(
-
-
-
-              body:
-
-
-
-              Center(
-
-
-
-                child:
-
-
-
-                Text(
-
-                  "Proposta inválida",
-
-                ),
-
-
-
-              ),
-
-
-
+              body: Center(child: Text("Proposta inválida")),
             );
-
-
           }
 
-
-
-
-
-
-          return FutureBuilder<
-
-              DocumentSnapshot<Map<String,dynamic>>
-
-          >(
-
-
-
-            future:
-
-
-
-            FirebaseFirestore.instance
-
-
-
-                .collection("propostas")
-
-
-
-                .doc(args)
-
-
-
-                .get(),
-
-
-
-
-
-            builder:
-
-
-
-            (context, snapshot){
-
-
-
-
-
-
-              if(snapshot.connectionState ==
-
-                  ConnectionState.waiting){
-
-
-
-                return const Scaffold(
-
-
-
-                  body:
-
-
-
-                  Center(
-
-
-
-                    child:
-
-
-
-                    CircularProgressIndicator(),
-
-
-
-                  ),
-
-
-
-                );
-
-
-              }
-
-
-
-
-
-
-
-
-              if(!snapshot.hasData ||
-
-                  !snapshot.data!.exists){
-
-
-
-                return const Scaffold(
-
-
-
-                  body:
-
-
-
-                  Center(
-
-
-
-                    child:
-
-
-
-                    Text(
-
-                      "Proposta não encontrada",
-
-                    ),
-
-
-
-                  ),
-
-
-
-                );
-
-
-              }
-
-
-
-
-
-
-
-
-              final dados =
-
-
-
-              snapshot.data!.data();
-
-
-
-
-
-
-
-              final contratoUrl =
-
-
-
-              dados?["contratoUrl"] ?? "";
-
-
-
-
-
-
-
-
-              return AssinaturaPage(
-
-
-
-
-                propostaId:
-
-
-
-                args,
-
-
-
-
-
-                contratoUrl:
-
-
-
-                contratoUrl.toString(),
-
-
-
-
-
-              );
-
-
-
-            },
-
-
-
-          );
-
-
-
+          return ClicksignSignaturePage(propostaId: args);
         },
-
-
-
-
-
-
-
-
 
         // ==============================
         // NOVO CAVALO
@@ -649,116 +168,15 @@ class GestorHarasApp extends StatelessWidget {
         // Removida: NovoCavaloPage não existe no
         // projeto. O cadastro de cavalo agora é feito
         // via CadastroCavaloPage (menu "Cadastro" do admin).
-
-
       },
 
-
-
-
-
-
-
-
-      onUnknownRoute:
-
-
-
-
-      (settings){
-
-
-
-
-
+      onUnknownRoute: (settings) {
         return MaterialPageRoute(
-
-
-
-
-          builder:
-
-
-
-
-          (_) =>
-
-
-
-
-
-
-          const Scaffold(
-
-
-
-
-
-            body:
-
-
-
-
-
-            Center(
-
-
-
-
-
-              child:
-
-
-
-
-
-              Text(
-
-
-
-
-
-                "Página não encontrada",
-
-
-
-
-
-              ),
-
-
-
-
-
-            ),
-
-
-
-
-
+          builder: (_) => const Scaffold(
+            body: Center(child: Text("Página não encontrada")),
           ),
-
-
-
-
-
         );
-
-
-
-
-
       },
-
-
-
-
     );
-
-
-
   }
-
-
-
 }

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/funcionario_model.dart';
+import '../../widgets/campos_grid.dart';
+import '../../widgets/desktop_fit_viewport.dart';
 import '../home/admin_top_bar.dart';
 
 class CadastroFuncionarioPage extends StatefulWidget {
@@ -136,9 +138,9 @@ class _CadastroFuncionarioPageState extends State<CadastroFuncionarioPage> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -193,7 +195,9 @@ class _CadastroFuncionarioPageState extends State<CadastroFuncionarioPage> {
           : AppBar(
               backgroundColor: primaria,
               foregroundColor: Colors.white,
-              title: Text(editando ? 'Editar Funcionário' : 'Cadastro de Funcionário'),
+              title: Text(
+                editando ? 'Editar Funcionário' : 'Cadastro de Funcionário',
+              ),
             ),
       body: Column(
         children: [
@@ -206,166 +210,179 @@ class _CadastroFuncionarioPageState extends State<CadastroFuncionarioPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 editando ? 'Editar Funcionário' : 'Cadastro de Funcionário',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
           Expanded(
             child: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    editando ? 'Editar Funcionário' : 'Novo Funcionário',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    editando
-                        ? 'Atualize os dados do funcionário.'
-                        : 'Cadastre os dados do funcionário.',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            campo(
-              label: 'Nome completo',
-              icon: Icons.person_outline,
-              controller: nomeController,
-            ),
-
-            campo(
-              label: 'Cargo',
-              icon: Icons.work_outline,
-              controller: cargoController,
-            ),
-
-            campo(
-              label: 'CPF',
-              icon: Icons.badge_outlined,
-              controller: cpfController,
-              keyboardType: TextInputType.number,
-              required: false,
-            ),
-
-            campo(
-              label: 'Telefone',
-              icon: Icons.phone_outlined,
-              controller: telefoneController,
-              keyboardType: TextInputType.phone,
-              required: false,
-            ),
-
-            campo(
-              label: 'Email',
-              icon: Icons.email_outlined,
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              required: false,
-            ),
-
-            campo(
-              label: 'Salário',
-              icon: Icons.attach_money,
-              controller: salarioController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              required: false,
-            ),
-
-            InkWell(
-              onTap: escolherDataAdmissao,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
+              key: _formKey,
+              child: DesktopFitViewport(
+                maxWidth: 1120,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.event, color: primaria),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Admissão: '
-                      '${dataAdmissao.day.toString().padLeft(2, '0')}/'
-                      '${dataAdmissao.month.toString().padLeft(2, '0')}/'
-                      '${dataAdmissao.year}',
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            editando
+                                ? 'Editar Funcionário'
+                                : 'Novo Funcionário',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            editando
+                                ? 'Atualize os dados do funcionário.'
+                                : 'Cadastre os dados do funcionário.',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 20),
+                    CamposGrid(
+                      campos: [
+                        campo(
+                          label: 'Nome completo',
+                          icon: Icons.person_outline,
+                          controller: nomeController,
+                        ),
+                        campo(
+                          label: 'Cargo',
+                          icon: Icons.work_outline,
+                          controller: cargoController,
+                        ),
+                        campo(
+                          label: 'CPF',
+                          icon: Icons.badge_outlined,
+                          controller: cpfController,
+                          keyboardType: TextInputType.number,
+                          required: false,
+                        ),
+                        campo(
+                          label: 'Telefone',
+                          icon: Icons.phone_outlined,
+                          controller: telefoneController,
+                          keyboardType: TextInputType.phone,
+                          required: false,
+                        ),
+                        campo(
+                          label: 'Email',
+                          icon: Icons.email_outlined,
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          required: false,
+                        ),
+                        campo(
+                          label: 'Salário',
+                          icon: Icons.attach_money,
+                          controller: salarioController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          required: false,
+                        ),
+                        InkWell(
+                          onTap: escolherDataAdmissao,
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.event, color: primaria),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Admissão: '
+                                  '${dataAdmissao.day.toString().padLeft(2, '0')}/'
+                                  '${dataAdmissao.month.toString().padLeft(2, '0')}/'
+                                  '${dataAdmissao.year}',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    campo(
+                      label: 'Observações',
+                      icon: Icons.notes_outlined,
+                      controller: observacoesController,
+                      required: false,
+                    ),
+                    const SizedBox(height: 20),
+                    if (!isDesktop)
+                      SizedBox(
+                        height: 55,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaria,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: salvando ? null : salvar,
+                          icon: salvando
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.save, color: Colors.white),
+                          label: Text(
+                            salvando
+                                ? 'SALVANDO...'
+                                : (editando
+                                      ? 'SALVAR ALTERAÇÕES'
+                                      : 'CADASTRAR FUNCIONÁRIO'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
-
-            campo(
-              label: 'Observações',
-              icon: Icons.notes_outlined,
-              controller: observacoesController,
-              required: false,
-            ),
-
-            const SizedBox(height: 20),
-
-            SizedBox(
-              height: 55,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaria,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                onPressed: salvando ? null : salvar,
-                icon: salvando
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Icon(Icons.save, color: Colors.white),
-                label: Text(
-                  salvando
-                      ? 'SALVANDO...'
-                      : (editando
-                          ? 'SALVAR ALTERAÇÕES'
-                          : 'CADASTRAR FUNCIONÁRIO'),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
           ),
+          if (isDesktop)
+            DesktopFormActions(
+              primaryLabel: editando
+                  ? 'Salvar alterações'
+                  : 'Cadastrar funcionário',
+              onPrimary: salvar,
+              onCancel: () => Navigator.maybePop(context),
+              loading: salvando,
+            ),
         ],
       ),
     );

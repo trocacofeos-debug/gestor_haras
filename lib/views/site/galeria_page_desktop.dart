@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../models/imagem_galeria_model.dart';
 import '../../services/cloudflare_r2_service.dart';
 import '../home/admin_top_bar.dart';
+import '../../widgets/site_admin_header.dart';
 
 class GaleriaPageDesktop extends StatefulWidget {
   const GaleriaPageDesktop({super.key});
@@ -71,9 +72,9 @@ class _GaleriaPageDesktopState extends State<GaleriaPageDesktop> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro no upload: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro no upload: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -133,129 +134,135 @@ class _GaleriaPageDesktopState extends State<GaleriaPageDesktop> {
                   strokeWidth: 2,
                 ),
               )
-            : const Icon(Icons.add_photo_alternate_outlined, color: Colors.white),
+            : const Icon(
+                Icons.add_photo_alternate_outlined,
+                color: Colors.white,
+              ),
         label: Text(
           enviando ? 'Enviando...' : 'Adicionar Imagens',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         onPressed: enviando ? null : _adicionarImagens,
       ),
       body: Column(
         children: [
           const AdminTopBar(),
-          Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            color: Colors.white,
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              'Galeria (site)',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
+          const SiteAdminHeader(
+            title: 'Galeria',
+            subtitle: 'Organize as imagens que apresentam o haras ao público',
+            icon: Icons.photo_library_rounded,
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('galeria')
-            .orderBy('dataUpload', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              stream: FirebaseFirestore.instance
+                  .collection('galeria')
+                  .orderBy('dataUpload', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Erro: ${snapshot.error}'));
-          }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Erro: ${snapshot.error}'));
+                }
 
-          final imagens = (snapshot.data?.docs ?? [])
-              .map((doc) => ImagemGaleriaModel.fromMap(doc.data(), doc.id))
-              .toList();
+                final imagens = (snapshot.data?.docs ?? [])
+                    .map(
+                      (doc) => ImagemGaleriaModel.fromMap(doc.data(), doc.id),
+                    )
+                    .toList();
 
-          if (imagens.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.photo_library_outlined,
-                    size: 50,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Nenhuma imagem na galeria ainda',
-                    style: TextStyle(color: corTextoSecundario),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final colunas = constraints.maxWidth >= 1200
-                  ? 5
-                  : constraints.maxWidth >= 900
-                      ? 4
-                      : constraints.maxWidth >= 600
-                          ? 3
-                          : 2;
-
-              return GridView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: colunas,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1,
-                ),
-                itemCount: imagens.length,
-                itemBuilder: (context, index) {
-                  final imagem = imagens[index];
-
-                  return Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          imagem.url,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: corBorda,
-                            child: const Icon(Icons.broken_image_outlined),
-                          ),
+                if (imagens.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.photo_library_outlined,
+                          size: 50,
+                          color: Colors.grey.shade400,
                         ),
-                      ),
-                      Positioned(
-                        top: 6,
-                        right: 6,
-                        child: InkWell(
-                          onTap: () => _excluir(imagem),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.delete_outline,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Nenhuma imagem na galeria ainda',
+                          style: TextStyle(color: corTextoSecundario),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
-                },
-              );
-            },
-          );
-        },
-      ),
+                }
+
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final colunas = constraints.maxWidth >= 1200
+                        ? 5
+                        : constraints.maxWidth >= 900
+                        ? 4
+                        : constraints.maxWidth >= 600
+                        ? 3
+                        : 2;
+
+                    return GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 96),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: colunas,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: imagens.length,
+                      itemBuilder: (context, index) {
+                        final imagem = imagens[index];
+
+                        return Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.network(
+                                imagem.url,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  color: corBorda,
+                                  child: const Icon(
+                                    Icons.broken_image_outlined,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 6,
+                              right: 6,
+                              child: InkWell(
+                                onTap: () => _excluir(imagem),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xDD0F172A),
+                                    borderRadius: BorderRadius.circular(9),
+                                    border: Border.all(color: Colors.white24),
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

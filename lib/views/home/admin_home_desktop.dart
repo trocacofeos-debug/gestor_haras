@@ -23,6 +23,7 @@ import '../financeiro/nova_conta_page.dart';
 import '../propostas/admin/propostas_admin_page.dart';
 import '../propostas/admin/nova_proposta_page.dart';
 import 'admin_top_bar.dart';
+import '../../widgets/desktop_window.dart';
 
 // =====================================================
 // AdminHomeDesktop
@@ -94,9 +95,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (_) => const LoginPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
     );
   }
@@ -122,13 +121,16 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
               color: corPrimaria,
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: _header(),
-                  ),
+                  SliverToBoxAdapter(child: _header()),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: _corpoDuasColunas(),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1600),
+                          child: _corpoDuasColunas(),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -139,7 +141,6 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
       ),
     );
   }
-
 
   // =====================================================
   // LAYOUT DE DUAS COLUNAS
@@ -252,9 +253,11 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
             return InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () {
-                Navigator.push(
+                openDesktopWindow(
                   context,
-                  MaterialPageRoute(builder: (_) => acao.pagina),
+                  title: acao.titulo,
+                  icon: acao.icon,
+                  builder: (_) => acao.pagina,
                 );
               },
               child: Container(
@@ -346,9 +349,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: corBorda),
-        ),
+        border: Border(bottom: BorderSide(color: corBorda)),
       ),
       child: Row(
         children: [
@@ -368,10 +369,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
                 ),
                 Text(
                   'Gestão completa do seu haras',
-                  style: TextStyle(
-                    color: corTextoSecundario,
-                    fontSize: 12.5,
-                  ),
+                  style: TextStyle(color: corTextoSecundario, fontSize: 12.5),
                 ),
               ],
             ),
@@ -379,10 +377,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
           IconButton(
             tooltip: 'Atualizar dados',
             onPressed: carregar,
-            icon: const Icon(
-              Icons.refresh_rounded,
-              color: corTextoSecundario,
-            ),
+            icon: const Icon(Icons.refresh_rounded, color: corTextoSecundario),
           ),
           const SizedBox(width: 8),
           Container(
@@ -415,10 +410,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
       padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            corSidebar,
-            corSidebar.withOpacity(.92),
-          ],
+          colors: [corSidebar, corSidebar.withOpacity(.92)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -549,12 +541,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
     );
   }
 
-  Widget _cardResumo(
-    String titulo,
-    String valor,
-    IconData icon,
-    Color cor,
-  ) {
+  Widget _cardResumo(String titulo, String valor, IconData icon, Color cor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -580,20 +567,13 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
                   color: cor.withOpacity(.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: cor,
-                  size: 18,
-                ),
+                child: Icon(icon, color: cor, size: 18),
               ),
               const Spacer(),
               Container(
                 width: 6,
                 height: 6,
-                decoration: BoxDecoration(
-                  color: cor,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: cor, shape: BoxShape.circle),
               ),
             ],
           ),
@@ -636,9 +616,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 30),
-            child: Center(
-              child: CircularProgressIndicator(color: corPrimaria),
-            ),
+            child: Center(child: CircularProgressIndicator(color: corPrimaria)),
           );
         }
 
@@ -653,11 +631,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
             ),
             child: const Column(
               children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 40,
-                  color: corTextoSecundario,
-                ),
+                Icon(Icons.people_outline, size: 40, color: corTextoSecundario),
                 SizedBox(height: 10),
                 Text(
                   'Nenhum cliente cadastrado',
@@ -692,9 +666,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
                 decoration: BoxDecoration(
                   border: ultimo
                       ? null
-                      : const Border(
-                          bottom: BorderSide(color: corBorda),
-                        ),
+                      : const Border(bottom: BorderSide(color: corBorda)),
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(
@@ -747,18 +719,15 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
                     color: corTextoSecundario,
                   ),
                   onTap: () {
-                    final cliente = ClienteModel.fromMap(
-                      data,
-                      doc.id,
-                    );
+                    final cliente = ClienteModel.fromMap(data, doc.id);
 
-                    Navigator.push(
+                    openDesktopWindow(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => ClienteDetalhesPage(
-                          cliente: cliente,
-                        ),
-                      ),
+                      title: cliente.nome.isEmpty
+                          ? 'Detalhes do cliente'
+                          : cliente.nome,
+                      icon: Icons.person_rounded,
+                      builder: (_) => ClienteDetalhesPage(cliente: cliente),
                     );
                   },
                 ),

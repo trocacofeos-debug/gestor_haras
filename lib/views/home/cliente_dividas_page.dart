@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../pagamentos/pix_payment_page.dart';
+import '../pagamentos/asaas_payment_page.dart';
 
 class ClienteDividasPage extends StatefulWidget {
   const ClienteDividasPage({super.key});
@@ -58,18 +58,91 @@ class _ClienteDividasPageState
     return "-";
   }
 
-  void abrirPix({
+  void abrirPagamento({
+    required String dividaId,
+    required String parcelaId,
     required double valor,
     required String descricao,
+    required String tipo,
   }) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PixPaymentPage(
+        builder: (_) => AsaasPaymentPage(
+          dividaId: dividaId,
+          parcelaId: parcelaId,
           valor: valor,
           descricao: descricao,
+          tipo: tipo,
         ),
       ),
+    );
+  }
+
+  void escolherFormaPagamento({
+    required String dividaId,
+    required String parcelaId,
+    required double valor,
+    required String descricao,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  "Como deseja pagar?",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.pix, color: Colors.green),
+                title: const Text("PIX"),
+                subtitle: const Text("QR Code / copia e cola"),
+                onTap: () {
+                  Navigator.pop(context);
+                  abrirPagamento(
+                    dividaId: dividaId,
+                    parcelaId: parcelaId,
+                    valor: valor,
+                    descricao: descricao,
+                    tipo: "PIX",
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.receipt_long,
+                  color: Colors.orange,
+                ),
+                title: const Text("Boleto"),
+                subtitle: const Text("Boleto bancário"),
+                onTap: () {
+                  Navigator.pop(context);
+                  abrirPagamento(
+                    dividaId: dividaId,
+                    parcelaId: parcelaId,
+                    valor: valor,
+                    descricao: descricao,
+                    tipo: "BOLETO",
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -118,6 +191,7 @@ class _ClienteDividasPageState
       return Column(
         children: parcelas.map((p) {
           final item = p.data();
+          final parcelaId = p.id;
 
           final status = item["status"]
                   ?.toString()
@@ -234,7 +308,9 @@ class _ClienteDividasPageState
                         ),
                       ),
                       onPressed: () {
-                        abrirPix(
+                        escolherFormaPagamento(
+                          dividaId: dividaId,
+                          parcelaId: parcelaId,
                           valor: valorParcela,
                           descricao: descricao,
                         );

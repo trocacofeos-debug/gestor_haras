@@ -5,14 +5,12 @@ import 'package:flutter/material.dart';
 
 import '../../models/fornecedor_model.dart';
 import 'cadastro_fornecedor_page.dart';
+import '../../widgets/desktop_window.dart';
 
 class FornecedorDetalhesPage extends StatelessWidget {
   final String fornecedorId;
 
-  const FornecedorDetalhesPage({
-    super.key,
-    required this.fornecedorId,
-  });
+  const FornecedorDetalhesPage({super.key, required this.fornecedorId});
 
   static const Color primaria = Color(0xFF4F46E5);
   static const Color fundo = Color(0xFFF3F4F6);
@@ -23,10 +21,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 10),
         ],
       ),
       child: Row(
@@ -41,10 +36,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
                 color: primaria.withOpacity(.10),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
-                Icons.arrow_back_rounded,
-                color: primaria,
-              ),
+              child: const Icon(Icons.arrow_back_rounded, color: primaria),
             ),
           ),
           const SizedBox(width: 15),
@@ -67,10 +59,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
               children: [
                 Text(
                   'Detalhes do Fornecedor',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -101,10 +90,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             texto,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -119,10 +105,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.03),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.03), blurRadius: 8),
         ],
       ),
       child: Row(
@@ -142,10 +125,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -182,9 +162,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Center(
-                    child: Text('Fornecedor não encontrado'),
-                  );
+                  return const Center(child: Text('Fornecedor não encontrado'));
                 }
 
                 final fornecedor = FornecedorModel.fromMap(
@@ -244,12 +222,12 @@ class FornecedorDetalhesPage extends StatelessWidget {
                           right: 12,
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(
+                              openDesktopWindow(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => CadastroFornecedorPage(
-                                    fornecedorParaEditar: fornecedor,
-                                  ),
+                                title: 'Editar fornecedor',
+                                icon: Icons.edit_rounded,
+                                builder: (_) => CadastroFornecedorPage(
+                                  fornecedorParaEditar: fornecedor,
                                 ),
                               );
                             },
@@ -285,11 +263,7 @@ class FornecedorDetalhesPage extends StatelessWidget {
                       fornecedor.telefone,
                       Icons.phone_rounded,
                     ),
-                    _campo(
-                      'Email',
-                      fornecedor.email,
-                      Icons.email_outlined,
-                    ),
+                    _campo('Email', fornecedor.email, Icons.email_outlined),
                     _campo(
                       'Endereço',
                       fornecedor.endereco,

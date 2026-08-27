@@ -79,38 +79,18 @@ class _PropostasAdminPageMobileState
 
 
 
-      final url =
-          await service.gerarContrato(
-            id,
-          );
+      await service.gerarContrato(id);
 
+      if (!mounted) return;
 
-
-      if(!mounted) return;
-
-
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-
-          backgroundColor:
-          Colors.green,
-
-          content:
-
-          Text(
-            "Contrato gerado e salvo no R2",
+          backgroundColor: Colors.green,
+          content: Text(
+            "Contrato gerado. Envelope de assinatura criado no ClickSign.",
           ),
-
         ),
-
       );
-
-
-
-      await abrirDocumento(url);
 
 
 
@@ -243,119 +223,50 @@ class _PropostasAdminPageMobileState
 
 
 
-  Color statusColor(
-      String status,
-      ){
-
-
-    switch(status){
-
-
-      case "aguardando_documentos":
+  Color statusColor(String status) {
+    switch (status) {
+      case "aguardando_aprovacao":
         return Colors.grey;
-
-
-      case "documentos_enviados":
-        return Colors.blue;
-
-
-      case "em_analise":
-        return Colors.orange;
-
 
       case "aprovada":
         return Colors.green;
 
-
       case "aguardando_assinatura":
         return Colors.deepPurple;
 
-
-      case "contrato_assinado":
+      case "assinado":
         return Colors.teal;
-
 
       case "reprovada":
         return Colors.red;
 
-
-
       default:
-
         return Colors.grey;
-
-
     }
-
-
   }
 
-
-
-
-
-
-
-
-  String statusTexto(
-      String status,
-      ){
-
-
-    switch(status){
-
-
-      case "aguardando_documentos":
-
-        return "Aguardando documentos";
-
-
-
-      case "documentos_enviados":
-
-        return "Documentos enviados";
-
-
-
-      case "em_analise":
-
-        return "Em análise";
-
-
+  String statusTexto(String status) {
+    switch (status) {
+      case "aguardando_aprovacao":
+        return "Aguardando aprovação";
 
       case "aprovada":
-
         return "Aprovada";
 
-
-
       case "aguardando_assinatura":
-
         return "Aguardando assinatura";
 
-
-
-      case "contrato_assinado":
-
+      case "assinado":
         return "Contrato assinado";
 
-
-
       case "reprovada":
-
         return "Reprovada";
 
-
-
       default:
-
         return status;
-
-
     }
-
-
   }
+
 
 
 
@@ -475,7 +386,7 @@ class _PropostasAdminPageMobileState
               final status =
 
               data["status"] ??
-                  "aguardando_documentos";
+                  "aguardando_aprovacao";
 
 
 
@@ -1023,8 +934,7 @@ class _PropostasAdminPageMobileState
 
 
                       if(
-                      status == "documentos_enviados" ||
-                      status == "em_analise"
+                      status == "aguardando_aprovacao"
                       )
 
                         Padding(

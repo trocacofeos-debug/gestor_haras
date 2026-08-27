@@ -2869,24 +2869,16 @@ class _ClienteModuloPageMobileState
 
     switch(status){
 
-      case 'aguardando_documentos':
+      case 'aguardando_aprovacao':
         return Colors.orange;
-
-      case 'documentos_enviados':
-        return Colors.blue;
-
-      case 'em_analise':
-        return Colors.amber;
 
       case 'aprovada':
         return Colors.green;
 
-      case 'contrato_liberado':
       case 'aguardando_assinatura':
         return Colors.indigo;
 
       case 'assinado':
-      case 'contrato_assinado':
         return Colors.teal;
 
       case 'reprovada':
@@ -2904,26 +2896,16 @@ class _ClienteModuloPageMobileState
 
     switch(status){
 
-      case 'aguardando_documentos':
-        return 'Aguardando documentos';
-
-      case 'documentos_enviados':
-        return 'Documentos enviados';
-
-      case 'em_analise':
-        return 'Em análise';
+      case 'aguardando_aprovacao':
+        return 'Aguardando aprovação';
 
       case 'aprovada':
         return 'Aprovada';
-
-      case 'contrato_liberado':
-        return 'Contrato liberado';
 
       case 'aguardando_assinatura':
         return 'Aguardando assinatura';
 
       case 'assinado':
-      case 'contrato_assinado':
         return 'Contrato assinado';
 
       case 'reprovada':
@@ -3063,7 +3045,7 @@ class _ClienteModuloPageMobileState
 
             final status =
 
-            (data["status"] ?? "aguardando_documentos")
+            (data["status"] ?? "aguardando_aprovacao")
                 .toString();
 
 
@@ -3657,13 +3639,7 @@ class _ClienteModuloPageMobileState
 
       "status":
 
-      "aguardando_documentos",
-
-
-
-      "documentosEnviados":
-
-      false,
+      "aguardando_aprovacao",
 
 
 
@@ -3698,11 +3674,9 @@ class _ClienteModuloPageMobileState
 
 
 
-      await _propostaService.criar(
-
-          dados
-
-      );
+      await FirebaseFirestore.instance
+          .collection("propostas")
+          .add(dados);
 
 
 

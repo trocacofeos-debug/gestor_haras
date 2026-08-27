@@ -1535,7 +1535,10 @@ class _NovaContaPageDesktopState
 
                 physics: const BouncingScrollPhysics(),
 
-                child: Row(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1440),
+                    child: Row(
 
                   crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -1738,6 +1741,8 @@ class _NovaContaPageDesktopState
 
                   ],
 
+                ),
+                  ),
                 ),
 
               ),
