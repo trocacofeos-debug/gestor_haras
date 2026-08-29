@@ -65,99 +65,11 @@ class DesktopAppFrame extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(17),
-                child: Column(
-                  children: [
-                    const _DesktopTitleBar(),
-                    Expanded(child: child),
-                  ],
-                ),
+                child: child,
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DesktopTitleBar extends StatelessWidget {
-  const _DesktopTitleBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFBFCFE),
-        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: Color(0xFF4F46E5),
-              borderRadius: BorderRadius.all(Radius.circular(7)),
-            ),
-            child: Icon(Icons.pets_rounded, size: 14, color: Colors.white),
-          ),
-          const SizedBox(width: 9),
-          const Text(
-            'Gestor Haras',
-            style: TextStyle(
-              color: Color(0xFF334155),
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              letterSpacing: .2,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            width: 7,
-            height: 7,
-            decoration: const BoxDecoration(
-              color: Color(0xFF10B981),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          const Text(
-            'Sistema online',
-            style: TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 10.5,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F1FB),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: const Row(
-              children: [
-                Icon(
-                  Icons.desktop_windows_rounded,
-                  size: 13,
-                  color: Color(0xFF1565C0),
-                ),
-                SizedBox(width: 5),
-                Text(
-                  'Modo desktop',
-                  style: TextStyle(
-                    color: Color(0xFF1565C0),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/cavalo_model.dart';
-import '../../models/despesa_cavalo_model.dart';
 
 import 'cavalo_detalhes_page.dart';
 import 'cadastro_cavalo_page.dart';
@@ -338,55 +337,7 @@ class _CavalosListPageDesktopState extends State<CavalosListPageDesktop> {
                                 'Status',
                                 cavalo.ativo ? 'Ativo' : 'Inativo',
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 14),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Total em despesas',
-                                      style: TextStyle(
-                                        color: corTextoSecundario,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    StreamBuilder<
-                                      QuerySnapshot<Map<String, dynamic>>
-                                    >(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('cavalos')
-                                          .doc(cavalo.id)
-                                          .collection('despesas')
-                                          .snapshots(),
-                                      builder: (context, despesasSnapshot) {
-                                        final total =
-                                            (despesasSnapshot.data?.docs ?? [])
-                                                .map(
-                                                  (doc) =>
-                                                      DespesaCavaloModel.fromMap(
-                                                        doc.data(),
-                                                        doc.id,
-                                                      ),
-                                                )
-                                                .fold<double>(
-                                                  0,
-                                                  (soma, d) => soma + d.valor,
-                                                );
-
-                                        return Text(
-                                          'R\$ ${total.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontSize: 14.5,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.redAccent,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              _resumoFinanceiroPopup(cavalo.id),
                             ],
                           ),
                         ),
@@ -465,6 +416,77 @@ class _CavalosListPageDesktopState extends State<CavalosListPageDesktop> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _resumoFinanceiroPopup(String cavaloId) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('cavalos')
+          .doc(cavaloId)
+          .collection('despesas')
+          .snapshots(),
+      builder: (context, despesasSnapshot) {
+        final despesas = (despesasSnapshot.data?.docs ?? []).fold<double>(
+          0,
+          (soma, doc) => soma + ((doc.data()['valor'] ?? 0) as num).toDouble(),
+        );
+
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection('cavalos')
+              .doc(cavaloId)
+              .collection('receitas')
+              .snapshots(),
+          builder: (context, receitasSnapshot) {
+            final receitas = (receitasSnapshot.data?.docs ?? []).fold<double>(
+              0,
+              (soma, doc) =>
+                  soma + ((doc.data()['valor'] ?? 0) as num).toDouble(),
+            );
+
+            Widget linha(String titulo, double valor, Color cor) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        titulo,
+                        style: const TextStyle(
+                          color: corTextoSecundario,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'R\$ ${valor.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                        color: cor,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final saldo = receitas - despesas;
+            return Column(
+              children: [
+                linha('Despesas', despesas, Colors.redAccent),
+                linha('Receitas', receitas, const Color(0xFF059669)),
+                linha(
+                  'Saldo',
+                  saldo,
+                  saldo >= 0 ? const Color(0xFF2563EB) : Colors.redAccent,
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

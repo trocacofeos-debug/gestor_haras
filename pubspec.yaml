@@ -234,10 +234,10 @@ flutter_launcher_icons:
 
   ios: true
 
+  remove_alpha_ios: true
 
-  image_path:
 
-    assets/images/icon.png
+  image_path: assets/images/logo-prat.png
 
 
 
@@ -249,4 +249,19 @@ flutter_launcher_icons:
 
   adaptive_icon_foreground:
 
-    assets/images/icon.png
+    assets/images/logo-prat.png
+
+  web:
+    generate: true
+    image_path: assets/images/logo-prat.png
+    background_color: "#5D4037"
+    theme_color: "#5D4037"
+
+  windows:
+    generate: true
+    image_path: assets/images/logo-prat.png
+    icon_size: 256
+
+  macos:
+    generate: true
+    image_path: assets/images/logo-prat.png

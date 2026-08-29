@@ -142,55 +142,15 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
     );
   }
 
-  // =====================================================
-  // LAYOUT DE DUAS COLUNAS
-  // =====================================================
-  //
-  // "Últimos Clientes" ao lado do resto, em vez de embaixo
-  // de tudo — cabe muito mais coisa na tela sem rolar.
-
   Widget _corpoDuasColunas() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _cabecalhoBoasVindas(),
         const SizedBox(height: 28),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Coluna principal (esquerda) — mais larga
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _tituloSecao('Ações Rápidas'),
-                  const SizedBox(height: 14),
-                  _acoesRapidas(),
-                  const SizedBox(height: 32),
-                  _tituloSecao('Visão Geral'),
-                  const SizedBox(height: 14),
-                  _gridResumo(),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 24),
-
-            // Coluna lateral (direita) — mais estreita
-            Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _tituloSecao('Últimos Clientes'),
-                  const SizedBox(height: 14),
-                  _listaClientes(),
-                ],
-              ),
-            ),
-          ],
-        ),
+        _tituloSecao('Visão Geral'),
+        const SizedBox(height: 14),
+        _gridResumo(),
       ],
     );
   }

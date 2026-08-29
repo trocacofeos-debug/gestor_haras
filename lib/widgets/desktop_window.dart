@@ -20,13 +20,23 @@ Future<T?> openDesktopWindow<T>(
   IconData icon = Icons.web_asset_rounded,
   double width = 1180,
   double height = 760,
-}) {
+}) async {
   if (MediaQuery.sizeOf(context).width < 900) {
     return Navigator.of(context).push<T>(MaterialPageRoute(builder: builder));
   }
 
+  final navigator = Navigator.of(context, rootNavigator: true);
+
+  // Mantém somente uma janela de trabalho: abrir outra substitui a atual.
+  if (DesktopWindowScope.isInside(context)) {
+    navigator.pop();
+    await Future<void>.delayed(Duration.zero);
+  }
+
+  if (!navigator.mounted) return null;
+
   return showGeneralDialog<T>(
-    context: context,
+    context: navigator.context,
     barrierDismissible: false,
     barrierLabel: title,
     barrierColor: const Color(0x7D0F172A),

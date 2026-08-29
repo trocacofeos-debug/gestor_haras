@@ -19,6 +19,9 @@ import 'views/propostas/cliente/minhas_propostas_page.dart';
 import 'views/propostas/cliente/clicksign_signature_page.dart';
 
 import 'widgets/desktop_app_frame.dart';
+import 'widgets/desktop_admin_shortcuts.dart';
+
+final appNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,10 +39,14 @@ class GestorHarasApp extends StatelessWidget {
     return MaterialApp(
       title: "Gestor Haras",
 
+      navigatorKey: appNavigatorKey,
+
       debugShowCheckedModeBanner: false,
 
-      builder: (context, child) =>
-          DesktopAppFrame(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => DesktopAdminShortcuts(
+        navigatorKey: appNavigatorKey,
+        child: DesktopAppFrame(child: child ?? const SizedBox.shrink()),
+      ),
 
       theme: ThemeData(
         useMaterial3: true,

@@ -10,10 +10,7 @@ import 'cadastro_cavalo_page.dart';
 class CavaloDetalhesPage extends StatelessWidget {
   final String cavaloId;
 
-  const CavaloDetalhesPage({
-    super.key,
-    required this.cavaloId,
-  });
+  const CavaloDetalhesPage({super.key, required this.cavaloId});
 
   static const Color primaria = Color(0xFF4F46E5);
   static const Color fundo = Color(0xFFF3F4F6);
@@ -24,10 +21,7 @@ class CavaloDetalhesPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 10),
         ],
       ),
       child: Row(
@@ -42,10 +36,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                 color: primaria.withOpacity(.10),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
-                Icons.arrow_back_rounded,
-                color: primaria,
-              ),
+              child: const Icon(Icons.arrow_back_rounded, color: primaria),
             ),
           ),
           const SizedBox(width: 15),
@@ -55,11 +46,7 @@ class CavaloDetalhesPage extends StatelessWidget {
               color: primaria.withOpacity(.12),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.pets_rounded,
-              color: primaria,
-              size: 30,
-            ),
+            child: const Icon(Icons.pets_rounded, color: primaria, size: 30),
           ),
           const SizedBox(width: 15),
           const Expanded(
@@ -68,10 +55,7 @@ class CavaloDetalhesPage extends StatelessWidget {
               children: [
                 Text(
                   'Detalhes do Cavalo',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -102,10 +86,7 @@ class CavaloDetalhesPage extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             texto,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -120,10 +101,7 @@ class CavaloDetalhesPage extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.03),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.03), blurRadius: 8),
         ],
       ),
       child: Row(
@@ -143,10 +121,7 @@ class CavaloDetalhesPage extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -212,6 +187,13 @@ class CavaloDetalhesPage extends StatelessWidget {
         .collection('despesas');
   }
 
+  CollectionReference<Map<String, dynamic>> _receitasRef() {
+    return FirebaseFirestore.instance
+        .collection('cavalos')
+        .doc(cavaloId)
+        .collection('receitas');
+  }
+
   // =====================================================
   // NOVA DESPESA
   // =====================================================
@@ -236,9 +218,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                   children: [
                     DropdownButtonFormField<CategoriaDespesa>(
                       value: categoria,
-                      decoration: const InputDecoration(
-                        labelText: 'Categoria',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Categoria'),
                       items: CategoriaDespesa.values
                           .map(
                             (c) => DropdownMenuItem(
@@ -256,9 +236,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextField(
                       controller: descricaoController,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Descrição'),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -266,9 +244,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Valor',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Valor'),
                     ),
                     const SizedBox(height: 12),
                     InkWell(
@@ -332,7 +308,8 @@ class CavaloDetalhesPage extends StatelessWidget {
       return;
     }
 
-    final valor = double.tryParse(
+    final valor =
+        double.tryParse(
           valorController.text.replaceAll('.', '').replaceAll(',', '.'),
         ) ??
         0;
@@ -350,15 +327,15 @@ class CavaloDetalhesPage extends StatelessWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Despesa adicionada')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Despesa adicionada')));
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
     }
   }
 
@@ -402,10 +379,7 @@ class CavaloDetalhesPage extends StatelessWidget {
             .map((doc) => DespesaCavaloModel.fromMap(doc.data(), doc.id))
             .toList();
 
-        final total = despesas.fold<double>(
-          0,
-          (soma, d) => soma + d.valor,
-        );
+        final total = despesas.fold<double>(0, (soma, d) => soma + d.valor);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,11 +398,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                       color: primaria.withOpacity(.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: primaria,
-                      size: 20,
-                    ),
+                    child: const Icon(Icons.add, color: primaria, size: 20),
                   ),
                 ),
               ],
@@ -569,6 +539,338 @@ class CavaloDetalhesPage extends StatelessWidget {
     );
   }
 
+  Future<void> _abrirFormularioReceita(BuildContext context) async {
+    final descricaoController = TextEditingController();
+    final valorController = TextEditingController();
+    DateTime data = DateTime.now();
+
+    final salvar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Nova Receita'),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: 460,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: descricaoController,
+                    decoration: const InputDecoration(
+                      labelText: 'Descrição',
+                      hintText: 'Ex.: prêmio, aluguel ou venda',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: valorController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(labelText: 'Valor'),
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.event_outlined),
+                    title: Text(
+                      'Data: ${data.day.toString().padLeft(2, '0')}/'
+                      '${data.month.toString().padLeft(2, '0')}/${data.year}',
+                    ),
+                    onTap: () async {
+                      final selecionada = await showDatePicker(
+                        context: context,
+                        initialDate: data,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (selecionada != null) {
+                        setStateDialog(() => data = selecionada);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Salvar'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (salvar != true) return;
+
+    final valor =
+        double.tryParse(
+          valorController.text.replaceAll('.', '').replaceAll(',', '.'),
+        ) ??
+        0;
+    if (valor <= 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Informe um valor válido para a receita'),
+          ),
+        );
+      }
+      return;
+    }
+
+    await _receitasRef().add({
+      'descricao': descricaoController.text.trim(),
+      'valor': valor,
+      'data': Timestamp.fromDate(data),
+    });
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Receita adicionada')));
+    }
+  }
+
+  Future<void> _confirmarExcluirReceita(
+    BuildContext context,
+    String receitaId,
+  ) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir receita'),
+        content: const Text('Deseja realmente excluir esta receita?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar == true) await _receitasRef().doc(receitaId).delete();
+  }
+
+  Widget _receitasSection(BuildContext context) {
+    const verde = Color(0xFF059669);
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _receitasRef().orderBy('data', descending: true).snapshots(),
+      builder: (context, snapshot) {
+        final receitas = snapshot.data?.docs ?? [];
+        final total = receitas.fold<double>(
+          0,
+          (soma, doc) => soma + ((doc.data()['valor'] ?? 0) as num).toDouble(),
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: _titulo('Receitas', Icons.trending_up_rounded)),
+                InkWell(
+                  onTap: () => _abrirFormularioReceita(context),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: verde.withOpacity(.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.add, color: verde, size: 20),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: verde.withOpacity(.08),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.payments_outlined, color: verde),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Total recebido',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'R\$ ${total.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: verde,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (snapshot.connectionState == ConnectionState.waiting)
+              const Center(child: CircularProgressIndicator())
+            else if (receitas.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Nenhuma receita registrada',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              )
+            else
+              ...receitas.map((doc) {
+                final dados = doc.data();
+                final valor = ((dados['valor'] ?? 0) as num).toDouble();
+                final data = dados['data'] is Timestamp
+                    ? dados['data'] as Timestamp
+                    : Timestamp.now();
+                final descricao = (dados['descricao'] ?? '').toString();
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: verde.withOpacity(.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: verde,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              descricao.isEmpty ? 'Receita' : descricao,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              _formatarData(data),
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        'R\$ ${valor.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: verde,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () =>
+                            _confirmarExcluirReceita(context, doc.id),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _resumoFinanceiro() {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _despesasRef().snapshots(),
+      builder: (context, despesasSnapshot) {
+        final despesas = (despesasSnapshot.data?.docs ?? []).fold<double>(
+          0,
+          (soma, doc) => soma + ((doc.data()['valor'] ?? 0) as num).toDouble(),
+        );
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: _receitasRef().snapshots(),
+          builder: (context, receitasSnapshot) {
+            final receitas = (receitasSnapshot.data?.docs ?? []).fold<double>(
+              0,
+              (soma, doc) =>
+                  soma + ((doc.data()['valor'] ?? 0) as num).toDouble(),
+            );
+            final saldo = receitas - despesas;
+            Widget item(String titulo, double valor, Color cor) => Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'R\$ ${valor.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: cor,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+            return Row(
+              children: [
+                item('Despesas', despesas, const Color(0xFFFFD1D1)),
+                const SizedBox(width: 16),
+                item('Receitas', receitas, const Color(0xFFB7F7D8)),
+                const SizedBox(width: 16),
+                item('Saldo', saldo, Colors.white),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -588,9 +890,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Center(
-                    child: Text('Cavalo não encontrado'),
-                  );
+                  return const Center(child: Text('Cavalo não encontrado'));
                 }
 
                 final cavalo = CavaloModel.fromMap(
@@ -691,51 +991,13 @@ class CavaloDetalhesPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            cavalo.raca.isEmpty ? 'Raça não informada' : cavalo.raca,
+                            cavalo.raca.isEmpty
+                                ? 'Raça não informada'
+                                : cavalo.raca,
                             style: const TextStyle(color: Colors.white70),
                           ),
                           const SizedBox(height: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Total em despesas',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              StreamBuilder<
-                                  QuerySnapshot<Map<String, dynamic>>>(
-                                stream: _despesasRef().snapshots(),
-                                builder: (context, despesasSnapshot) {
-                                  final total = (despesasSnapshot
-                                              .data?.docs ??
-                                          [])
-                                      .map(
-                                        (doc) => DespesaCavaloModel.fromMap(
-                                          doc.data(),
-                                          doc.id,
-                                        ),
-                                      )
-                                      .fold<double>(
-                                        0,
-                                        (soma, d) => soma + d.valor,
-                                      );
-
-                                  return Text(
-                                    'R\$ ${total.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                          _resumoFinanceiro(),
                         ],
                       ),
                     ),
@@ -777,6 +1039,10 @@ class CavaloDetalhesPage extends StatelessWidget {
                     const SizedBox(height: 15),
 
                     _despesasSection(context),
+
+                    const SizedBox(height: 24),
+
+                    _receitasSection(context),
 
                     const SizedBox(height: 30),
                   ],
