@@ -21,6 +21,9 @@ import '../site/noticias_page.dart';
 import '../cadastros/cadastro_cavalo_page.dart';
 import '../cadastros/cadastro_funcionario_page.dart';
 import '../cadastros/cadastro_fornecedor_page.dart';
+import '../financeiro/financeiro_animais_page.dart';
+import '../financeiro/financeiro_page.dart';
+import '../financeiro/nova_conta_page.dart';
 
 // =====================================================
 // AdminHomeMobile
@@ -92,9 +95,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (_) => const LoginPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
     );
   }
@@ -104,12 +105,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       menuSelecionado = menu;
     });
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => pagina,
-      ),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => pagina));
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> ultimosClientes() {
@@ -130,9 +126,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
         color: corPrimaria,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: _header(),
-            ),
+            SliverToBoxAdapter(child: _header()),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -342,10 +336,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                         ),
                         Text(
                           'Sistema Administrativo',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.white54, fontSize: 12),
                         ),
                       ],
                     ),
@@ -363,45 +354,52 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                     Icons.grid_view_rounded,
                     () => Navigator.pop(context),
                   ),
-                  _drawerItem(
-                    'Clientes',
-                    Icons.people_alt_outlined,
-                    () {
-                      Navigator.pop(context);
-                      abrirTela(ClientesPage(), 1);
-                    },
-                  ),
-                  _drawerItem(
-                    'Cadastro',
-                    Icons.add_box_outlined,
-                    () {
-                      Navigator.pop(context);
-                      abrirTela(const CadastroHubPage(), 2);
-                    },
-                  ),
-                  _drawerItem(
-                    'Cavalos',
-                    Icons.pets_outlined,
-                    () {
-                      Navigator.pop(context);
-                      abrirTela(const CavalosListPage(), 3);
-                    },
-                  ),
-                  _drawerItem(
-                    'Funcionários',
-                    Icons.badge_outlined,
-                    () {
-                      Navigator.pop(context);
-                      abrirTela(const FuncionariosListPage(), 4);
-                    },
-                  ),
-                  _drawerItem(
-                    'Fornecedores',
-                    Icons.storefront_outlined,
-                    () {
-                      Navigator.pop(context);
-                      abrirTela(const FornecedoresListPage(), 5);
-                    },
+                  _drawerItem('Clientes', Icons.people_alt_outlined, () {
+                    Navigator.pop(context);
+                    abrirTela(ClientesPage(), 1);
+                  }),
+                  _drawerItem('Cadastro', Icons.add_box_outlined, () {
+                    Navigator.pop(context);
+                    abrirTela(const CadastroHubPage(), 2);
+                  }),
+                  _drawerItem('Animais', Icons.pets_outlined, () {
+                    Navigator.pop(context);
+                    abrirTela(const CavalosListPage(), 3);
+                  }),
+                  _drawerItem('Funcionários', Icons.badge_outlined, () {
+                    Navigator.pop(context);
+                    abrirTela(const FuncionariosListPage(), 4);
+                  }),
+                  _drawerItem('Fornecedores', Icons.storefront_outlined, () {
+                    Navigator.pop(context);
+                    abrirTela(const FornecedoresListPage(), 5);
+                  }),
+                  const Divider(color: Colors.white12, height: 24),
+                  ExpansionTile(
+                    iconColor: Colors.white70,
+                    collapsedIconColor: Colors.white70,
+                    leading: const Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: Colors.white70,
+                    ),
+                    title: const Text(
+                      'Gestão',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    children: [
+                      _drawerItem('Financeiro', Icons.bar_chart_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(const FinanceiroAnimaisPage(), 9);
+                      }),
+                      _drawerItem('Dívidas', Icons.receipt_long_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(const FinanceiroPage(), 10);
+                      }),
+                      _drawerItem('Nova Conta', Icons.add_card_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(const NovaContaPage(), 11);
+                      }),
+                    ],
                   ),
                   const Divider(color: Colors.white12, height: 24),
                   _drawerItem(
@@ -420,23 +418,16 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                       abrirTela(const GaleriaPage(), 7);
                     },
                   ),
-                  _drawerItem(
-                    'Notícias (site)',
-                    Icons.campaign_outlined,
-                    () {
-                      Navigator.pop(context);
-                      abrirTela(const NoticiasPage(), 8);
-                    },
-                  ),
+                  _drawerItem('Notícias (site)', Icons.campaign_outlined, () {
+                    Navigator.pop(context);
+                    abrirTela(const NoticiasPage(), 8);
+                  }),
                 ],
               ),
             ),
             const Divider(color: Colors.white12, height: 1),
             ListTile(
-              leading: const Icon(
-                Icons.logout,
-                color: Colors.redAccent,
-              ),
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
               title: const Text(
                 'Sair',
                 style: TextStyle(
@@ -453,17 +444,9 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
     );
   }
 
-  Widget _drawerItem(
-    String titulo,
-    IconData icon,
-    VoidCallback onTap,
-  ) {
+  Widget _drawerItem(String titulo, IconData icon, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: Colors.white70,
-        size: 20,
-      ),
+      leading: Icon(icon, color: Colors.white70, size: 20),
       title: Text(
         titulo,
         style: const TextStyle(
@@ -486,9 +469,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: corBorda),
-        ),
+        border: Border(bottom: BorderSide(color: corBorda)),
       ),
       child: Builder(
         builder: (context) {
@@ -681,12 +662,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
     );
   }
 
-  Widget _cardResumo(
-    String titulo,
-    String valor,
-    IconData icon,
-    Color cor,
-  ) {
+  Widget _cardResumo(String titulo, String valor, IconData icon, Color cor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -703,11 +679,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
               color: cor.withOpacity(.10),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: cor,
-              size: 18,
-            ),
+            child: Icon(icon, color: cor, size: 18),
           ),
           const Spacer(),
           FittedBox(
@@ -748,9 +720,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 30),
-            child: Center(
-              child: CircularProgressIndicator(color: corPrimaria),
-            ),
+            child: Center(child: CircularProgressIndicator(color: corPrimaria)),
           );
         }
 
@@ -765,11 +735,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
             ),
             child: const Column(
               children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 40,
-                  color: corTextoSecundario,
-                ),
+                Icon(Icons.people_outline, size: 40, color: corTextoSecundario),
                 SizedBox(height: 10),
                 Text(
                   'Nenhum cliente cadastrado',
@@ -804,9 +770,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                 decoration: BoxDecoration(
                   border: ultimo
                       ? null
-                      : const Border(
-                          bottom: BorderSide(color: corBorda),
-                        ),
+                      : const Border(bottom: BorderSide(color: corBorda)),
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(
@@ -859,17 +823,12 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                     color: corTextoSecundario,
                   ),
                   onTap: () {
-                    final cliente = ClienteModel.fromMap(
-                      data,
-                      doc.id,
-                    );
+                    final cliente = ClienteModel.fromMap(data, doc.id);
 
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ClienteDetalhesPage(
-                          cliente: cliente,
-                        ),
+                        builder: (_) => ClienteDetalhesPage(cliente: cliente),
                       ),
                     );
                   },

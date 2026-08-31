@@ -27,11 +27,11 @@ class _CadastroFornecedorPageState extends State<CadastroFornecedorPage> {
   final observacoesController = TextEditingController();
 
   bool salvando = false;
+  bool ativo = true;
 
   bool get editando => widget.fornecedorParaEditar != null;
 
-  static const Color primaria = Color(0xFF4F46E5);
-  static const Color fundo = Color(0xFFF3F4F6);
+  static const Color fundo = Color(0xFFF4F6FB);
 
   @override
   void initState() {
@@ -40,6 +40,7 @@ class _CadastroFornecedorPageState extends State<CadastroFornecedorPage> {
     final f = widget.fornecedorParaEditar;
 
     if (f != null) {
+      ativo = f.ativo;
       nomeController.text = f.nome;
       cpfCnpjController.text = f.cpfCnpj;
       categoriaController.text = f.categoria;
@@ -63,7 +64,7 @@ class _CadastroFornecedorPageState extends State<CadastroFornecedorPage> {
   }
 
   Future<void> salvar() async {
-    if (!_formKey.currentState!.validate()) {
+    if (salvando || !_formKey.currentState!.validate()) {
       return;
     }
 
@@ -81,6 +82,7 @@ class _CadastroFornecedorPageState extends State<CadastroFornecedorPage> {
         email: emailController.text.trim(),
         endereco: enderecoController.text.trim(),
         observacoes: observacoesController.text.trim(),
+        ativo: ativo,
         dataCadastro:
             widget.fornecedorParaEditar?.dataCadastro ?? Timestamp.now(),
       );
@@ -126,210 +128,159 @@ class _CadastroFornecedorPageState extends State<CadastroFornecedorPage> {
 
   Widget campo({
     required String label,
-    required IconData icon,
     required TextEditingController controller,
-    bool required = true,
+    bool obrigatorio = false,
     TextInputType? keyboardType,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        validator: required
-            ? (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Campo obrigatório';
-                }
-                return null;
-              }
-            : null,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, color: primaria),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
+    int maxLines = 1,
+    String? hint,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: TextFormField(
+      controller: controller,
+      enabled: !salvando,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      validator: obrigatorio
+          ? (value) => value == null || value.trim().isEmpty
+                ? 'Campo obrigatório'
+                : null
+          : null,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+  );
+
+  Widget _secao(String titulo) => Padding(
+    padding: const EdgeInsets.only(top: 6, bottom: 10),
+    child: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold)),
+  );
+
+  Widget _formulario() => Padding(
+    padding: const EdgeInsets.all(16),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 20,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.sizeOf(context).width < 1000 ? 80 : 0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _secao('Dados do fornecedor'),
+              CamposGrid(
+                campos: [
+                  campo(
+                    label: 'Nome / Razão Social *',
+                    controller: nomeController,
+                    obrigatorio: true,
+                  ),
+                  campo(label: 'CPF / CNPJ', controller: cpfCnpjController),
+                  campo(
+                    label: 'Categoria',
+                    hint: 'Ex.: Ração, Ferrageamento, Veterinário',
+                    controller: categoriaController,
+                  ),
+                  campo(
+                    label: 'Telefone',
+                    controller: telefoneController,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  campo(
+                    label: 'Email',
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
+              ),
+              _secao('Endereço'),
+              campo(label: 'Endereço', controller: enderecoController),
+              _secao('Observações'),
+              campo(
+                label: 'Observações',
+                controller: observacoesController,
+                maxLines: 3,
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Fornecedor ativo'),
+                value: ativo,
+                onChanged: salvando
+                    ? null
+                    : (value) => setState(() => ativo = value),
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width >= 1000;
-
-    return Scaffold(
-      backgroundColor: fundo,
-      appBar: isDesktop
-          ? null
-          : AppBar(
-              backgroundColor: primaria,
-              foregroundColor: Colors.white,
-              title: Text(
-                editando ? 'Editar Fornecedor' : 'Cadastro de Fornecedor',
-              ),
-            ),
-      body: Column(
-        children: [
-          if (isDesktop) const AdminTopBar(),
-          if (isDesktop)
-            Container(
-              height: 56,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              color: Colors.white,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                editando ? 'Editar Fornecedor' : 'Cadastro de Fornecedor',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: DesktopFitViewport(
-                maxWidth: 1120,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            editando ? 'Editar Fornecedor' : 'Novo Fornecedor',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            editando
-                                ? 'Atualize os dados do fornecedor.'
-                                : 'Cadastre os dados do fornecedor.',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    CamposGrid(
-                      campos: [
-                        campo(
-                          label: 'Nome / Razão Social',
-                          icon: Icons.storefront_outlined,
-                          controller: nomeController,
-                        ),
-                        campo(
-                          label: 'CPF / CNPJ',
-                          icon: Icons.badge_outlined,
-                          controller: cpfCnpjController,
-                          keyboardType: TextInputType.number,
-                          required: false,
-                        ),
-                        campo(
-                          label:
-                              'Categoria (ex: Ração, Ferrageamento, Veterinário)',
-                          icon: Icons.category_outlined,
-                          controller: categoriaController,
-                          required: false,
-                        ),
-                        campo(
-                          label: 'Telefone',
-                          icon: Icons.phone_outlined,
-                          controller: telefoneController,
-                          keyboardType: TextInputType.phone,
-                          required: false,
-                        ),
-                        campo(
-                          label: 'Email',
-                          icon: Icons.email_outlined,
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          required: false,
-                        ),
-                        campo(
-                          label: 'Endereço',
-                          icon: Icons.location_on_outlined,
-                          controller: enderecoController,
-                          required: false,
-                        ),
-                      ],
-                    ),
-                    campo(
-                      label: 'Observações',
-                      icon: Icons.notes_outlined,
-                      controller: observacoesController,
-                      required: false,
-                    ),
-                    const SizedBox(height: 20),
-                    if (!isDesktop)
-                      SizedBox(
-                        height: 55,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaria,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          onPressed: salvando ? null : salvar,
-                          icon: salvando
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.save, color: Colors.white),
-                          label: Text(
-                            salvando
-                                ? 'SALVANDO...'
-                                : (editando
-                                      ? 'SALVAR ALTERAÇÕES'
-                                      : 'CADASTRAR FORNECEDOR'),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+    final isDesktop = MediaQuery.sizeOf(context).width >= 1000;
+    return PopScope(
+      canPop: !salvando,
+      child: Scaffold(
+        backgroundColor: fundo,
+        appBar: AppBar(
+          title: Text(editando ? 'Editar Fornecedor' : 'Novo Fornecedor'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            tooltip: 'Fechar',
+            icon: const Icon(Icons.close),
+            onPressed: salvando ? null : () => Navigator.maybePop(context),
           ),
-          if (isDesktop)
-            DesktopFormActions(
-              primaryLabel: editando
-                  ? 'Salvar alterações'
-                  : 'Cadastrar fornecedor',
-              onPrimary: salvar,
-              onCancel: () => Navigator.maybePop(context),
-              loading: salvando,
+        ),
+        body: Column(
+          children: [
+            if (isDesktop) const AdminTopBar(),
+            Expanded(
+              child: Form(key: _formKey, child: _formulario()),
             ),
-        ],
+          ],
+        ),
+        floatingActionButton: isDesktop
+            ? null
+            : FloatingActionButton.extended(
+                onPressed: salvando ? null : salvar,
+                icon: salvando
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save),
+                label: const Text('Salvar'),
+              ),
+        bottomNavigationBar: isDesktop
+            ? DesktopFormActions(
+                primaryLabel: 'Salvar fornecedor',
+                onPrimary: salvar,
+                onCancel: () => Navigator.maybePop(context),
+                loading: salvando,
+              )
+            : null,
       ),
     );
   }

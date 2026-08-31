@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/divida_model.dart';
@@ -141,7 +142,7 @@ class _NovaContaPageMobileState
 
 
     final data =
-    await showDatePicker(
+    await showAppDatePicker(
 
       context: context,
 

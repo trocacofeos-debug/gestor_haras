@@ -8,7 +8,7 @@ import 'cavalos_list_page_mobile.dart';
 // =====================================================
 //
 // Roteador: decide entre a versão Desktop (tabela +
-// popup) e Mobile (cards), com base na largura da tela.
+// popup) e Mobile (lista compacta), com base na largura da tela.
 // As duas telas são independentes entre si.
 
 class CavalosListPage extends StatelessWidget {

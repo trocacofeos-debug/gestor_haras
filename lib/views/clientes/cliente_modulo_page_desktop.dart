@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/cliente_model.dart';
@@ -911,7 +912,7 @@ class _ClienteModuloPageDesktopState extends State<ClienteModuloPageDesktop> {
   // =====================================================
 
   Future<void> _confirmarQuitarDivida(String dividaId) async {
-    final confirmar = await showDialog<bool>(
+    final confirmar = await showAppDialog<bool>(
       context: context,
 
       builder: (context) => AlertDialog(
@@ -1187,7 +1188,7 @@ class _ClienteModuloPageDesktopState extends State<ClienteModuloPageDesktop> {
 
     final parcelas = TextEditingController(text: "1");
 
-    final salvar = await showDialog<bool>(
+    final salvar = await showAppDialog<bool>(
       context: context,
 
       builder: (context) => AlertDialog(
@@ -1352,3 +1353,4 @@ class _ClienteModuloPageDesktopState extends State<ClienteModuloPageDesktop> {
     );
   }
 }
+

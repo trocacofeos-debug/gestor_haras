@@ -56,6 +56,31 @@ class _CadastroClientePageState extends State<CadastroClientePage>
     }
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    for (final controller in [
+      nomeController,
+      sobrenomeController,
+      razaoSocialController,
+      nomeFantasiaController,
+      cpfCnpjController,
+      telefoneController,
+      emailController,
+      cepController,
+      enderecoController,
+      numeroController,
+      bairroController,
+      cidadeController,
+      estadoController,
+      nomeHarasController,
+      idRuralController,
+    ]) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   void _load() {
     final c = widget.cliente!;
 
@@ -94,7 +119,7 @@ class _CadastroClientePageState extends State<CadastroClientePage>
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
 
-        if (data['erro'] == true) return;
+        if (!mounted || data['erro'] == true) return;
 
         setState(() {
           enderecoController.text = data['logradouro'] ?? '';
@@ -156,7 +181,6 @@ class _CadastroClientePageState extends State<CadastroClientePage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: children,
     );
-    final desktop = MediaQuery.of(context).size.width >= 1000;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -175,13 +199,7 @@ class _CadastroClientePageState extends State<CadastroClientePage>
             ),
           ],
         ),
-        child: desktop
-            ? FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.topCenter,
-                child: SizedBox(width: 1180, child: conteudo),
-              )
-            : SingleChildScrollView(child: conteudo),
+        child: SingleChildScrollView(child: conteudo),
       ),
     );
   }
@@ -318,27 +336,26 @@ class _CadastroClientePageState extends State<CadastroClientePage>
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FB),
 
+      appBar: AppBar(
+        title: Text(widget.cliente == null ? 'Novo Cliente' : 'Editar Cliente'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.black,
+          indicatorColor: Colors.blue,
+          tabs: const [
+            Tab(text: 'Física'),
+            Tab(text: 'Jurídica'),
+            Tab(text: 'Rural'),
+          ],
+        ),
+      ),
+
       body: Column(
         children: [
           if (isDesktop) const AdminTopBar(),
-          AppBar(
-            title: Text(
-              widget.cliente == null ? 'Novo Cliente' : 'Editar Cliente',
-            ),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            elevation: 0,
-            bottom: TabBar(
-              controller: _tabController,
-              labelColor: Colors.black,
-              indicatorColor: Colors.blue,
-              tabs: const [
-                Tab(text: 'Física'),
-                Tab(text: 'Jurídica'),
-                Tab(text: 'Rural'),
-              ],
-            ),
-          ),
           Expanded(
             child: Form(
               key: _formKey,

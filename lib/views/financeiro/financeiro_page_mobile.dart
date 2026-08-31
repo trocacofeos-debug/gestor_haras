@@ -201,7 +201,7 @@ class _FinanceiroPageMobileState
         title:
         const Text(
 
-          "Financeiro",
+          "Dívidas",
 
           style:
           TextStyle(

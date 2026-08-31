@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 
 import '../../models/noticia_model.dart';
 import '../../services/cloudflare_r2_service.dart';
@@ -35,7 +36,7 @@ class _NoticiasPageMobileState extends State<NoticiasPageMobile> {
     String? imagemAtualUrl = noticiaParaEditar?.imagemUrl;
     bool enviando = false;
 
-    await showDialog(
+    await showAppDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -228,7 +229,7 @@ class _NoticiasPageMobileState extends State<NoticiasPageMobile> {
   }
 
   Future<void> _excluir(NoticiaModel noticia) async {
-    final confirmar = await showDialog<bool>(
+    final confirmar = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remover notícia'),

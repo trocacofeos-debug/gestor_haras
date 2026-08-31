@@ -20,8 +20,11 @@ import 'views/propostas/cliente/clicksign_signature_page.dart';
 
 import 'widgets/desktop_app_frame.dart';
 import 'widgets/desktop_admin_shortcuts.dart';
+import 'widgets/popup_workspace.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
+final popupWorkspaceKey = GlobalKey<PopupWorkspaceState>();
+final popupWorkspaceObserver = PopupWorkspaceObserver(popupWorkspaceKey);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,12 +43,18 @@ class GestorHarasApp extends StatelessWidget {
       title: "Gestor Haras",
 
       navigatorKey: appNavigatorKey,
+      navigatorObservers: [popupWorkspaceObserver],
 
       debugShowCheckedModeBanner: false,
 
       builder: (context, child) => DesktopAdminShortcuts(
         navigatorKey: appNavigatorKey,
-        child: DesktopAppFrame(child: child ?? const SizedBox.shrink()),
+        child: DesktopAppFrame(
+          child: PopupWorkspace(
+            key: popupWorkspaceKey,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        ),
       ),
 
       theme: ThemeData(

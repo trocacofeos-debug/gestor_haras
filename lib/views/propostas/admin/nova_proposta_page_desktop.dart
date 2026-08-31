@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../../widgets/app_dialogs.dart';
 
 import '../../../models/cliente_model.dart';
 import '../../home/admin_top_bar.dart';
@@ -52,7 +53,7 @@ class _NovaPropostaPageDesktopState
 
   Future<void> selecionarCliente() async {
     final resultado =
-        await showDialog<Map<String, dynamic>>(
+        await showAppDialog<Map<String, dynamic>>(
       context: context,
       builder: (_) =>
           const _SelecionarClienteDialog(),

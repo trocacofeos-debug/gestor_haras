@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 
 import '../../models/imagem_galeria_model.dart';
 import '../../services/cloudflare_r2_service.dart';
@@ -85,7 +86,7 @@ class _GaleriaPageDesktopState extends State<GaleriaPageDesktop> {
   }
 
   Future<void> _excluir(ImagemGaleriaModel imagem) async {
-    final confirmar = await showDialog<bool>(
+    final confirmar = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remover da galeria'),
@@ -269,3 +270,4 @@ class _GaleriaPageDesktopState extends State<GaleriaPageDesktop> {
     );
   }
 }
+

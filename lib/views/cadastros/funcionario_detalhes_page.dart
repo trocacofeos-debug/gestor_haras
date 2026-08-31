@@ -1,357 +1,225 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import '../../widgets/app_dialogs.dart';
 import '../../models/funcionario_model.dart';
-import 'cadastro_funcionario_page.dart';
+import '../../services/funcionario_cadastro_formatos.dart';
+import '../../widgets/campos_grid.dart';
 import '../../widgets/desktop_window.dart';
+import '../../widgets/funcionario_foto.dart';
+import 'cadastro_funcionario_page.dart';
+
+Future<void> abrirPopupDetalhesFuncionario(BuildContext context, String id) =>
+    showAppDialog<void>(
+      context: context,
+      title: 'Detalhes do funcionário',
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1160, maxHeight: 800),
+          child: SizedBox(
+            width: double.infinity,
+            height: MediaQuery.sizeOf(ctx).height * .85,
+            child: DesktopWindowScope(
+              child: FuncionarioDetalhesPage(funcionarioId: id),
+            ),
+          ),
+        ),
+      ),
+    );
 
 class FuncionarioDetalhesPage extends StatelessWidget {
   final String funcionarioId;
-
   const FuncionarioDetalhesPage({super.key, required this.funcionarioId});
-
-  static const Color primaria = Color(0xFF4F46E5);
-  static const Color fundo = Color(0xFFF3F4F6);
-
-  Widget _header(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 45, 20, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 10),
-        ],
+  Widget _campo(String titulo, String valor) => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          titulo,
+          style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+        ),
+        const SizedBox(height: 4),
+        SelectableText(
+          valor.isEmpty ? '—' : valor,
+          style: const TextStyle(fontSize: 14),
+        ),
+      ],
+    ),
+  );
+  Widget _grupo(String titulo, List<Widget> campos) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const SizedBox(height: 16),
+      Text(
+        titulo,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
       ),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: primaria.withOpacity(.10),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(Icons.arrow_back_rounded, color: primaria),
-            ),
-          ),
-          const SizedBox(width: 15),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: primaria.withOpacity(.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(Icons.badge_rounded, color: primaria, size: 30),
-          ),
-          const SizedBox(width: 15),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Detalhes do Funcionário',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Informações do colaborador',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _titulo(String texto, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: primaria.withOpacity(.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 20, color: primaria),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            texto,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _campo(String titulo, String valor, IconData icon) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(.03), blurRadius: 8),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: primaria.withOpacity(.10),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: primaria, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  valor.trim().isEmpty ? '-' : valor,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatarData(Timestamp? timestamp) {
-    if (timestamp == null) return '-';
-
-    final data = timestamp.toDate();
-
-    return '${data.day.toString().padLeft(2, '0')}/'
-        '${data.month.toString().padLeft(2, '0')}/'
-        '${data.year}';
-  }
-
+      const SizedBox(height: 12),
+      CamposGrid(maximoColunas: 3, larguraMinimaColuna: 240, campos: campos),
+      const Divider(color: Color(0xFFE5E7EB)),
+    ],
+  );
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: fundo,
-      body: Column(
-        children: [
-          _header(context),
-          Expanded(
-            child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-              stream: FirebaseFirestore.instance
-                  .collection('funcionarios')
-                  .doc(funcionarioId)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Center(
-                    child: Text('Funcionário não encontrado'),
-                  );
-                }
-
-                final funcionario = FuncionarioModel.fromMap(
-                  snapshot.data!.data()!,
-                  snapshot.data!.id,
-                );
-
-                return ListView(
-                  padding: const EdgeInsets.all(20),
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    Stack(
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      title: const Text(
+        'Detalhes do funcionário',
+        style: TextStyle(fontSize: 18),
+      ),
+      leading: IconButton(
+        tooltip: 'Fechar',
+        icon: const Icon(Icons.close),
+        onPressed: () => Navigator.maybePop(context),
+      ),
+    ),
+    body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('funcionarios')
+          .doc(funcionarioId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text('Não foi possível carregar o funcionário.'),
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.data!.exists) {
+          return const Center(child: Text('Funcionário não encontrado.'));
+        }
+        final f = FuncionarioModel.fromMap(
+          snapshot.data!.data()!,
+          funcionarioId,
+        );
+        final mapa = f.toMap();
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FuncionarioFoto(url: f.fotoUrl, tamanho: 80),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(25),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF4F46E5), Color(0xFF7C7AF0)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(28),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaria.withOpacity(.25),
-                                blurRadius: 18,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 40,
-                                backgroundColor: Colors.white,
-                                child: Text(
-                                  funcionario.nome.isEmpty
-                                      ? '?'
-                                      : funcionario.nome
-                                            .substring(0, 1)
-                                            .toUpperCase(),
-                                  style: const TextStyle(
-                                    color: primaria,
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              Text(
-                                funcionario.nome.isEmpty
-                                    ? 'Funcionário'
-                                    : funcionario.nome,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                funcionario.cargo.isEmpty
-                                    ? 'Cargo não informado'
-                                    : funcionario.cargo,
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                              const SizedBox(height: 15),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(.20),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.circle,
-                                      size: 12,
-                                      color: funcionario.ativo
-                                          ? Colors.greenAccent
-                                          : Colors.redAccent,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      funcionario.ativo ? 'Ativo' : 'Inativo',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                        Text(
+                          f.nome.isEmpty ? 'Funcionário sem nome' : f.nome,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-
-                        Positioned(
-                          top: 12,
-                          right: 12,
-                          child: InkWell(
-                            onTap: () {
-                              openDesktopWindow(
-                                context,
-                                title: 'Editar funcionário',
-                                icon: Icons.edit_rounded,
-                                builder: (_) => CadastroFuncionarioPage(
-                                  funcionarioParaEditar: funcionario,
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(.20),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.edit_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                          ),
+                        Text(
+                          f.cargo,
+                          style: const TextStyle(color: Color(0xFF6B7280)),
                         ),
+                        const SizedBox(height: 6),
+                        Text(f.ativo ? 'Ativo' : 'Inativo'),
                       ],
                     ),
-
-                    const SizedBox(height: 25),
-
-                    _titulo('Dados Pessoais', Icons.person_outline_rounded),
-
-                    _campo('CPF', funcionario.cpf, Icons.badge_outlined),
-                    _campo(
-                      'Telefone',
-                      funcionario.telefone,
-                      Icons.phone_rounded,
+                  ),
+                  IconButton(
+                    tooltip: 'Editar funcionário',
+                    icon: const Icon(
+                      Icons.edit_outlined,
+                      color: Color(0xFF4F46E5),
                     ),
-                    _campo('Email', funcionario.email, Icons.email_outlined),
-
-                    const SizedBox(height: 15),
-
-                    _titulo('Dados Profissionais', Icons.work_outline_rounded),
-
-                    _campo('Cargo', funcionario.cargo, Icons.work_outline),
-                    _campo(
-                      'Salário',
-                      'R\$ ${funcionario.salario.toStringAsFixed(2)}',
-                      Icons.attach_money_rounded,
+                    onPressed: () => openDesktopWindow(
+                      context,
+                      title: 'Editar funcionário',
+                      builder: (_) =>
+                          CadastroFuncionarioPage(funcionarioParaEditar: f),
                     ),
-                    _campo(
-                      'Data de admissão',
-                      _formatarData(funcionario.dataAdmissao),
-                      Icons.event_rounded,
-                    ),
-
-                    if (funcionario.observacoes.isNotEmpty) ...[
-                      const SizedBox(height: 15),
-                      _titulo('Observações', Icons.notes_rounded),
-                      _campo(
-                        'Notas',
-                        funcionario.observacoes,
-                        Icons.notes_rounded,
-                      ),
-                    ],
-
-                    const SizedBox(height: 30),
-                  ],
-                );
-              },
-            ),
+                  ),
+                ],
+              ),
+              _grupo('Dados pessoais e contato', [
+                _campo('CPF', f.cpf),
+                _campo(
+                  'Data de nascimento',
+                  FuncionarioCadastroFormatos.data(f.dataNascimento),
+                ),
+                _campo('Telefone / WhatsApp', f.telefone),
+                _campo('Email', f.email),
+              ]),
+              _grupo('Vínculo com o haras', [
+                _campo('Cargo', f.cargo),
+                _campo('Matrícula', f.matricula),
+                _campo('Tipo de vínculo', f.tipoVinculo),
+                _campo('Jornada / horário', f.jornada),
+                _campo(
+                  'Salário',
+                  'R\$ ${FuncionarioCadastroFormatos.salario(f.salario)}',
+                ),
+                _campo(
+                  'Admissão',
+                  FuncionarioCadastroFormatos.data(f.dataAdmissao),
+                ),
+                _campo(
+                  'Desligamento',
+                  FuncionarioCadastroFormatos.data(f.dataDesligamento),
+                ),
+              ]),
+              _grupo('Carteira de trabalho e identificação profissional', [
+                for (final k in [
+                  'ctpsNumero',
+                  'ctpsSerie',
+                  'ctpsUf',
+                  'pisPasep',
+                ])
+                  _campo(
+                    FuncionarioModel.camposAdicionais[k]!,
+                    mapa[k] as String,
+                  ),
+              ]),
+              _grupo('Endereço', [
+                for (final k in [
+                  'cep',
+                  'endereco',
+                  'numero',
+                  'complemento',
+                  'bairro',
+                  'cidade',
+                  'estado',
+                ])
+                  _campo(
+                    FuncionarioModel.camposAdicionais[k]!,
+                    mapa[k] as String,
+                  ),
+              ]),
+              _grupo('Contato de emergência', [
+                for (final k in [
+                  'emergenciaNome',
+                  'emergenciaTelefone',
+                  'emergenciaParentesco',
+                ])
+                  _campo(
+                    FuncionarioModel.camposAdicionais[k]!,
+                    mapa[k] as String,
+                  ),
+              ]),
+              if (f.observacoes.isNotEmpty)
+                _campo('Observações', f.observacoes),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        );
+      },
+    ),
+  );
 }
+
+

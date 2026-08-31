@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 
 import '../../models/cavalo_model.dart';
 import '../../models/despesa_cavalo_model.dart';
@@ -222,7 +223,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
     CategoriaDespesa categoria = CategoriaDespesa.remedio;
     DateTime data = DateTime.now();
 
-    final salvar = await showDialog<bool>(
+    final salvar = await showAppDialog<bool>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -273,7 +274,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                     const SizedBox(height: 12),
                     InkWell(
                       onTap: () async {
-                        final novaData = await showDatePicker(
+                        final novaData = await showAppDatePicker(
                           context: context,
                           initialDate: data,
                           firstDate: DateTime(2000),
@@ -366,7 +367,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
     BuildContext context,
     String despesaId,
   ) async {
-    final confirmar = await showDialog<bool>(
+    final confirmar = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Excluir despesa'),

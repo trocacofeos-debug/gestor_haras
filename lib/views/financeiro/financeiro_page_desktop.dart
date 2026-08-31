@@ -193,7 +193,7 @@ class _FinanceiroPageDesktopState
             color: Colors.white,
             alignment: Alignment.centerLeft,
             child: const Text(
-              "Financeiro",
+              "Dívidas",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),

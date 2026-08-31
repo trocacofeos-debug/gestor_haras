@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/cliente_model.dart';
@@ -2647,7 +2648,7 @@ class _ClienteModuloPageMobileState
 
     final confirmar =
 
-    await showDialog<bool>(
+    await showAppDialog<bool>(
 
 
 
@@ -3382,7 +3383,7 @@ class _ClienteModuloPageMobileState
 
     final salvar =
 
-    await showDialog<bool>(
+    await showAppDialog<bool>(
 
 
 

@@ -1,4 +1,4 @@
-// ignore_for_file: unused_import, deprecated_member_use
+// ignore_for_file: unused_element, unused_import, deprecated_member_use
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -114,7 +114,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
       backgroundColor: corFundo,
       body: Column(
         children: [
-          const AdminTopBar(),
+          const AdminTopBar(mostrarInicio: false),
           Expanded(
             child: RefreshIndicator(
               onRefresh: carregar,

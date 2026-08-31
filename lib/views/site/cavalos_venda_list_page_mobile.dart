@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/app_dialogs.dart';
 
 import '../../models/cavalo_venda_model.dart';
 
@@ -24,7 +25,7 @@ class _CavalosVendaListPageMobileState extends State<CavalosVendaListPageMobile>
   static const Color corBorda = Color(0xFFE5E7EB);
 
   Future<void> _excluir(BuildContext context, CavaloVendaModel cavalo) async {
-    final confirmar = await showDialog<bool>(
+    final confirmar = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remover do site'),
