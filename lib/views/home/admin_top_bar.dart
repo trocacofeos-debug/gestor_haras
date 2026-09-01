@@ -13,8 +13,10 @@ import '../cadastros/cadastro_hub_page.dart';
 import '../cadastros/cadastro_cavalo_page.dart';
 import '../cadastros/cadastro_funcionario_page.dart';
 import '../cadastros/cadastro_fornecedor_page.dart';
+import '../cadastros/medicamentos_page.dart';
 import '../financeiro/financeiro_page.dart';
 import '../financeiro/financeiro_animais_page.dart';
+import '../financeiro/relatorios_animais_page.dart';
 import '../financeiro/nova_conta_page.dart';
 import '../propostas/admin/propostas_admin_page.dart';
 import '../propostas/admin/nova_proposta_page.dart';
@@ -23,6 +25,7 @@ import '../site/galeria_page.dart';
 import '../site/noticias_page.dart';
 import 'admin_home_desktop.dart';
 import '../../widgets/desktop_window.dart';
+import '../../models/medicamento_model.dart';
 
 // =====================================================
 // AdminTopBar
@@ -58,10 +61,12 @@ class AdminTopBar extends StatelessWidget {
     if (pagina is CavalosListPage) return 'Animais';
     if (pagina is FuncionariosListPage) return 'Funcionários';
     if (pagina is FornecedoresListPage) return 'Fornecedores';
+    if (pagina is MedicamentosPage) return pagina.titulo;
     if (pagina is CadastroHubPage) return 'Novo cadastro';
     if (pagina is FinanceiroPage) return 'Dívidas';
     if (pagina is FinanceiroAnimaisPage) return 'Financeiro';
-    if (pagina is NovaContaPage) return 'Nova conta';
+    if (pagina is RelatoriosAnimaisPage) return 'Relatórios';
+    if (pagina is NovaContaPage) return 'Cadastrar dívida';
     if (pagina is PropostasAdminPage) return 'Propostas';
     if (pagina is NovaPropostaPage) return 'Nova proposta';
     if (pagina is CavalosVendaListPage) return 'Cavalos à venda';
@@ -75,8 +80,10 @@ class AdminTopBar extends StatelessWidget {
     if (pagina is CavalosListPage) return Icons.pets_rounded;
     if (pagina is FuncionariosListPage) return Icons.badge_rounded;
     if (pagina is FornecedoresListPage) return Icons.storefront_rounded;
+    if (pagina is MedicamentosPage) return pagina.icone;
     if (pagina is FinanceiroPage ||
         pagina is FinanceiroAnimaisPage ||
+        pagina is RelatoriosAnimaisPage ||
         pagina is NovaContaPage) {
       return Icons.account_balance_wallet_rounded;
     }
@@ -184,6 +191,15 @@ class AdminTopBar extends StatelessWidget {
                 _ItemMenu('Animais', () => const CavalosListPage()),
                 _ItemMenu('Funcionários', () => const FuncionariosListPage()),
                 _ItemMenu('Fornecedores', () => const FornecedoresListPage()),
+                _ItemMenu('Remédios', () => const MedicamentosPage()),
+                _ItemMenu(
+                  'Vacinas',
+                  () => const MedicamentosPage(tipo: TipoTratamento.vacina),
+                ),
+                _ItemMenu(
+                  'Suplementos',
+                  () => const MedicamentosPage(tipo: TipoTratamento.suplemento),
+                ),
               ],
             ),
             _menuDropdown(
@@ -191,8 +207,9 @@ class AdminTopBar extends StatelessWidget {
               titulo: 'Gestão',
               itens: [
                 _ItemMenu('Financeiro', () => const FinanceiroAnimaisPage()),
+                _ItemMenu('Relatórios', () => const RelatoriosAnimaisPage()),
                 _ItemMenu('Dívidas', () => const FinanceiroPage()),
-                _ItemMenu('Nova Conta', () => const NovaContaPage()),
+                _ItemMenu('Cadastrar dívida', () => const NovaContaPage()),
               ],
             ),
             _menuDropdown(

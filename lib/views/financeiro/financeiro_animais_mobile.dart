@@ -16,6 +16,7 @@ class FinanceiroAnimaisMobile extends StatelessWidget {
   final VoidCallback onLimpar;
   final Future<void> Function() onAtualizar;
   final ValueChanged<String> onAbrirAnimal;
+  final VoidCallback onNovoLancamento;
 
   const FinanceiroAnimaisMobile({
     super.key,
@@ -31,6 +32,7 @@ class FinanceiroAnimaisMobile extends StatelessWidget {
     required this.onLimpar,
     required this.onAtualizar,
     required this.onAbrirAnimal,
+    required this.onNovoLancamento,
   });
 
   static const _borda = Color(0xFFE5E7EB);
@@ -276,6 +278,13 @@ class FinanceiroAnimaisMobile extends StatelessWidget {
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    key: const ValueKey('novo-lancamento-financeiro'),
+                    onPressed: onNovoLancamento,
+                    icon: const Icon(Icons.add_card_rounded),
+                    label: const Text('Adicionar receita ou despesa'),
                   ),
                   const SizedBox(height: 12),
                   LayoutBuilder(

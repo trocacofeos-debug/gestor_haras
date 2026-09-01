@@ -79,49 +79,80 @@ class _FuncionariosListaViewState extends State<FuncionariosListaView> {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: _fundo,
+    appBar: widget.desktop
+        ? null
+        : AppBar(
+            leading: IconButton(
+              tooltip: 'Voltar ao dashboard',
+              onPressed: _voltar,
+              icon: const Icon(Icons.arrow_back),
+            ),
+            title: const Text('Funcionários'),
+            actions: [
+              IconButton(
+                tooltip: 'Novo funcionário',
+                onPressed: _novo,
+                icon: const Icon(Icons.person_add_alt_1_outlined),
+              ),
+              IconButton(
+                tooltip: 'Atualizar',
+                onPressed: () => setState(() => _stream = _carregar()),
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
     body: SafeArea(
       child: Column(
         children: [
           if (widget.desktop) const AdminTopBar(),
-          Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(bottom: BorderSide(color: _borda)),
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  tooltip: 'Voltar ao dashboard',
-                  onPressed: _voltar,
-                  icon: const Icon(Icons.arrow_back, size: 22),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    'Funcionários',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          if (widget.desktop)
+            Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: _borda)),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: 'Voltar ao dashboard',
+                    onPressed: _voltar,
+                    icon: const Icon(Icons.arrow_back, size: 22),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Novo funcionário',
-                  onPressed: _novo,
-                  icon: const Icon(
-                    Icons.person_add_alt_1_outlined,
-                    color: Color(0xFF4F46E5),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Funcionários',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Atualizar',
-                  onPressed: () => setState(() => _stream = _carregar()),
-                  icon: const Icon(Icons.refresh, color: _secundario),
-                ),
-              ],
+                  IconButton(
+                    tooltip: 'Novo funcionário',
+                    onPressed: _novo,
+                    icon: const Icon(
+                      Icons.person_add_alt_1_outlined,
+                      color: Color(0xFF4F46E5),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Atualizar',
+                    onPressed: () => setState(() => _stream = _carregar()),
+                    icon: const Icon(Icons.refresh, color: _secundario),
+                  ),
+                ],
+              ),
             ),
-          ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            padding: EdgeInsets.fromLTRB(
+              widget.desktop ? 20 : 16,
+              16,
+              widget.desktop ? 20 : 16,
+              12,
+            ),
             child: TextField(
               controller: _busca,
               onChanged: (_) => setState(() {}),
@@ -138,14 +169,18 @@ class _FuncionariosListaViewState extends State<FuncionariosListaView> {
                 isDense: true,
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: _borda),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(6),
-                  borderSide: const BorderSide(color: _borda),
-                ),
+                border: widget.desktop
+                    ? OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                        borderSide: const BorderSide(color: _borda),
+                      )
+                    : null,
+                enabledBorder: widget.desktop
+                    ? OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                        borderSide: const BorderSide(color: _borda),
+                      )
+                    : null,
               ),
             ),
           ),
@@ -185,7 +220,12 @@ class _FuncionariosListaViewState extends State<FuncionariosListaView> {
                   );
                 }
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+                  padding: EdgeInsets.fromLTRB(
+                    widget.desktop ? 20 : 16,
+                    10,
+                    widget.desktop ? 20 : 16,
+                    30,
+                  ),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1440),
@@ -278,13 +318,17 @@ class _FuncionariosListaViewState extends State<FuncionariosListaView> {
     ),
   );
   Widget _linhaMobile(FuncionarioModel f) => Material(
-    color: Colors.white,
+    color: Colors.transparent,
     child: InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: () => _abrir(f),
       child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: _borda)),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _borda),
         ),
         child: Row(
           children: [
@@ -313,11 +357,28 @@ class _FuncionariosListaViewState extends State<FuncionariosListaView> {
               ),
             ),
             const SizedBox(width: 8),
-            Text(
-              f.ativo ? 'Ativo' : 'Inativo',
-              style: const TextStyle(color: _secundario, fontSize: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: f.ativo
+                    ? const Color(0xFFDCFCE7)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                f.ativo ? 'Ativo' : 'Inativo',
+                style: TextStyle(
+                  color: f.ativo ? const Color(0xFF166534) : _secundario,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-            const Icon(Icons.chevron_right, color: _secundario, size: 20),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: _secundario,
+              size: 20,
+            ),
           ],
         ),
       ),

@@ -190,7 +190,7 @@ class _ClienteModuloPageDesktopState extends State<ClienteModuloPageDesktop> {
           openDesktopWindow(
             context,
 
-            title: 'Nova dívida',
+            title: 'Cadastrar dívida',
             icon: Icons.account_balance_wallet_rounded,
             builder: (_) => NovaContaPage(
               clienteIdInicial: widget.cliente.id,
@@ -1353,4 +1353,3 @@ class _ClienteModuloPageDesktopState extends State<ClienteModuloPageDesktop> {
     );
   }
 }
-

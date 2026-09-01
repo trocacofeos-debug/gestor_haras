@@ -3,6 +3,52 @@ import 'despesa_cavalo_model.dart';
 
 enum TipoMovimentoAnimal { receita, despesa }
 
+enum CategoriaReceitaAnimal {
+  hospedagem,
+  venda,
+  reproducao,
+  treinamento,
+  premiacao,
+  outro,
+}
+
+extension CategoriaReceitaAnimalExt on CategoriaReceitaAnimal {
+  String get label => switch (this) {
+    CategoriaReceitaAnimal.hospedagem => 'Hospedagem',
+    CategoriaReceitaAnimal.venda => 'Venda',
+    CategoriaReceitaAnimal.reproducao => 'Reprodução',
+    CategoriaReceitaAnimal.treinamento => 'Treinamento',
+    CategoriaReceitaAnimal.premiacao => 'Premiação',
+    CategoriaReceitaAnimal.outro => 'Outra receita',
+  };
+}
+
+String categoriaReceitaLabel(String valor) {
+  if (valor.trim().isEmpty) return 'Receita';
+  for (final categoria in CategoriaReceitaAnimal.values) {
+    if (categoria.name == valor) return categoria.label;
+  }
+  return valor;
+}
+
+class NovoMovimentoAnimal {
+  final String animalId;
+  final TipoMovimentoAnimal tipo;
+  final String descricao;
+  final String categoria;
+  final int centavos;
+  final DateTime data;
+
+  const NovoMovimentoAnimal({
+    required this.animalId,
+    required this.tipo,
+    required this.descricao,
+    required this.categoria,
+    required this.centavos,
+    required this.data,
+  });
+}
+
 class MovimentoAnimal {
   final String id;
   final String animalId;
@@ -47,7 +93,7 @@ class MovimentoAnimal {
           ? categoriaDespesaFromString(
               (map['categoria'] ?? '').toString(),
             ).label
-          : 'Receita',
+          : categoriaReceitaLabel((map['categoria'] ?? '').toString()),
       centavos: centavos.round(),
       data: data is Timestamp ? data.toDate() : null,
     );

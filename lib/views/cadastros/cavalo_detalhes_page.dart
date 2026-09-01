@@ -15,7 +15,7 @@ import 'cadastro_cavalo_page.dart';
 Future<void> abrirPopupDetalhesCavalo(BuildContext context, String cavaloId) {
   return showAppDialog<void>(
     context: context,
-      title: 'Detalhes do animal',
+    title: 'Detalhes do animal',
     builder: (dialogContext) => Dialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
@@ -132,6 +132,8 @@ class CavaloDetalhesPage extends StatelessWidget {
         return Icons.medication_outlined;
       case CategoriaDespesa.vacina:
         return Icons.vaccines_outlined;
+      case CategoriaDespesa.suplemento:
+        return Icons.grass_outlined;
       case CategoriaDespesa.alimento:
         return Icons.grass_outlined;
       case CategoriaDespesa.ferrageamento:
@@ -149,6 +151,8 @@ class CavaloDetalhesPage extends StatelessWidget {
         return Colors.redAccent;
       case CategoriaDespesa.vacina:
         return Colors.teal;
+      case CategoriaDespesa.suplemento:
+        return Colors.lightGreen;
       case CategoriaDespesa.alimento:
         return Colors.orange;
       case CategoriaDespesa.ferrageamento:
@@ -1189,5 +1193,3 @@ class CavaloDetalhesPage extends StatelessWidget {
     );
   }
 }
-
-

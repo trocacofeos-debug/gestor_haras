@@ -44,165 +44,134 @@ class _CavalosListPageMobileState extends State<CavalosListPageMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: fundo,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              height: 60,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(bottom: BorderSide(color: corBorda)),
-              ),
-              child: Row(
-                children: [
-                  if (Navigator.canPop(context)) ...[
-                    IconButton(
-                      tooltip: 'Voltar',
-                      onPressed: () => Navigator.maybePop(context),
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: corTexto,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  const Expanded(
-                    child: Text(
-                      'Animais',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: corTexto,
-                      ),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CadastroCavaloPage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Novo cavalo'),
-                    style: TextButton.styleFrom(foregroundColor: primaria),
-                  ),
-                ],
-              ),
+      appBar: AppBar(
+        title: const Text('Animais'),
+        actions: [
+          IconButton(
+            tooltip: 'Cadastrar animal',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CadastroCavaloPage()),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-              child: TextField(
-                controller: buscaController,
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: 'Buscar cavalo...',
-                  helperText: 'Nome, raça ou proprietário',
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: corTextoSecundario,
-                    size: 20,
-                  ),
-                  suffixIcon: buscaController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: 'Limpar busca',
-                          icon: const Icon(Icons.close, size: 18),
-                          onPressed: () {
-                            buscaController.clear();
-                            setState(() => busca = '');
-                          },
-                        ),
-                  isDense: true,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: const BorderSide(color: corBorda),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: const BorderSide(color: corBorda),
-                  ),
+            icon: const Icon(Icons.add_rounded, color: primaria),
+          ),
+          const SizedBox(width: 6),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+            child: TextField(
+              controller: buscaController,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: 'Buscar cavalo...',
+                helperText: 'Nome, raça ou proprietário',
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: corTextoSecundario,
+                  size: 20,
                 ),
-                onChanged: (value) =>
-                    setState(() => busca = value.toLowerCase().trim()),
-              ),
-            ),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: _cavalosStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Erro: ${snapshot.error}'));
-                  }
-                  final todos = (snapshot.data?.docs ?? [])
-                      .map((doc) => CavaloModel.fromMap(doc.data(), doc.id))
-                      .toList();
-                  final cavalos = busca.isEmpty
-                      ? todos
-                      : todos
-                            .where(
-                              (c) =>
-                                  c.nome.toLowerCase().contains(busca) ||
-                                  c.raca.toLowerCase().contains(busca) ||
-                                  c.proprietarioNome.toLowerCase().contains(
-                                    busca,
-                                  ),
-                            )
-                            .toList();
-                  if (cavalos.isEmpty) {
-                    return Center(
-                      child: Text(
-                        todos.isEmpty
-                            ? 'Nenhum cavalo cadastrado'
-                            : 'Nenhum resultado para "$busca"',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: corTextoSecundario),
+                suffixIcon: buscaController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: 'Limpar busca',
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () {
+                          buscaController.clear();
+                          setState(() => busca = '');
+                        },
                       ),
-                    );
-                  }
-                  return _listaCavalos(cavalos);
-                },
+                isDense: true,
+                filled: true,
+                fillColor: Colors.white,
               ),
+              onChanged: (value) =>
+                  setState(() => busca = value.toLowerCase().trim()),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: _cavalosStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Erro: ${snapshot.error}'));
+                }
+                final todos = (snapshot.data?.docs ?? [])
+                    .map((doc) => CavaloModel.fromMap(doc.data(), doc.id))
+                    .toList();
+                final cavalos = busca.isEmpty
+                    ? todos
+                    : todos
+                          .where(
+                            (c) =>
+                                c.nome.toLowerCase().contains(busca) ||
+                                c.raca.toLowerCase().contains(busca) ||
+                                c.proprietarioNome.toLowerCase().contains(
+                                  busca,
+                                ),
+                          )
+                          .toList();
+                if (cavalos.isEmpty) {
+                  return Center(
+                    child: Text(
+                      todos.isEmpty
+                          ? 'Nenhum cavalo cadastrado'
+                          : 'Nenhum resultado para "$busca"',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: corTextoSecundario),
+                    ),
+                  );
+                }
+                return _listaCavalos(cavalos);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _listaCavalos(List<CavaloModel> cavalos) {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       itemCount: cavalos.length,
-      separatorBuilder: (_, _) => const Divider(height: 1, color: corBorda),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final cavalo = cavalos[index];
         return Material(
-          color: Colors.white,
+          color: Colors.transparent,
           child: InkWell(
+            borderRadius: BorderRadius.circular(18),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => CavaloDetalhesPage(cavaloId: cavalo.id),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: corBorda),
+              ),
               child: Row(
                 children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: primaria.withValues(alpha: .10),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.pets_outlined, color: primaria),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,11 +210,26 @@ class _CavalosListPageMobileState extends State<CavalosListPageMobile> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    cavalo.ativo ? 'Ativo' : 'Inativo',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: corTextoSecundario,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cavalo.ativo
+                          ? const Color(0xFFDCFCE7)
+                          : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      cavalo.ativo ? 'Ativo' : 'Inativo',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: cavalo.ativo
+                            ? const Color(0xFF166534)
+                            : corTextoSecundario,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),

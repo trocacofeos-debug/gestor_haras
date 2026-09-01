@@ -63,7 +63,7 @@ class _DesktopAdminShortcutsState extends State<DesktopAdminShortcuts> {
     if (key == LogicalKeyboardKey.keyD) {
       openDesktopWindow(
         context,
-        title: 'Nova dívida',
+        title: 'Cadastrar dívida',
         icon: Icons.account_balance_wallet_rounded,
         width: 1180,
         builder: (_) => const NovaContaPage(),

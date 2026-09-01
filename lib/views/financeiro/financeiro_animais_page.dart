@@ -6,11 +6,13 @@ import '../../services/financeiro_animais_service.dart';
 import '../../widgets/campos_grid.dart';
 import '../cadastros/cavalo_detalhes_page.dart';
 import '../home/admin_top_bar.dart';
+import 'cadastro_movimento_animal_dialog.dart';
 import 'financeiro_animais_mobile.dart';
 
 class FinanceiroAnimaisPage extends StatefulWidget {
   final Future<FinanceiroAnimaisDados> Function()? carregar;
-  const FinanceiroAnimaisPage({super.key, this.carregar});
+  final Future<void> Function(NovoMovimentoAnimal movimento)? salvar;
+  const FinanceiroAnimaisPage({super.key, this.carregar, this.salvar});
 
   @override
   State<FinanceiroAnimaisPage> createState() => _FinanceiroAnimaisPageState();
@@ -67,6 +69,53 @@ class _FinanceiroAnimaisPageState extends State<FinanceiroAnimaisPage> {
   Future<void> _abrirAnimal(String id) async {
     await abrirPopupDetalhesCavalo(context, id);
     if (mounted) _atualizar();
+  }
+
+  Future<void> _novoLancamento(FinanceiroAnimaisDados dados) async {
+    if (dados.animais.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cadastre um animal antes de criar um lançamento.'),
+        ),
+      );
+      return;
+    }
+    final movimento = await showAppDialog<NovoMovimentoAnimal>(
+      context: context,
+      builder: (_) => CadastroMovimentoAnimalDialog(
+        animais: dados.animais,
+        animalInicial: dados.animais.containsKey(_animalId) ? _animalId : null,
+      ),
+    );
+    if (movimento == null || !mounted) return;
+    try {
+      if (widget.salvar != null) {
+        await widget.salvar!(movimento);
+      } else {
+        await const FinanceiroAnimaisService().cadastrar(movimento);
+      }
+      if (!mounted) return;
+      setState(() {
+        _animalId = movimento.animalId;
+        _tipo = movimento.tipo;
+      });
+      await _atualizar();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            movimento.tipo == TipoMovimentoAnimal.receita
+                ? 'Receita adicionada ao animal.'
+                : 'Despesa adicionada ao animal.',
+          ),
+        ),
+      );
+    } catch (erro) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Não foi possível salvar: $erro')));
+    }
   }
 
   Widget _cartao(String titulo, int centavos, Color cor) => Container(
@@ -141,6 +190,7 @@ class _FinanceiroAnimaisPageState extends State<FinanceiroAnimaisPage> {
         }),
         onAtualizar: _atualizar,
         onAbrirAnimal: _abrirAnimal,
+        onNovoLancamento: () => _novoLancamento(dados),
       );
     }
 
@@ -148,14 +198,33 @@ class _FinanceiroAnimaisPageState extends State<FinanceiroAnimaisPage> {
       key: const PageStorageKey('financeiro-scroll'),
       padding: const EdgeInsets.all(20),
       children: [
-        const Text(
-          'Receitas e despesas dos animais',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Lançamentos registrados nas fichas dos animais. Contas e dívidas de clientes não entram nestes totais.',
-          style: TextStyle(color: _cinza),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Receitas e despesas dos animais',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'Lançamentos registrados nas fichas dos animais. Contas e dívidas de clientes não entram nestes totais.',
+                    style: TextStyle(color: _cinza),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            FilledButton.icon(
+              key: const ValueKey('novo-lancamento-financeiro'),
+              onPressed: () => _novoLancamento(dados),
+              icon: const Icon(Icons.add_card_rounded),
+              label: const Text('Novo lançamento'),
+            ),
+          ],
         ),
         const SizedBox(height: 20),
         CamposGrid(

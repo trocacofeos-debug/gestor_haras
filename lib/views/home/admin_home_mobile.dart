@@ -1,27 +1,23 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/dashboard_service.dart';
 
 import '../auth/login_page.dart';
-import '../auth/register_page.dart';
 import '../clientes/clientes_page.dart';
-import '../clientes/cliente_detalhes_page.dart';
-import '../../models/cliente_model.dart';
 import '../cadastros/cadastro_hub_page.dart';
 import '../cadastros/cavalos_list_page.dart';
 import '../cadastros/funcionarios_list_page.dart';
 import '../cadastros/fornecedores_list_page.dart';
+import '../cadastros/medicamentos_page.dart';
+import '../../models/medicamento_model.dart';
 import '../site/cavalos_venda_list_page.dart';
 import '../site/galeria_page.dart';
 import '../site/noticias_page.dart';
-import '../cadastros/cadastro_cavalo_page.dart';
-import '../cadastros/cadastro_funcionario_page.dart';
-import '../cadastros/cadastro_fornecedor_page.dart';
 import '../financeiro/financeiro_animais_page.dart';
+import '../financeiro/relatorios_animais_page.dart';
 import '../financeiro/financeiro_page.dart';
 import '../financeiro/nova_conta_page.dart';
 
@@ -44,6 +40,7 @@ class AdminHomeMobile extends StatefulWidget {
 
 class _AdminHomeMobileState extends State<AdminHomeMobile> {
   final DashboardService service = DashboardService();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   static const Color corSidebar = Color(0xFF111827); // slate-900
   static const Color corPrimaria = Color(0xFF4F46E5); // indigo-600
@@ -53,10 +50,6 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   static const Color corBorda = Color(0xFFE5E7EB);
 
   int menuSelecionado = 0;
-
-  double clientes = 0;
-  double cavalos = 0;
-  double propostas = 0;
 
   double recebido = 0;
   double pendente = 0;
@@ -75,10 +68,6 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       if (!mounted) return;
 
       setState(() {
-        clientes = (data['clientes'] ?? 0).toDouble();
-        cavalos = (data['cavalos'] ?? 0).toDouble();
-        propostas = (data['propostas'] ?? 0).toDouble();
-
         recebido = (data['recebido'] ?? 0).toDouble();
         pendente = (data['pendente'] ?? 0).toDouble();
         total = (data['total'] ?? 0).toDouble();
@@ -108,28 +97,61 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => pagina));
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> ultimosClientes() {
-    return FirebaseFirestore.instance
-        .collection('clientes')
-        .orderBy('criadoEm', descending: true)
-        .limit(5)
-        .snapshots();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: corFundo,
+      appBar: _header(),
       drawer: _drawer(),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        onDestinationSelected: (indice) {
+          switch (indice) {
+            case 0:
+              return;
+            case 1:
+              abrirTela(const CadastroHubPage(), 2);
+            case 2:
+              abrirTela(const CavalosListPage(), 3);
+            case 3:
+              abrirTela(const FinanceiroAnimaisPage(), 9);
+            case 4:
+              scaffoldKey.currentState?.openDrawer();
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Início',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.add_box_outlined),
+            selectedIcon: Icon(Icons.add_box_rounded),
+            label: 'Cadastrar',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.pets_outlined),
+            selectedIcon: Icon(Icons.pets_rounded),
+            label: 'Animais',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet_rounded),
+            label: 'Gestão',
+          ),
+          NavigationDestination(icon: Icon(Icons.menu_rounded), label: 'Mais'),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: carregar,
         color: corPrimaria,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _header()),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
                 child: _corpoUmaColuna(),
               ),
             ),
@@ -149,17 +171,9 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       children: [
         _cabecalhoBoasVindas(),
         const SizedBox(height: 28),
-        _tituloSecao('Ações Rápidas'),
-        const SizedBox(height: 14),
-        _acoesRapidas(),
-        const SizedBox(height: 32),
         _tituloSecao('Visão Geral'),
         const SizedBox(height: 14),
         _gridResumo(),
-        const SizedBox(height: 32),
-        _tituloSecao('Últimos Clientes'),
-        const SizedBox(height: 14),
-        _listaClientes(),
       ],
     );
   }
@@ -173,111 +187,6 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
         color: corTextoPrimario,
         letterSpacing: .2,
       ),
-    );
-  }
-
-  // =====================================================
-  // AÇÕES RÁPIDAS
-  // =====================================================
-
-  Widget _acoesRapidas() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int colunas = 2;
-
-        if (constraints.maxWidth >= 900) {
-          colunas = 4;
-        } else if (constraints.maxWidth >= 600) {
-          colunas = 3;
-        }
-
-        final acoes = [
-          _AcaoRapida(
-            titulo: 'Novo Cliente',
-            icon: Icons.person_add_alt_1_rounded,
-            cor: const Color(0xFF2563EB),
-            pagina: const RegisterPage(),
-          ),
-          _AcaoRapida(
-            titulo: 'Novo Cavalo',
-            icon: Icons.pets_rounded,
-            cor: const Color(0xFF7C3AED),
-            pagina: const CadastroCavaloPage(),
-          ),
-          _AcaoRapida(
-            titulo: 'Novo Funcionário',
-            icon: Icons.badge_rounded,
-            cor: const Color(0xFFD97706),
-            pagina: const CadastroFuncionarioPage(),
-          ),
-          _AcaoRapida(
-            titulo: 'Novo Fornecedor',
-            icon: Icons.storefront_rounded,
-            cor: const Color(0xFF059669),
-            pagina: const CadastroFornecedorPage(),
-          ),
-        ];
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: acoes.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: colunas,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            childAspectRatio: 2.4,
-          ),
-          itemBuilder: (_, index) {
-            final acao = acoes[index];
-
-            return InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => acao.pagina),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: corBorda),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: acao.cor.withOpacity(.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(acao.icon, color: acao.cor, size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        acao.titulo,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: corTextoPrimario,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
@@ -354,26 +263,69 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                     Icons.grid_view_rounded,
                     () => Navigator.pop(context),
                   ),
-                  _drawerItem('Clientes', Icons.people_alt_outlined, () {
-                    Navigator.pop(context);
-                    abrirTela(ClientesPage(), 1);
-                  }),
-                  _drawerItem('Cadastro', Icons.add_box_outlined, () {
-                    Navigator.pop(context);
-                    abrirTela(const CadastroHubPage(), 2);
-                  }),
-                  _drawerItem('Animais', Icons.pets_outlined, () {
-                    Navigator.pop(context);
-                    abrirTela(const CavalosListPage(), 3);
-                  }),
-                  _drawerItem('Funcionários', Icons.badge_outlined, () {
-                    Navigator.pop(context);
-                    abrirTela(const FuncionariosListPage(), 4);
-                  }),
-                  _drawerItem('Fornecedores', Icons.storefront_outlined, () {
-                    Navigator.pop(context);
-                    abrirTela(const FornecedoresListPage(), 5);
-                  }),
+                  ExpansionTile(
+                    key: const PageStorageKey('menu-cadastros-mobile'),
+                    iconColor: Colors.white70,
+                    collapsedIconColor: Colors.white70,
+                    leading: const Icon(
+                      Icons.add_box_outlined,
+                      color: Colors.white70,
+                    ),
+                    title: const Text(
+                      'Cadastros',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    children: [
+                      _drawerItem(
+                        'Novo cadastro',
+                        Icons.add_circle_outline_rounded,
+                        () {
+                          Navigator.pop(context);
+                          abrirTela(const CadastroHubPage(), 2);
+                        },
+                      ),
+                      _drawerItem('Clientes', Icons.people_alt_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(ClientesPage(), 1);
+                      }),
+                      _drawerItem('Animais', Icons.pets_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(const CavalosListPage(), 3);
+                      }),
+                      _drawerItem('Funcionários', Icons.badge_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(const FuncionariosListPage(), 4);
+                      }),
+                      _drawerItem(
+                        'Fornecedores',
+                        Icons.storefront_outlined,
+                        () {
+                          Navigator.pop(context);
+                          abrirTela(const FornecedoresListPage(), 5);
+                        },
+                      ),
+                      _drawerItem('Remédios', Icons.medication_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(const MedicamentosPage(), 12);
+                      }),
+                      _drawerItem('Vacinas', Icons.vaccines_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(
+                          const MedicamentosPage(tipo: TipoTratamento.vacina),
+                          13,
+                        );
+                      }),
+                      _drawerItem('Suplementos', Icons.grass_outlined, () {
+                        Navigator.pop(context);
+                        abrirTela(
+                          const MedicamentosPage(
+                            tipo: TipoTratamento.suplemento,
+                          ),
+                          14,
+                        );
+                      }),
+                    ],
+                  ),
                   const Divider(color: Colors.white12, height: 24),
                   ExpansionTile(
                     iconColor: Colors.white70,
@@ -391,14 +343,26 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                         Navigator.pop(context);
                         abrirTela(const FinanceiroAnimaisPage(), 9);
                       }),
+                      _drawerItem(
+                        'Relatórios',
+                        Icons.picture_as_pdf_outlined,
+                        () {
+                          Navigator.pop(context);
+                          abrirTela(const RelatoriosAnimaisPage(), 15);
+                        },
+                      ),
                       _drawerItem('Dívidas', Icons.receipt_long_outlined, () {
                         Navigator.pop(context);
                         abrirTela(const FinanceiroPage(), 10);
                       }),
-                      _drawerItem('Nova Conta', Icons.add_card_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(const NovaContaPage(), 11);
-                      }),
+                      _drawerItem(
+                        'Cadastrar dívida',
+                        Icons.add_card_outlined,
+                        () {
+                          Navigator.pop(context);
+                          abrirTela(const NovaContaPage(), 11);
+                        },
+                      ),
                     ],
                   ),
                   const Divider(color: Colors.white12, height: 24),
@@ -463,78 +427,35 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   // HEADER (topo)
   // =====================================================
 
-  Widget _header() {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: corBorda)),
+  PreferredSizeWidget _header() => AppBar(
+    leading: IconButton(
+      tooltip: 'Abrir menu',
+      onPressed: () => scaffoldKey.currentState?.openDrawer(),
+      icon: const Icon(Icons.menu_rounded),
+    ),
+    title: const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Gestor Haras'),
+        Text(
+          'Painel administrativo',
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: corTextoSecundario,
+          ),
+        ),
+      ],
+    ),
+    actions: [
+      IconButton(
+        tooltip: 'Atualizar dados',
+        onPressed: carregar,
+        icon: const Icon(Icons.refresh_rounded),
       ),
-      child: Builder(
-        builder: (context) {
-          return Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.menu, color: corTextoPrimario),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-              const Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dashboard Administrativo',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: corTextoPrimario,
-                      ),
-                    ),
-                    Text(
-                      'Gestão completa do seu haras',
-                      style: TextStyle(
-                        color: corTextoSecundario,
-                        fontSize: 12.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                tooltip: 'Atualizar dados',
-                onPressed: carregar,
-                icon: const Icon(
-                  Icons.refresh_rounded,
-                  color: corTextoSecundario,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 38,
-                height: 38,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: corFundo,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: corBorda),
-                ),
-                child: const Icon(
-                  Icons.person_outline,
-                  color: corTextoSecundario,
-                  size: 20,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+      const SizedBox(width: 6),
+    ],
+  );
 
   // =====================================================
   // CABEÇALHO DE BOAS-VINDAS
@@ -543,10 +464,14 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   Widget _cabecalhoBoasVindas() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: corSidebar,
-        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF111827), Color(0xFF312E81)],
+        ),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -599,33 +524,13 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       builder: (context, constraints) {
         int colunas = 1;
 
-        if (constraints.maxWidth >= 1400) {
-          colunas = 6;
-        } else if (constraints.maxWidth >= 1000) {
+        if (constraints.maxWidth >= 1000) {
           colunas = 3;
         } else if (constraints.maxWidth >= 600) {
           colunas = 2;
         }
 
         final cards = [
-          _cardResumo(
-            'Clientes',
-            clientes.toInt().toString(),
-            Icons.people_alt_outlined,
-            const Color(0xFF2563EB),
-          ),
-          _cardResumo(
-            'Cavalos',
-            cavalos.toInt().toString(),
-            Icons.pets_outlined,
-            const Color(0xFF7C3AED),
-          ),
-          _cardResumo(
-            'Propostas',
-            propostas.toInt().toString(),
-            Icons.description_outlined,
-            const Color(0xFF4F46E5),
-          ),
           _cardResumo(
             'Recebido',
             'R\$ ${recebido.toStringAsFixed(2)}',
@@ -654,7 +559,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
             crossAxisCount: colunas,
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
-            childAspectRatio: 1.65,
+            childAspectRatio: constraints.maxWidth < 600 ? 2.25 : 1.65,
           ),
           itemBuilder: (_, index) => cards[index],
         );
@@ -667,7 +572,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: corBorda),
       ),
       child: Column(
@@ -708,154 +613,4 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       ),
     );
   }
-
-  // =====================================================
-  // LISTA DE CLIENTES
-  // =====================================================
-
-  Widget _listaClientes() {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: ultimosClientes(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 30),
-            child: Center(child: CircularProgressIndicator(color: corPrimaria)),
-          );
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: corBorda),
-            ),
-            child: const Column(
-              children: [
-                Icon(Icons.people_outline, size: 40, color: corTextoSecundario),
-                SizedBox(height: 10),
-                Text(
-                  'Nenhum cliente cadastrado',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: corTextoPrimario,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: corBorda),
-          ),
-          child: Column(
-            children: snapshot.data!.docs.asMap().entries.map((entry) {
-              final index = entry.key;
-              final doc = entry.value;
-              final data = doc.data();
-
-              final nome = data['nome'] ?? 'Cliente';
-              final email = data['email'] ?? '';
-              final telefone = data['telefone'] ?? '';
-              final ultimo = index == snapshot.data!.docs.length - 1;
-
-              return Container(
-                decoration: BoxDecoration(
-                  border: ultimo
-                      ? null
-                      : const Border(bottom: BorderSide(color: corBorda)),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  leading: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: corPrimaria.withOpacity(.10),
-                    child: Text(
-                      nome.toString().substring(0, 1).toUpperCase(),
-                      style: const TextStyle(
-                        color: corPrimaria,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    nome,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: corTextoPrimario,
-                      fontSize: 14,
-                    ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (email.toString().isNotEmpty)
-                        Text(
-                          email,
-                          style: const TextStyle(
-                            color: corTextoSecundario,
-                            fontSize: 12.5,
-                          ),
-                        ),
-                      if (telefone.toString().isNotEmpty)
-                        Text(
-                          telefone,
-                          style: const TextStyle(
-                            color: corTextoSecundario,
-                            fontSize: 12.5,
-                          ),
-                        ),
-                    ],
-                  ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 13,
-                    color: corTextoSecundario,
-                  ),
-                  onTap: () {
-                    final cliente = ClienteModel.fromMap(data, doc.id);
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ClienteDetalhesPage(cliente: cliente),
-                      ),
-                    );
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// =====================================================
-// MODELO SIMPLES PARA UMA AÇÃO RÁPIDA DO DASHBOARD
-// =====================================================
-
-class _AcaoRapida {
-  final String titulo;
-  final IconData icon;
-  final Color cor;
-  final Widget pagina;
-
-  const _AcaoRapida({
-    required this.titulo,
-    required this.icon,
-    required this.cor,
-    required this.pagina,
-  });
 }

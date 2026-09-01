@@ -148,6 +148,8 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
         return Icons.medication_outlined;
       case CategoriaDespesa.vacina:
         return Icons.vaccines_outlined;
+      case CategoriaDespesa.suplemento:
+        return Icons.grass_outlined;
       case CategoriaDespesa.alimento:
         return Icons.grass_outlined;
       case CategoriaDespesa.ferrageamento:
@@ -165,6 +167,8 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
         return Colors.redAccent;
       case CategoriaDespesa.vacina:
         return Colors.teal;
+      case CategoriaDespesa.suplemento:
+        return Colors.lightGreen;
       case CategoriaDespesa.alimento:
         return Colors.orange;
       case CategoriaDespesa.ferrageamento:
@@ -853,4 +857,3 @@ class CavaloDetalhesPageDesktop extends StatelessWidget {
     );
   }
 }
-

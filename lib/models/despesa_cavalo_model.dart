@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum CategoriaDespesa {
   remedio,
   vacina,
+  suplemento,
   alimento,
   ferrageamento,
   veterinario,
@@ -16,6 +17,8 @@ extension CategoriaDespesaExt on CategoriaDespesa {
         return 'Remédio';
       case CategoriaDespesa.vacina:
         return 'Vacina';
+      case CategoriaDespesa.suplemento:
+        return 'Suplemento';
       case CategoriaDespesa.alimento:
         return 'Alimento';
       case CategoriaDespesa.ferrageamento:
@@ -52,10 +55,7 @@ class DespesaCavaloModel {
     required this.data,
   });
 
-  factory DespesaCavaloModel.fromMap(
-    Map<String, dynamic> map,
-    String id,
-  ) {
+  factory DespesaCavaloModel.fromMap(Map<String, dynamic> map, String id) {
     return DespesaCavaloModel(
       id: id,
       categoria: categoriaDespesaFromString(map['categoria'] ?? 'outro'),

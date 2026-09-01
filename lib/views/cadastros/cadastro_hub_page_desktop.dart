@@ -6,8 +6,10 @@ import '../auth/register_page.dart';
 import 'cadastro_cavalo_page.dart';
 import 'cadastro_fornecedor_page.dart';
 import 'cadastro_funcionario_page.dart';
+import 'medicamentos_page.dart';
 import '../home/admin_top_bar.dart';
 import '../../widgets/desktop_window.dart';
+import '../../models/medicamento_model.dart';
 
 class CadastroHubPageDesktop extends StatelessWidget {
   const CadastroHubPageDesktop({super.key});
@@ -100,6 +102,37 @@ class CadastroHubPageDesktop extends StatelessWidget {
                               icon: Icons.badge_rounded,
                               cor: const Color(0xFFD97706),
                               pagina: const CadastroFuncionarioPage(),
+                            ),
+                            _cardCadastro(
+                              context: context,
+                              titulo: 'Remédios',
+                              descricao:
+                                  'Cadastrar tratamentos recorrentes para vários animais',
+                              icon: Icons.medication_rounded,
+                              cor: const Color(0xFFDC2626),
+                              pagina: const MedicamentosPage(),
+                            ),
+                            _cardCadastro(
+                              context: context,
+                              titulo: 'Vacinas',
+                              descricao:
+                                  'Cadastrar vacinações recorrentes para vários animais',
+                              icon: Icons.vaccines_rounded,
+                              cor: const Color(0xFF0891B2),
+                              pagina: const MedicamentosPage(
+                                tipo: TipoTratamento.vacina,
+                              ),
+                            ),
+                            _cardCadastro(
+                              context: context,
+                              titulo: 'Suplementos',
+                              descricao:
+                                  'Cadastrar suplementações recorrentes para vários animais',
+                              icon: Icons.grass_rounded,
+                              cor: const Color(0xFF65A30D),
+                              pagina: const MedicamentosPage(
+                                tipo: TipoTratamento.suplemento,
+                              ),
                             ),
                           ];
 

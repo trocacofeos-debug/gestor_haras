@@ -418,6 +418,53 @@ void main() {
     },
   );
 
+  testWidgets('cadastra despesa escolhendo animal na Gestão mobile', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    NovoMovimentoAnimal? salvo;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FinanceiroAnimaisPage(
+          carregar: () async => _exemplo(),
+          salvar: (movimento) async => salvo = movimento,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('novo-lancamento-financeiro')));
+    await tester.pumpAndSettle();
+    expect(find.text('Receita'), findsWidgets);
+    expect(find.text('Despesa'), findsWidgets);
+
+    await tester.tap(find.byKey(const ValueKey('novo-lancamento-animal')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('PLAYBOY SG').last);
+    await tester.enterText(
+      find.byKey(const ValueKey('novo-lancamento-descricao')),
+      'Consulta veterinária',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('novo-lancamento-valor')),
+      '150,50',
+    );
+    await tester.tap(find.byKey(const ValueKey('salvar-novo-lancamento')));
+    await tester.pumpAndSettle();
+
+    expect(salvo, isNotNull);
+    expect(salvo!.animalId, 'a');
+    expect(salvo!.tipo, TipoMovimentoAnimal.despesa);
+    expect(salvo!.descricao, 'Consulta veterinária');
+    expect(salvo!.centavos, 15050);
+    expect(salvo!.categoria, 'outro');
+    expect(find.text('Despesa adicionada ao animal.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'mobile mantém leitura com fonte ampliada e abre o animal correto',
     (tester) async {
@@ -462,6 +509,7 @@ void main() {
               onLimpar: () {},
               onAtualizar: () async {},
               onAbrirAnimal: (id) => aberto = id,
+              onNovoLancamento: () {},
             ),
           ),
         ),

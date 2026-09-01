@@ -98,16 +98,12 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: corFundo,
-
-      body: SafeArea(
-        child: Column(
-          children: [
-            _header(),
-            _campoBusca(),
-
-            Expanded(child: _conteudo()),
-          ],
-        ),
+      appBar: _header(),
+      body: Column(
+        children: [
+          _campoBusca(),
+          Expanded(child: _conteudo()),
+        ],
       ),
     );
   }
@@ -116,41 +112,22 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
   // HEADER CORPORATIVO
   // ==============================
 
-  Widget _header() {
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: corBorda)),
+  PreferredSizeWidget _header() => AppBar(
+    leading: IconButton(
+      tooltip: 'Voltar ao dashboard',
+      onPressed: voltarDashboard,
+      icon: const Icon(Icons.arrow_back_rounded),
+    ),
+    title: const Text('Clientes'),
+    actions: [
+      IconButton(
+        tooltip: 'Atualizar',
+        onPressed: () => setState(() {}),
+        icon: const Icon(Icons.refresh_rounded),
       ),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: 'Voltar ao dashboard',
-            onPressed: voltarDashboard,
-            icon: const Icon(Icons.arrow_back, color: corTexto, size: 22),
-          ),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'Clientes',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: corTexto,
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Atualizar',
-            onPressed: () => setState(() {}),
-            icon: const Icon(Icons.refresh, color: corSecundario, size: 22),
-          ),
-        ],
-      ),
-    );
-  }
+      const SizedBox(width: 6),
+    ],
+  );
 
   Widget _conteudo() {
     return StreamBuilder<List<ClienteModel>>(
@@ -213,7 +190,7 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
 
   Widget _campoBusca() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: ValueListenableBuilder<String>(
         valueListenable: buscaNotifier,
         builder: (context, busca, _) => TextField(
@@ -240,18 +217,6 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
             isDense: true,
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: corBorda),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: corBorda),
-            ),
           ),
         ),
       ),
@@ -278,7 +243,7 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
 
       physics: const NeverScrollableScrollPhysics(),
 
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
 
       itemCount: clientes.length,
 
@@ -290,16 +255,32 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
 
   Widget _clienteCard(ClienteModel cliente) {
     return Material(
-      color: Colors.white,
+      color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(18),
         onTap: () => abrirDetalhes(cliente),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: corBorda)),
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: corBorda),
           ),
           child: Row(
             children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: corPrimaria.withOpacity(.10),
+                child: Text(
+                  inicialCliente(cliente),
+                  style: const TextStyle(
+                    color: corPrimaria,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,12 +316,30 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                cliente.ativo ? 'Ativo' : 'Inativo',
-                style: const TextStyle(color: corSecundario, fontSize: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: cliente.ativo
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  cliente.ativo ? 'Ativo' : 'Inativo',
+                  style: TextStyle(
+                    color: cliente.ativo
+                        ? const Color(0xFF166534)
+                        : corSecundario,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, color: corSecundario, size: 20),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: corSecundario,
+                size: 21,
+              ),
             ],
           ),
         ),

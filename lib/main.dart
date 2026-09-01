@@ -21,6 +21,7 @@ import 'views/propostas/cliente/clicksign_signature_page.dart';
 import 'widgets/desktop_app_frame.dart';
 import 'widgets/desktop_admin_shortcuts.dart';
 import 'widgets/popup_workspace.dart';
+import 'widgets/mobile_app_theme.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
 final popupWorkspaceKey = GlobalKey<PopupWorkspaceState>();
@@ -47,15 +48,22 @@ class GestorHarasApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
 
-      builder: (context, child) => DesktopAdminShortcuts(
-        navigatorKey: appNavigatorKey,
-        child: DesktopAppFrame(
-          child: PopupWorkspace(
-            key: popupWorkspaceKey,
-            child: child ?? const SizedBox.shrink(),
+      builder: (context, child) {
+        final conteudo = DesktopAdminShortcuts(
+          navigatorKey: appNavigatorKey,
+          child: DesktopAppFrame(
+            child: PopupWorkspace(
+              key: popupWorkspaceKey,
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
-        ),
-      ),
+        );
+        if (MediaQuery.sizeOf(context).width >= 900) return conteudo;
+        return Theme(
+          data: MobileAppTheme.apply(Theme.of(context)),
+          child: conteudo,
+        );
+      },
 
       theme: ThemeData(
         useMaterial3: true,

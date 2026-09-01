@@ -6,6 +6,8 @@ import '../auth/register_page.dart';
 import 'cadastro_cavalo_page.dart';
 import 'cadastro_fornecedor_page.dart';
 import 'cadastro_funcionario_page.dart';
+import 'medicamentos_page.dart';
+import '../../models/medicamento_model.dart';
 
 class CadastroHubPageMobile extends StatelessWidget {
   const CadastroHubPageMobile({super.key});
@@ -57,7 +59,7 @@ class CadastroHubPageMobile extends StatelessWidget {
           ),
           _cardCadastro(
             context: context,
-            titulo: 'Cavalo',
+            titulo: 'Animal',
             descricao: 'Cadastrar um novo animal e vincular ao proprietário',
             icon: Icons.pets_rounded,
             cor: const Color(0xFF7C3AED),
@@ -79,6 +81,31 @@ class CadastroHubPageMobile extends StatelessWidget {
             cor: const Color(0xFFD97706),
             pagina: const CadastroFuncionarioPage(),
           ),
+          _cardCadastro(
+            context: context,
+            titulo: 'Remédios',
+            descricao: 'Cadastrar tratamentos recorrentes para vários animais',
+            icon: Icons.medication_rounded,
+            cor: const Color(0xFFDC2626),
+            pagina: const MedicamentosPage(),
+          ),
+          _cardCadastro(
+            context: context,
+            titulo: 'Vacinas',
+            descricao: 'Cadastrar vacinações recorrentes para vários animais',
+            icon: Icons.vaccines_rounded,
+            cor: const Color(0xFF0891B2),
+            pagina: const MedicamentosPage(tipo: TipoTratamento.vacina),
+          ),
+          _cardCadastro(
+            context: context,
+            titulo: 'Suplementos',
+            descricao:
+                'Cadastrar suplementações recorrentes para vários animais',
+            icon: Icons.grass_rounded,
+            cor: const Color(0xFF65A30D),
+            pagina: const MedicamentosPage(tipo: TipoTratamento.suplemento),
+          ),
         ],
       ),
     );
@@ -95,10 +122,7 @@ class CadastroHubPageMobile extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => pagina),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (_) => pagina));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
@@ -113,7 +137,7 @@ class CadastroHubPageMobile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: cor.withOpacity(.12),
+                color: cor.withValues(alpha: .12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(icon, color: cor, size: 28),

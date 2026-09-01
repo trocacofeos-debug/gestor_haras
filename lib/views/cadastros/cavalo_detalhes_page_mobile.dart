@@ -11,10 +11,7 @@ import 'cadastro_cavalo_page.dart';
 class CavaloDetalhesPageMobile extends StatelessWidget {
   final String cavaloId;
 
-  const CavaloDetalhesPageMobile({
-    super.key,
-    required this.cavaloId,
-  });
+  const CavaloDetalhesPageMobile({super.key, required this.cavaloId});
 
   static const Color primaria = Color(0xFF4F46E5);
   static const Color fundo = Color(0xFFF3F4F6);
@@ -25,10 +22,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 10),
         ],
       ),
       child: Row(
@@ -43,10 +37,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                 color: primaria.withOpacity(.10),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
-                Icons.arrow_back_rounded,
-                color: primaria,
-              ),
+              child: const Icon(Icons.arrow_back_rounded, color: primaria),
             ),
           ),
           const SizedBox(width: 15),
@@ -56,11 +47,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
               color: primaria.withOpacity(.12),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.pets_rounded,
-              color: primaria,
-              size: 30,
-            ),
+            child: const Icon(Icons.pets_rounded, color: primaria, size: 30),
           ),
           const SizedBox(width: 15),
           const Expanded(
@@ -69,10 +56,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
               children: [
                 Text(
                   'Detalhes do Cavalo',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -103,10 +87,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             texto,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -121,10 +102,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.03),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(.03), blurRadius: 8),
         ],
       ),
       child: Row(
@@ -144,10 +122,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -171,6 +146,8 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
         return Icons.medication_outlined;
       case CategoriaDespesa.vacina:
         return Icons.vaccines_outlined;
+      case CategoriaDespesa.suplemento:
+        return Icons.grass_outlined;
       case CategoriaDespesa.alimento:
         return Icons.grass_outlined;
       case CategoriaDespesa.ferrageamento:
@@ -188,6 +165,8 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
         return Colors.redAccent;
       case CategoriaDespesa.vacina:
         return Colors.teal;
+      case CategoriaDespesa.suplemento:
+        return Colors.lightGreen;
       case CategoriaDespesa.alimento:
         return Colors.orange;
       case CategoriaDespesa.ferrageamento:
@@ -237,9 +216,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                   children: [
                     DropdownButtonFormField<CategoriaDespesa>(
                       value: categoria,
-                      decoration: const InputDecoration(
-                        labelText: 'Categoria',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Categoria'),
                       items: CategoriaDespesa.values
                           .map(
                             (c) => DropdownMenuItem(
@@ -257,9 +234,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                     const SizedBox(height: 12),
                     TextField(
                       controller: descricaoController,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Descrição'),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -267,9 +242,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Valor',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Valor'),
                     ),
                     const SizedBox(height: 12),
                     InkWell(
@@ -333,7 +306,8 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
       return;
     }
 
-    final valor = double.tryParse(
+    final valor =
+        double.tryParse(
           valorController.text.replaceAll('.', '').replaceAll(',', '.'),
         ) ??
         0;
@@ -351,15 +325,15 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Despesa adicionada')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Despesa adicionada')));
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: $e')));
     }
   }
 
@@ -403,10 +377,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
             .map((doc) => DespesaCavaloModel.fromMap(doc.data(), doc.id))
             .toList();
 
-        final total = despesas.fold<double>(
-          0,
-          (soma, d) => soma + d.valor,
-        );
+        final total = despesas.fold<double>(0, (soma, d) => soma + d.valor);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,11 +396,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                       color: primaria.withOpacity(.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: primaria,
-                      size: 20,
-                    ),
+                    child: const Icon(Icons.add, color: primaria, size: 20),
                   ),
                 ),
               ],
@@ -589,9 +556,7 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Center(
-                    child: Text('Cavalo não encontrado'),
-                  );
+                  return const Center(child: Text('Cavalo não encontrado'));
                 }
 
                 final cavalo = CavaloModel.fromMap(
@@ -692,7 +657,9 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            cavalo.raca.isEmpty ? 'Raça não informada' : cavalo.raca,
+                            cavalo.raca.isEmpty
+                                ? 'Raça não informada'
+                                : cavalo.raca,
                             style: const TextStyle(color: Colors.white70),
                           ),
                           const SizedBox(height: 16),
@@ -708,22 +675,22 @@ class CavaloDetalhesPageMobile extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               StreamBuilder<
-                                  QuerySnapshot<Map<String, dynamic>>>(
+                                QuerySnapshot<Map<String, dynamic>>
+                              >(
                                 stream: _despesasRef().snapshots(),
                                 builder: (context, despesasSnapshot) {
-                                  final total = (despesasSnapshot
-                                              .data?.docs ??
-                                          [])
-                                      .map(
-                                        (doc) => DespesaCavaloModel.fromMap(
-                                          doc.data(),
-                                          doc.id,
-                                        ),
-                                      )
-                                      .fold<double>(
-                                        0,
-                                        (soma, d) => soma + d.valor,
-                                      );
+                                  final total =
+                                      (despesasSnapshot.data?.docs ?? [])
+                                          .map(
+                                            (doc) => DespesaCavaloModel.fromMap(
+                                              doc.data(),
+                                              doc.id,
+                                            ),
+                                          )
+                                          .fold<double>(
+                                            0,
+                                            (soma, d) => soma + d.valor,
+                                          );
 
                                   return Text(
                                     'R\$ ${total.toStringAsFixed(2)}',

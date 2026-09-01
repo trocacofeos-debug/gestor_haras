@@ -5,6 +5,30 @@ class FinanceiroAnimaisService {
   final FirebaseFirestore? firestore;
   const FinanceiroAnimaisService({this.firestore});
 
+  Future<void> cadastrar(NovoMovimentoAnimal movimento) async {
+    if (movimento.animalId.trim().isEmpty ||
+        movimento.centavos <= 0 ||
+        movimento.descricao.trim().isEmpty) {
+      throw ArgumentError('Lançamento financeiro inválido.');
+    }
+    final db = firestore ?? FirebaseFirestore.instance;
+    final colecao = movimento.tipo == TipoMovimentoAnimal.receita
+        ? 'receitas'
+        : 'despesas';
+    await db
+        .collection('cavalos')
+        .doc(movimento.animalId)
+        .collection(colecao)
+        .add({
+          'descricao': movimento.descricao.trim(),
+          'categoria': movimento.categoria,
+          'valor': movimento.centavos / 100,
+          'data': Timestamp.fromDate(movimento.data),
+          'origem': 'gestao_financeira',
+          'criadoEm': FieldValue.serverTimestamp(),
+        });
+  }
+
   Future<FinanceiroAnimaisDados> carregar() async {
     final db = firestore ?? FirebaseFirestore.instance;
     const opcoes = GetOptions(source: Source.server);
