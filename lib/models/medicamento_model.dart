@@ -2,37 +2,42 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum TipoTratamento { remedio, vacina, suplemento }
+enum TipoTratamento { remedio, vacina, suplemento, racao }
 
 extension TipoTratamentoExt on TipoTratamento {
   String get singular => switch (this) {
     TipoTratamento.remedio => 'remédio',
     TipoTratamento.vacina => 'vacina',
     TipoTratamento.suplemento => 'suplemento',
+    TipoTratamento.racao => 'ração',
   };
 
   String get singularCapital => switch (this) {
     TipoTratamento.remedio => 'Remédio',
     TipoTratamento.vacina => 'Vacina',
     TipoTratamento.suplemento => 'Suplemento',
+    TipoTratamento.racao => 'Ração',
   };
 
   String get pluralCapital => switch (this) {
     TipoTratamento.remedio => 'Remédios',
     TipoTratamento.vacina => 'Vacinas',
     TipoTratamento.suplemento => 'Suplementos',
+    TipoTratamento.racao => 'Rações',
   };
 
   String get colecao => switch (this) {
     TipoTratamento.remedio => 'medicamentos',
     TipoTratamento.vacina => 'vacinas',
     TipoTratamento.suplemento => 'suplementos',
+    TipoTratamento.racao => 'racoes',
   };
 
   String get categoriaDespesa => switch (this) {
     TipoTratamento.remedio => 'remedio',
     TipoTratamento.vacina => 'vacina',
     TipoTratamento.suplemento => 'suplemento',
+    TipoTratamento.racao => 'alimento',
   };
 }
 
@@ -65,6 +70,7 @@ class MedicamentoModel {
     this.sincronizadoAte,
     this.ativo = true,
     this.tipo = TipoTratamento.remedio,
+    this.produtoId = '',
   });
 
   final String id;
@@ -80,6 +86,7 @@ class MedicamentoModel {
   final Map<String, String> animalNomes;
   final bool ativo;
   final TipoTratamento tipo;
+  final String produtoId;
 
   double get valor => valorCentavos / 100;
 
@@ -88,6 +95,7 @@ class MedicamentoModel {
     DateTime? sincronizadoAte,
     bool? ativo,
     TipoTratamento? tipo,
+    String? produtoId,
   }) {
     return MedicamentoModel(
       id: id ?? this.id,
@@ -103,6 +111,7 @@ class MedicamentoModel {
       animalNomes: animalNomes,
       ativo: ativo ?? this.ativo,
       tipo: tipo ?? this.tipo,
+      produtoId: produtoId ?? this.produtoId,
     );
   }
 
@@ -138,6 +147,7 @@ class MedicamentoModel {
       animalNomes: nomes,
       ativo: map['ativo'] != false,
       tipo: tipo,
+      produtoId: (map['produtoId'] ?? '').toString(),
     );
   }
 
@@ -159,6 +169,7 @@ class MedicamentoModel {
     'animalNomes': animalNomes,
     'ativo': ativo,
     'tipo': tipo.name,
+    'produtoId': produtoId,
     'atualizadoEm': FieldValue.serverTimestamp(),
   };
 

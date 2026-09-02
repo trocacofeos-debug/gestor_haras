@@ -170,6 +170,8 @@ class _CadastroFuncionarioPageState extends State<CadastroFuncionarioPage> {
         'fotoUrl': fotoUrl,
         'dataCadastro':
             widget.funcionarioParaEditar?.dataCadastro ?? Timestamp.now(),
+        'permissoes':
+            widget.funcionarioParaEditar?.permissoes.toList() ?? const [],
       };
       final funcionario = FuncionarioModel.fromMap(
         dados,

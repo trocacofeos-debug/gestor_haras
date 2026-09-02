@@ -54,11 +54,12 @@ class _LoginPageMobileState extends State<LoginPageMobile> {
     try {
       final cred = await auth.login(email.text.trim(), senha.text.trim());
 
-      final tipo = await auth.getTipoUsuario(cred.user!.uid);
+      final sessao = await auth.getSessaoUsuario(cred.user!.uid);
+      sessao.aplicarAcesso();
 
       if (!mounted) return;
 
-      if (tipo == "admin" || tipo == "superadmin") {
+      if (sessao.administrativo) {
         Navigator.pushReplacement(
           context,
 

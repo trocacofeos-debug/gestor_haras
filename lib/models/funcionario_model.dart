@@ -41,6 +41,7 @@ class FuncionarioModel {
   final Timestamp? dataNascimento;
   final Timestamp? dataDesligamento;
   final String id;
+  final Set<String> permissoes;
 
   final String nome;
   final String cargo;
@@ -89,6 +90,7 @@ class FuncionarioModel {
     this.ativo = true,
     this.dataAdmissao,
     this.dataCadastro,
+    this.permissoes = const {},
   });
 
   factory FuncionarioModel.fromMap(Map<String, dynamic> map, String id) {
@@ -124,6 +126,7 @@ class FuncionarioModel {
       ativo: map['ativo'] ?? true,
       dataAdmissao: map['dataAdmissao'] as Timestamp?,
       dataCadastro: map['dataCadastro'] as Timestamp?,
+      permissoes: Set<String>.from(map['permissoes'] ?? const []),
     );
   }
 
@@ -154,11 +157,13 @@ class FuncionarioModel {
       'cpf': cpf,
       'telefone': telefone,
       'email': email,
+      'emailNormalizado': email.trim().toLowerCase(),
       'salario': salario,
       'observacoes': observacoes,
       'ativo': ativo,
       'dataAdmissao': dataAdmissao,
       'dataCadastro': dataCadastro ?? Timestamp.now(),
+      'permissoes': permissoes.toList()..sort(),
     };
   }
 }

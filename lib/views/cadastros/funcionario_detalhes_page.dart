@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/app_dialogs.dart';
 import '../../models/funcionario_model.dart';
+import '../../models/permissao_acesso.dart';
 import '../../services/funcionario_cadastro_formatos.dart';
 import '../../widgets/campos_grid.dart';
 import '../../widgets/desktop_window.dart';
 import '../../widgets/funcionario_foto.dart';
 import 'cadastro_funcionario_page.dart';
+import 'funcionario_permissoes_page.dart';
 
 Future<void> abrirPopupDetalhesFuncionario(BuildContext context, String id) =>
     showAppDialog<void>(
@@ -132,18 +134,39 @@ class FuncionarioDetalhesPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    tooltip: 'Editar funcionário',
-                    icon: const Icon(
-                      Icons.edit_outlined,
-                      color: Color(0xFF4F46E5),
-                    ),
-                    onPressed: () => openDesktopWindow(
-                      context,
-                      title: 'Editar funcionário',
-                      builder: (_) =>
-                          CadastroFuncionarioPage(funcionarioParaEditar: f),
-                    ),
+                  Wrap(
+                    children: [
+                      if (ControleAcesso.acessoTotal)
+                        IconButton(
+                          tooltip: 'Permissões de acesso',
+                          icon: const Icon(
+                            Icons.admin_panel_settings_outlined,
+                            color: Color(0xFF0F766E),
+                          ),
+                          onPressed: () => openDesktopWindow(
+                            context,
+                            title: 'Permissões de acesso',
+                            icon: Icons.admin_panel_settings_outlined,
+                            width: 800,
+                            height: 760,
+                            builder: (_) =>
+                                FuncionarioPermissoesPage(funcionario: f),
+                          ),
+                        ),
+                      IconButton(
+                        tooltip: 'Editar funcionário',
+                        icon: const Icon(
+                          Icons.edit_outlined,
+                          color: Color(0xFF4F46E5),
+                        ),
+                        onPressed: () => openDesktopWindow(
+                          context,
+                          title: 'Editar funcionário',
+                          builder: (_) =>
+                              CadastroFuncionarioPage(funcionarioParaEditar: f),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -174,6 +197,18 @@ class FuncionarioDetalhesPage extends StatelessWidget {
                   FuncionarioCadastroFormatos.data(f.dataDesligamento),
                 ),
               ]),
+              if (ControleAcesso.acessoTotal)
+                _grupo('Acesso ao sistema', [
+                  _campo(
+                    'Módulos permitidos',
+                    f.permissoes.isEmpty
+                        ? 'Nenhum módulo liberado'
+                        : ModuloAcesso.values
+                              .where((m) => f.permissoes.contains(m.id))
+                              .map((m) => m.titulo)
+                              .join(', '),
+                  ),
+                ]),
               _grupo('Carteira de trabalho e identificação profissional', [
                 for (final k in [
                   'ctpsNumero',
@@ -221,5 +256,3 @@ class FuncionarioDetalhesPage extends StatelessWidget {
     ),
   );
 }
-
-

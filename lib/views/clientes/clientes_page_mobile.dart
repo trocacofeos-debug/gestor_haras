@@ -6,6 +6,7 @@ import '../../models/cliente_model.dart';
 import '../../services/cliente_service.dart';
 
 import '../home/admin_home.dart';
+import 'cadastro_cliente_page.dart';
 import 'cliente_detalhes_page.dart';
 
 class ClientesPageMobile extends StatefulWidget {
@@ -61,6 +62,13 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
 
   void abrirDetalhes(ClienteModel cliente) {
     abrirPopupDetalhesCliente(context, cliente);
+  }
+
+  void cadastrarCliente() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CadastroClientePage()),
+    );
   }
 
   String limparTexto(String valor) {
@@ -121,6 +129,11 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
     title: const Text('Clientes'),
     actions: [
       IconButton(
+        tooltip: 'Cadastrar cliente',
+        onPressed: cadastrarCliente,
+        icon: const Icon(Icons.person_add_alt_1_rounded),
+      ),
+      IconButton(
         tooltip: 'Atualizar',
         onPressed: () => setState(() {}),
         icon: const Icon(Icons.refresh_rounded),
@@ -169,19 +182,7 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
                   limparTexto(cliente.email).contains(filtro);
             }).toList();
 
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-
-                  _listaClientes(clientes),
-
-                  const SizedBox(height: 30),
-                ],
-              ),
-            );
+            return _listaClientes(clientes);
           },
         );
       },
@@ -225,11 +226,13 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
 
   Widget _listaClientes(List<ClienteModel> clientes) {
     if (clientes.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(50),
-        child: Text(
-          "Nenhum cliente encontrado",
-          style: TextStyle(color: Colors.grey),
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(50),
+          child: Text(
+            "Nenhum cliente encontrado",
+            style: TextStyle(color: Colors.grey),
+          ),
         ),
       );
     }
@@ -239,11 +242,9 @@ class _ClientesPageMobileState extends State<ClientesPageMobile> {
 
   Widget _listaClientesCards(List<ClienteModel> clientes) {
     return ListView.builder(
-      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
 
-      physics: const NeverScrollableScrollPhysics(),
-
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
 
       itemCount: clientes.length,
 

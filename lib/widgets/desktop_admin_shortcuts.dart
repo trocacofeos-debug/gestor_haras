@@ -2,12 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../views/auth/register_page.dart';
+import '../views/clientes/cadastro_cliente_page.dart';
 import '../views/cadastros/cadastro_cavalo_page.dart';
 import '../views/cadastros/cadastro_fornecedor_page.dart';
 import '../views/financeiro/nova_conta_page.dart';
 import '../views/propostas/admin/nova_proposta_page.dart';
 import 'desktop_window.dart';
+import '../models/permissao_acesso.dart';
 
 /// Atalhos globais do painel administrativo no modo desktop.
 class DesktopAdminShortcuts extends StatefulWidget {
@@ -50,17 +51,19 @@ class _DesktopAdminShortcutsState extends State<DesktopAdminShortcuts> {
     if (context == null) return;
 
     if (key == LogicalKeyboardKey.keyC) {
+      if (!ControleAcesso.pode(ModuloAcesso.clientes)) return;
       openDesktopWindow(
         context,
         title: 'Novo cliente',
         icon: Icons.person_add_alt_1_rounded,
         width: 1120,
-        builder: (_) => const RegisterPage(),
+        builder: (_) => const CadastroClientePage(),
       );
       return;
     }
 
     if (key == LogicalKeyboardKey.keyD) {
+      if (!ControleAcesso.pode(ModuloAcesso.gestao)) return;
       openDesktopWindow(
         context,
         title: 'Cadastrar dívida',
@@ -72,6 +75,7 @@ class _DesktopAdminShortcutsState extends State<DesktopAdminShortcuts> {
     }
 
     if (key == LogicalKeyboardKey.keyP) {
+      if (!ControleAcesso.pode(ModuloAcesso.propostas)) return;
       openDesktopWindow(
         context,
         title: 'Nova proposta',
@@ -83,6 +87,7 @@ class _DesktopAdminShortcutsState extends State<DesktopAdminShortcuts> {
     }
 
     if (key == LogicalKeyboardKey.keyF) {
+      if (!ControleAcesso.pode(ModuloAcesso.fornecedores)) return;
       openDesktopWindow(
         context,
         title: 'Novo fornecedor',
@@ -94,6 +99,7 @@ class _DesktopAdminShortcutsState extends State<DesktopAdminShortcuts> {
     }
 
     if (key == LogicalKeyboardKey.keyA) {
+      if (!ControleAcesso.pode(ModuloAcesso.animais)) return;
       openDesktopWindow(
         context,
         title: 'Novo cavalo',

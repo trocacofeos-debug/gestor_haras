@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 
 import '../../models/cavalo_model.dart';
 import '../../models/medicamento_model.dart';
+import '../../models/produto_model.dart';
 import '../../services/medicamento_service.dart';
+import '../../services/produto_service.dart';
 import '../../widgets/app_dialogs.dart';
 import '../../widgets/desktop_window.dart';
 import '../home/admin_top_bar.dart';
@@ -15,16 +17,20 @@ class MedicamentosPage extends StatefulWidget {
   const MedicamentosPage({
     super.key,
     this.repository,
-    this.tipo = TipoTratamento.remedio,
+    this.produtosRepository,
+    this.tipo,
   });
   final MedicamentoRepository? repository;
-  final TipoTratamento tipo;
+  final ProdutoRepository? produtosRepository;
+  final TipoTratamento? tipo;
 
-  String get titulo => tipo.pluralCapital;
+  String get titulo => tipo?.pluralCapital ?? 'Lançamentos';
   IconData get icone => switch (tipo) {
     TipoTratamento.remedio => Icons.medication_rounded,
     TipoTratamento.vacina => Icons.vaccines_rounded,
     TipoTratamento.suplemento => Icons.grass_rounded,
+    TipoTratamento.racao => Icons.restaurant_rounded,
+    null => Icons.playlist_add_check_rounded,
   };
 
   @override
@@ -33,8 +39,12 @@ class MedicamentosPage extends StatefulWidget {
 
 class _MedicamentosPageState extends State<MedicamentosPage> {
   late final MedicamentoRepository repository =
-      widget.repository ?? MedicamentoService(tipo: widget.tipo);
+      widget.repository ??
+      (widget.tipo == null
+          ? LancamentosRepository()
+          : MedicamentoService(tipo: widget.tipo!));
   bool sincronizando = false;
+  bool limpandoHistorico = false;
   final moeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
   final data = DateFormat('dd/MM/yyyy');
 
@@ -52,9 +62,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
       if (mounted && total > 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              '$total despesa(s) de ${widget.tipo.singular} atualizada(s).',
-            ),
+            content: Text('$total despesa(s) de produtos atualizada(s).'),
           ),
         );
       }
@@ -74,13 +82,67 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
   Future<void> _novo() async {
     await openDesktopWindow<bool>(
       context,
-      title: 'Novo ${widget.tipo.singular}',
+      title: widget.tipo == null
+          ? 'Novo lançamento automático'
+          : 'Novo ${widget.tipo!.singular}',
       icon: widget.icone,
       width: 1000,
       height: 760,
-      builder: (_) =>
-          CadastroMedicamentoPage(repository: repository, tipo: widget.tipo),
+      builder: (_) => CadastroMedicamentoPage(
+        repository: repository,
+        produtosRepository: widget.produtosRepository ?? ProdutoService(),
+        tipo: widget.tipo,
+      ),
     );
+  }
+
+  Future<void> _limparHistorico() async {
+    if (limpandoHistorico) return;
+    final confirmar = await showAppDialog<bool>(
+      context: context,
+      title: 'Limpar histórico',
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Limpar lançamentos encerrados?'),
+        content: const Text(
+          'Os lançamentos encerrados serão removidos desta lista. Os lançamentos ativos e as despesas já registradas nos animais serão preservados.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            icon: const Icon(Icons.cleaning_services_outlined),
+            label: const Text('Limpar histórico'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true || !mounted) return;
+    setState(() => limpandoHistorico = true);
+    try {
+      final total = await repository.limparHistorico();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              total == 0
+                  ? 'Não há lançamentos encerrados para limpar.'
+                  : '$total lançamento(s) encerrado(s) removido(s).',
+            ),
+          ),
+        );
+      }
+    } catch (erro) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao limpar o histórico: $erro')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => limpandoHistorico = false);
+    }
   }
 
   Future<void> _encerrar(MedicamentoModel item) async {
@@ -117,6 +179,12 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
           : AppBar(
               title: Text(widget.titulo),
               actions: [
+                if (widget.tipo == null)
+                  IconButton(
+                    tooltip: 'Limpar histórico',
+                    onPressed: limpandoHistorico ? null : _limparHistorico,
+                    icon: const Icon(Icons.cleaning_services_outlined),
+                  ),
                 IconButton(
                   onPressed: _sincronizar,
                   icon: const Icon(Icons.sync),
@@ -147,6 +215,25 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                                 ),
                               ),
                             ),
+                            if (widget.tipo == null) ...[
+                              OutlinedButton.icon(
+                                onPressed: limpandoHistorico
+                                    ? null
+                                    : _limparHistorico,
+                                icon: limpandoHistorico
+                                    ? const SizedBox.square(
+                                        dimension: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.cleaning_services_outlined,
+                                      ),
+                                label: const Text('Limpar histórico'),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
                             IconButton(
                               tooltip: 'Atualizar despesas',
                               onPressed: sincronizando ? null : _sincronizar,
@@ -163,13 +250,17 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                             FilledButton.icon(
                               onPressed: _novo,
                               icon: const Icon(Icons.add),
-                              label: Text('Cadastrar ${widget.tipo.singular}'),
+                              label: Text(
+                                widget.tipo == null
+                                    ? 'Novo lançamento'
+                                    : 'Cadastrar ${widget.tipo!.singular}',
+                              ),
                             ),
                           ],
                         )
                       else
                         const Text(
-                          'Cadastre e acompanhe aplicações recorrentes para vários animais.',
+                          'Programe produtos para vários animais e lance as despesas automaticamente.',
                           style: TextStyle(color: Color(0xFF64748B)),
                         ),
                       const SizedBox(height: 16),
@@ -190,7 +281,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'As aplicações vencidas de ${widget.tipo.singular} são lançadas automaticamente nas despesas de cada animal ao abrir ou atualizar esta tela. O mesmo lançamento nunca é somado duas vezes.',
+                                'Os usos vencidos dos produtos são lançados automaticamente nas despesas de cada animal ao abrir ou atualizar esta tela. O mesmo lançamento nunca é somado duas vezes.',
                               ),
                             ),
                           ],
@@ -217,7 +308,9 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                             if (itens.isEmpty) {
                               return Center(
                                 child: Text(
-                                  'Nenhum ${widget.tipo.singular} cadastrado.',
+                                  widget.tipo == null
+                                      ? 'Nenhum lançamento cadastrado.'
+                                      : 'Nenhum ${widget.tipo!.singular} cadastrado.',
                                 ),
                               );
                             }
@@ -238,7 +331,11 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
           : FloatingActionButton.extended(
               onPressed: _novo,
               icon: const Icon(Icons.add),
-              label: Text('Cadastrar ${widget.tipo.singular}'),
+              label: Text(
+                widget.tipo == null
+                    ? 'Novo lançamento'
+                    : 'Cadastrar ${widget.tipo!.singular}',
+              ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -251,7 +348,8 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
         width: double.infinity,
         child: DataTable(
           columns: [
-            DataColumn(label: Text(widget.tipo.singularCapital)),
+            const DataColumn(label: Text('Produto')),
+            if (widget.tipo == null) const DataColumn(label: Text('Tipo')),
             const DataColumn(label: Text('Dose / orientação')),
             const DataColumn(label: Text('Frequência')),
             const DataColumn(label: Text('Valor por aplicação')),
@@ -269,6 +367,8 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
+                    if (widget.tipo == null)
+                      DataCell(Text(item.tipo.singularCapital)),
                     DataCell(Text(item.dose)),
                     DataCell(Text(item.frequencia.label)),
                     DataCell(Text(moeda.format(item.valor))),
@@ -305,7 +405,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(child: Icon(widget.icone)),
+                  CircleAvatar(child: Icon(_iconeTipo(item.tipo))),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -321,6 +421,16 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
               ),
               const SizedBox(height: 12),
               Text('${item.dose} • ${item.frequencia.label}'),
+              if (widget.tipo == null) ...[
+                const SizedBox(height: 5),
+                Text(
+                  item.tipo.singularCapital,
+                  style: const TextStyle(
+                    color: Color(0xFF4F46E5),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
               const SizedBox(height: 5),
               Text(
                 '${moeda.format(item.valor)} por animal/aplicação • ${item.animalIds.length} animal(is)',
@@ -355,16 +465,25 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
       fontSize: 12,
     ),
   );
+
+  IconData _iconeTipo(TipoTratamento tipo) => switch (tipo) {
+    TipoTratamento.remedio => Icons.medication_rounded,
+    TipoTratamento.vacina => Icons.vaccines_rounded,
+    TipoTratamento.suplemento => Icons.grass_rounded,
+    TipoTratamento.racao => Icons.restaurant_rounded,
+  };
 }
 
 class CadastroMedicamentoPage extends StatefulWidget {
   const CadastroMedicamentoPage({
     super.key,
     required this.repository,
-    this.tipo = TipoTratamento.remedio,
+    this.produtosRepository,
+    this.tipo,
   });
   final MedicamentoRepository repository;
-  final TipoTratamento tipo;
+  final ProdutoRepository? produtosRepository;
+  final TipoTratamento? tipo;
 
   @override
   State<CadastroMedicamentoPage> createState() =>
@@ -380,11 +499,21 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
   final busca = TextEditingController();
   late final Future<List<CavaloModel>> animais = widget.repository
       .listarAnimais();
+  late final Future<List<ProdutoModel>> produtos =
+      widget.produtosRepository?.listar() ?? Future.value(const []);
   final selecionados = <String>{};
+  ProdutoModel? produtoSelecionado;
+  late TipoTratamento tipoSelecionado;
   FrequenciaMedicamento frequencia = FrequenciaMedicamento.diario;
   DateTime inicio = somenteData(DateTime.now());
   DateTime? fim;
   bool salvando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    tipoSelecionado = widget.tipo ?? TipoTratamento.remedio;
+  }
 
   @override
   void dispose() {
@@ -428,6 +557,12 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
 
   Future<void> _salvar(List<CavaloModel> lista) async {
     if (!(formKey.currentState?.validate() ?? false)) return;
+    if (widget.produtosRepository != null && produtoSelecionado == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione um produto cadastrado.')),
+      );
+      return;
+    }
     if (selecionados.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Selecione pelo menos um animal.')),
@@ -448,7 +583,8 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
         for (final animal in lista.where((a) => selecionados.contains(a.id)))
           animal.id: animal.nome,
       },
-      tipo: widget.tipo,
+      tipo: tipoSelecionado,
+      produtoId: produtoSelecionado?.id ?? '',
     );
     if (teste.ocorrenciasPendentes(DateTime.now()).length *
             selecionados.length >
@@ -471,7 +607,7 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${widget.tipo.singularCapital} salvo. As despesas serão atualizadas ao abrir a tela novamente.',
+              '${tipoSelecionado.singularCapital} salvo. As despesas serão atualizadas ao abrir a tela novamente.',
             ),
           ),
         );
@@ -495,7 +631,13 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: DesktopWindowScope.isInside(context)
           ? null
-          : AppBar(title: Text('Novo ${widget.tipo.singular}')),
+          : AppBar(
+              title: Text(
+                widget.tipo == null
+                    ? 'Novo lançamento automático'
+                    : 'Novo ${widget.tipo!.singular}',
+              ),
+            ),
       body: FutureBuilder<List<CavaloModel>>(
         future: animais,
         builder: (context, snapshot) {
@@ -514,7 +656,7 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
               padding: const EdgeInsets.all(24),
               children: [
                 const Text(
-                  'Dados do tratamento',
+                  'Dados do lançamento',
                   style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
@@ -522,16 +664,105 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
                   spacing: 14,
                   runSpacing: 14,
                   children: [
+                    if (widget.produtosRepository != null)
+                      SizedBox(
+                        width: 420,
+                        child: FutureBuilder<List<ProdutoModel>>(
+                          future: produtos,
+                          builder: (context, snapshotProdutos) {
+                            if (snapshotProdutos.hasError) {
+                              return Text(
+                                'Erro ao carregar produtos: ${snapshotProdutos.error}',
+                              );
+                            }
+                            if (!snapshotProdutos.hasData) {
+                              return const SizedBox(
+                                height: 56,
+                                child: Center(child: LinearProgressIndicator()),
+                              );
+                            }
+                            final ativos = snapshotProdutos.data!
+                                .where((produto) => produto.ativo)
+                                .toList();
+                            return DropdownButtonFormField<ProdutoModel>(
+                              key: const ValueKey('produto_lancamento'),
+                              initialValue: produtoSelecionado,
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                labelText: 'Produto cadastrado *',
+                                border: const OutlineInputBorder(),
+                                helperText: ativos.isEmpty
+                                    ? 'Cadastre um produto antes de criar o lançamento.'
+                                    : null,
+                              ),
+                              items: ativos
+                                  .map(
+                                    (produto) => DropdownMenuItem(
+                                      value: produto,
+                                      child: Text(
+                                        '${produto.nome} • ${produto.tipo.singularCapital}',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: ativos.isEmpty
+                                  ? null
+                                  : (produto) {
+                                      if (produto == null) return;
+                                      setState(() {
+                                        produtoSelecionado = produto;
+                                        tipoSelecionado = produto.tipo;
+                                        nome.text = produto.nome;
+                                        dose.text = produto.quantidadePadrao;
+                                        valor.text = produto.valor
+                                            .toStringAsFixed(2)
+                                            .replaceAll('.', ',');
+                                        orientacoes.text = produto.observacoes;
+                                      });
+                                    },
+                              validator: (produto) => produto == null
+                                  ? 'Selecione um produto'
+                                  : null,
+                            );
+                          },
+                        ),
+                      )
+                    else if (widget.tipo == null)
+                      SizedBox(
+                        width: 270,
+                        child: DropdownButtonFormField<TipoTratamento>(
+                          key: const ValueKey('tipo_produto'),
+                          initialValue: tipoSelecionado,
+                          decoration: const InputDecoration(
+                            labelText: 'Tipo do produto',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: TipoTratamento.values
+                              .map(
+                                (tipo) => DropdownMenuItem(
+                                  value: tipo,
+                                  child: Text(tipo.singularCapital),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (tipo) {
+                            if (tipo != null) {
+                              setState(() => tipoSelecionado = tipo);
+                            }
+                          },
+                        ),
+                      ),
                     SizedBox(
                       width: 420,
                       child: TextFormField(
                         controller: nome,
                         decoration: InputDecoration(
-                          labelText: 'Nome do ${widget.tipo.singular} *',
+                          labelText: 'Nome do produto *',
                           border: OutlineInputBorder(),
                         ),
                         validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Informe o ${widget.tipo.singular}'
+                            ? 'Informe o produto'
                             : null,
                       ),
                     ),
@@ -540,8 +771,8 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
                       child: TextFormField(
                         controller: dose,
                         decoration: const InputDecoration(
-                          labelText: 'Dose / orientação *',
-                          hintText: 'Ex.: 10 ml ou 1 comprimido',
+                          labelText: 'Quantidade / dose / orientação *',
+                          hintText: 'Ex.: 10 ml, 1 comprimido ou 2 kg',
                           border: OutlineInputBorder(),
                         ),
                         validator: (v) => v == null || v.trim().isEmpty

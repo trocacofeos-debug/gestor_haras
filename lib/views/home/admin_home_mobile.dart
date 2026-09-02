@@ -4,15 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/dashboard_service.dart';
+import '../../models/permissao_acesso.dart';
 
 import '../auth/login_page.dart';
 import '../clientes/clientes_page.dart';
-import '../cadastros/cadastro_hub_page.dart';
 import '../cadastros/cavalos_list_page.dart';
 import '../cadastros/funcionarios_list_page.dart';
 import '../cadastros/fornecedores_list_page.dart';
 import '../cadastros/medicamentos_page.dart';
-import '../../models/medicamento_model.dart';
+import '../cadastros/produtos_page.dart';
+import '../cadastros/permissoes_funcionarios_page.dart';
 import '../site/cavalos_venda_list_page.dart';
 import '../site/galeria_page.dart';
 import '../site/noticias_page.dart';
@@ -20,6 +21,8 @@ import '../financeiro/financeiro_animais_page.dart';
 import '../financeiro/relatorios_animais_page.dart';
 import '../financeiro/financeiro_page.dart';
 import '../financeiro/nova_conta_page.dart';
+import '../propostas/admin/propostas_admin_page.dart';
+import '../propostas/admin/nova_proposta_page.dart';
 
 // =====================================================
 // AdminHomeMobile
@@ -58,10 +61,11 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   @override
   void initState() {
     super.initState();
-    carregar();
+    if (ControleAcesso.pode(ModuloAcesso.dashboard)) carregar();
   }
 
   Future<void> carregar() async {
+    if (!ControleAcesso.pode(ModuloAcesso.dashboard)) return;
     try {
       final data = await service.getResumo();
 
@@ -78,6 +82,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   }
 
   Future<void> logout() async {
+    ControleAcesso.limpar();
     await FirebaseAuth.instance.signOut();
 
     if (!mounted) return;
@@ -90,6 +95,13 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   }
 
   void abrirTela(Widget pagina, int menu) {
+    final modulo = _moduloDaPagina(pagina);
+    if (modulo != null && !ControleAcesso.pode(modulo)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Você não tem acesso a este módulo.')),
+      );
+      return;
+    }
     setState(() {
       menuSelecionado = menu;
     });
@@ -97,8 +109,76 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => pagina));
   }
 
+  ModuloAcesso? _moduloDaPagina(Widget pagina) {
+    if (pagina is ClientesPage) return ModuloAcesso.clientes;
+    if (pagina is CavalosListPage) return ModuloAcesso.animais;
+    if (pagina is FuncionariosListPage) return ModuloAcesso.funcionarios;
+    if (pagina is FornecedoresListPage) return ModuloAcesso.fornecedores;
+    if (pagina is ProdutosPage) return ModuloAcesso.produtos;
+    if (pagina is MedicamentosPage ||
+        pagina is FinanceiroAnimaisPage ||
+        pagina is RelatoriosAnimaisPage ||
+        pagina is FinanceiroPage ||
+        pagina is NovaContaPage) {
+      return ModuloAcesso.gestao;
+    }
+    if (pagina is CavalosVendaListPage ||
+        pagina is GaleriaPage ||
+        pagina is NoticiasPage) {
+      return ModuloAcesso.site;
+    }
+    if (pagina is PropostasAdminPage || pagina is NovaPropostaPage) {
+      return ModuloAcesso.propostas;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final atalhos = <({NavigationDestination destino, VoidCallback abrir})>[
+      (
+        destino: const NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home_rounded),
+          label: 'Início',
+        ),
+        abrir: () {},
+      ),
+      if (ControleAcesso.pode(ModuloAcesso.clientes))
+        (
+          destino: const NavigationDestination(
+            icon: Icon(Icons.people_alt_outlined),
+            selectedIcon: Icon(Icons.people_alt_rounded),
+            label: 'Clientes',
+          ),
+          abrir: () => abrirTela(const ClientesPage(), 1),
+        ),
+      if (ControleAcesso.pode(ModuloAcesso.animais))
+        (
+          destino: const NavigationDestination(
+            icon: Icon(Icons.pets_outlined),
+            selectedIcon: Icon(Icons.pets_rounded),
+            label: 'Animais',
+          ),
+          abrir: () => abrirTela(const CavalosListPage(), 3),
+        ),
+      if (ControleAcesso.pode(ModuloAcesso.gestao))
+        (
+          destino: const NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet_rounded),
+            label: 'Gestão',
+          ),
+          abrir: () => abrirTela(const FinanceiroAnimaisPage(), 9),
+        ),
+      (
+        destino: const NavigationDestination(
+          icon: Icon(Icons.menu_rounded),
+          label: 'Mais',
+        ),
+        abrir: () => scaffoldKey.currentState?.openDrawer(),
+      ),
+    ];
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: corFundo,
@@ -106,43 +186,8 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
       drawer: _drawer(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
-        onDestinationSelected: (indice) {
-          switch (indice) {
-            case 0:
-              return;
-            case 1:
-              abrirTela(const CadastroHubPage(), 2);
-            case 2:
-              abrirTela(const CavalosListPage(), 3);
-            case 3:
-              abrirTela(const FinanceiroAnimaisPage(), 9);
-            case 4:
-              scaffoldKey.currentState?.openDrawer();
-          }
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Início',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add_box_outlined),
-            selectedIcon: Icon(Icons.add_box_rounded),
-            label: 'Cadastrar',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.pets_outlined),
-            selectedIcon: Icon(Icons.pets_rounded),
-            label: 'Animais',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: Icon(Icons.account_balance_wallet_rounded),
-            label: 'Gestão',
-          ),
-          NavigationDestination(icon: Icon(Icons.menu_rounded), label: 'Mais'),
-        ],
+        onDestinationSelected: (indice) => atalhos[indice].abrir(),
+        destinations: atalhos.map((item) => item.destino).toList(),
       ),
       body: RefreshIndicator(
         onRefresh: carregar,
@@ -166,6 +211,28 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   // =====================================================
 
   Widget _corpoUmaColuna() {
+    if (!ControleAcesso.pode(ModuloAcesso.dashboard)) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Icon(Icons.lock_outline_rounded, size: 40),
+              SizedBox(height: 12),
+              Text(
+                'Dashboard não liberado',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 6),
+              Text(
+                'Abra o menu para acessar os módulos permitidos.',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -258,134 +325,165 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
-                  _drawerItem(
-                    'Dashboard',
-                    Icons.grid_view_rounded,
-                    () => Navigator.pop(context),
-                  ),
-                  ExpansionTile(
-                    key: const PageStorageKey('menu-cadastros-mobile'),
-                    iconColor: Colors.white70,
-                    collapsedIconColor: Colors.white70,
-                    leading: const Icon(
-                      Icons.add_box_outlined,
-                      color: Colors.white70,
+                  if (ControleAcesso.pode(ModuloAcesso.dashboard))
+                    _drawerItem(
+                      'Dashboard',
+                      Icons.grid_view_rounded,
+                      () => Navigator.pop(context),
                     ),
-                    title: const Text(
-                      'Cadastros',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    children: [
-                      _drawerItem(
-                        'Novo cadastro',
-                        Icons.add_circle_outline_rounded,
-                        () {
-                          Navigator.pop(context);
-                          abrirTela(const CadastroHubPage(), 2);
-                        },
+                  if ([
+                    ModuloAcesso.clientes,
+                    ModuloAcesso.animais,
+                    ModuloAcesso.funcionarios,
+                    ModuloAcesso.fornecedores,
+                    ModuloAcesso.produtos,
+                  ].any(ControleAcesso.pode))
+                    ExpansionTile(
+                      key: const PageStorageKey('menu-cadastros-mobile'),
+                      iconColor: Colors.white70,
+                      collapsedIconColor: Colors.white70,
+                      leading: const Icon(
+                        Icons.add_box_outlined,
+                        color: Colors.white70,
                       ),
-                      _drawerItem('Clientes', Icons.people_alt_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(ClientesPage(), 1);
-                      }),
-                      _drawerItem('Animais', Icons.pets_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(const CavalosListPage(), 3);
-                      }),
-                      _drawerItem('Funcionários', Icons.badge_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(const FuncionariosListPage(), 4);
-                      }),
-                      _drawerItem(
-                        'Fornecedores',
-                        Icons.storefront_outlined,
-                        () {
-                          Navigator.pop(context);
-                          abrirTela(const FornecedoresListPage(), 5);
-                        },
+                      title: const Text(
+                        'Cadastros',
+                        style: TextStyle(color: Colors.white),
                       ),
-                      _drawerItem('Remédios', Icons.medication_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(const MedicamentosPage(), 12);
-                      }),
-                      _drawerItem('Vacinas', Icons.vaccines_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(
-                          const MedicamentosPage(tipo: TipoTratamento.vacina),
-                          13,
-                        );
-                      }),
-                      _drawerItem('Suplementos', Icons.grass_outlined, () {
-                        Navigator.pop(context);
-                        abrirTela(
-                          const MedicamentosPage(
-                            tipo: TipoTratamento.suplemento,
+                      children: [
+                        if (ControleAcesso.pode(ModuloAcesso.clientes))
+                          _drawerItem(
+                            'Clientes',
+                            Icons.people_alt_outlined,
+                            () {
+                              Navigator.pop(context);
+                              abrirTela(ClientesPage(), 1);
+                            },
                           ),
-                          14,
-                        );
-                      }),
-                    ],
-                  ),
-                  const Divider(color: Colors.white12, height: 24),
-                  ExpansionTile(
-                    iconColor: Colors.white70,
-                    collapsedIconColor: Colors.white70,
-                    leading: const Icon(
-                      Icons.account_balance_wallet_outlined,
-                      color: Colors.white70,
+                        if (ControleAcesso.pode(ModuloAcesso.animais))
+                          _drawerItem('Animais', Icons.pets_outlined, () {
+                            Navigator.pop(context);
+                            abrirTela(const CavalosListPage(), 3);
+                          }),
+                        if (ControleAcesso.pode(ModuloAcesso.funcionarios))
+                          _drawerItem('Funcionários', Icons.badge_outlined, () {
+                            Navigator.pop(context);
+                            abrirTela(const FuncionariosListPage(), 4);
+                          }),
+                        if (ControleAcesso.pode(ModuloAcesso.fornecedores))
+                          _drawerItem(
+                            'Fornecedores',
+                            Icons.storefront_outlined,
+                            () {
+                              Navigator.pop(context);
+                              abrirTela(const FornecedoresListPage(), 5);
+                            },
+                          ),
+                        if (ControleAcesso.pode(ModuloAcesso.produtos))
+                          _drawerItem(
+                            'Produtos',
+                            Icons.inventory_2_outlined,
+                            () {
+                              Navigator.pop(context);
+                              abrirTela(const ProdutosPage(), 12);
+                            },
+                          ),
+                      ],
                     ),
-                    title: const Text(
-                      'Gestão',
-                      style: TextStyle(color: Colors.white),
+                  if (ControleAcesso.pode(ModuloAcesso.gestao)) ...[
+                    const Divider(color: Colors.white12, height: 24),
+                    ExpansionTile(
+                      iconColor: Colors.white70,
+                      collapsedIconColor: Colors.white70,
+                      leading: const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Colors.white70,
+                      ),
+                      title: const Text(
+                        'Gestão',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      children: [
+                        _drawerItem(
+                          'Lançamentos',
+                          Icons.playlist_add_check_outlined,
+                          () {
+                            Navigator.pop(context);
+                            abrirTela(const MedicamentosPage(), 13);
+                          },
+                        ),
+                        _drawerItem('Financeiro', Icons.bar_chart_outlined, () {
+                          Navigator.pop(context);
+                          abrirTela(const FinanceiroAnimaisPage(), 9);
+                        }),
+                        _drawerItem(
+                          'Relatórios',
+                          Icons.picture_as_pdf_outlined,
+                          () {
+                            Navigator.pop(context);
+                            abrirTela(const RelatoriosAnimaisPage(), 15);
+                          },
+                        ),
+                        _drawerItem('Dívidas', Icons.receipt_long_outlined, () {
+                          Navigator.pop(context);
+                          abrirTela(const FinanceiroPage(), 10);
+                        }),
+                        _drawerItem(
+                          'Cadastrar dívida',
+                          Icons.add_card_outlined,
+                          () {
+                            Navigator.pop(context);
+                            abrirTela(const NovaContaPage(), 11);
+                          },
+                        ),
+                      ],
                     ),
-                    children: [
-                      _drawerItem('Financeiro', Icons.bar_chart_outlined, () {
+                  ],
+                  if (ControleAcesso.pode(ModuloAcesso.site)) ...[
+                    const Divider(color: Colors.white12, height: 24),
+                    _drawerItem(
+                      'Cavalos à Venda (site)',
+                      Icons.sell_outlined,
+                      () {
                         Navigator.pop(context);
-                        abrirTela(const FinanceiroAnimaisPage(), 9);
-                      }),
-                      _drawerItem(
-                        'Relatórios',
-                        Icons.picture_as_pdf_outlined,
-                        () {
-                          Navigator.pop(context);
-                          abrirTela(const RelatoriosAnimaisPage(), 15);
-                        },
-                      ),
-                      _drawerItem('Dívidas', Icons.receipt_long_outlined, () {
+                        abrirTela(const CavalosVendaListPage(), 6);
+                      },
+                    ),
+                    _drawerItem(
+                      'Galeria (site)',
+                      Icons.photo_library_outlined,
+                      () {
                         Navigator.pop(context);
-                        abrirTela(const FinanceiroPage(), 10);
-                      }),
-                      _drawerItem(
-                        'Cadastrar dívida',
-                        Icons.add_card_outlined,
-                        () {
-                          Navigator.pop(context);
-                          abrirTela(const NovaContaPage(), 11);
-                        },
-                      ),
-                    ],
-                  ),
-                  const Divider(color: Colors.white12, height: 24),
-                  _drawerItem(
-                    'Cavalos à Venda (site)',
-                    Icons.sell_outlined,
-                    () {
+                        abrirTela(const GaleriaPage(), 7);
+                      },
+                    ),
+                    _drawerItem('Notícias (site)', Icons.campaign_outlined, () {
                       Navigator.pop(context);
-                      abrirTela(const CavalosVendaListPage(), 6);
-                    },
-                  ),
-                  _drawerItem(
-                    'Galeria (site)',
-                    Icons.photo_library_outlined,
-                    () {
+                      abrirTela(const NoticiasPage(), 8);
+                    }),
+                  ],
+                  if (ControleAcesso.pode(ModuloAcesso.propostas)) ...[
+                    const Divider(color: Colors.white12, height: 24),
+                    _drawerItem('Propostas', Icons.description_outlined, () {
                       Navigator.pop(context);
-                      abrirTela(const GaleriaPage(), 7);
-                    },
-                  ),
-                  _drawerItem('Notícias (site)', Icons.campaign_outlined, () {
-                    Navigator.pop(context);
-                    abrirTela(const NoticiasPage(), 8);
-                  }),
+                      abrirTela(const PropostasAdminPage(), 16);
+                    }),
+                    _drawerItem('Nova proposta', Icons.note_add_outlined, () {
+                      Navigator.pop(context);
+                      abrirTela(const NovaPropostaPage(), 17);
+                    }),
+                  ],
+                  if (ControleAcesso.acessoTotal) ...[
+                    const Divider(color: Colors.white12, height: 24),
+                    _drawerItem(
+                      'Permissões',
+                      Icons.admin_panel_settings_outlined,
+                      () {
+                        Navigator.pop(context);
+                        abrirTela(const PermissoesFuncionariosPage(), 18);
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),

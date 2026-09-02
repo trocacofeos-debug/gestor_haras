@@ -22,6 +22,7 @@ import 'widgets/desktop_app_frame.dart';
 import 'widgets/desktop_admin_shortcuts.dart';
 import 'widgets/popup_workspace.dart';
 import 'widgets/mobile_app_theme.dart';
+import 'widgets/app_scroll_behavior.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
 final popupWorkspaceKey = GlobalKey<PopupWorkspaceState>();
@@ -47,6 +48,8 @@ class GestorHarasApp extends StatelessWidget {
       navigatorObservers: [popupWorkspaceObserver],
 
       debugShowCheckedModeBanner: false,
+
+      scrollBehavior: const AppScrollBehavior(),
 
       builder: (context, child) {
         final conteudo = DesktopAdminShortcuts(
@@ -138,6 +141,21 @@ class GestorHarasApp extends StatelessWidget {
           color: Color(0xFFE2E8F0),
           thickness: 1,
           space: 1,
+        ),
+
+        scrollbarTheme: ScrollbarThemeData(
+          thumbColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.dragged)
+                ? const Color(0xFF64748B)
+                : const Color(0xFF94A3B8),
+          ),
+          trackColor: const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
+          trackBorderColor: const WidgetStatePropertyAll(Color(0xFFE2E8F0)),
+          radius: const Radius.circular(8),
+          thickness: const WidgetStatePropertyAll(8),
+          interactive: true,
+          crossAxisMargin: 2,
+          mainAxisMargin: 4,
         ),
       ),
 

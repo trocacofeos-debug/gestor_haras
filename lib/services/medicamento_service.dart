@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/cavalo_model.dart';
@@ -34,6 +36,101 @@ abstract class MedicamentoRepository {
   Future<void> cadastrar(MedicamentoModel medicamento);
   Future<int> sincronizarTudo();
   Future<void> encerrar(String id);
+  Future<int> limparHistorico();
+}
+
+/// Reúne os lançamentos antigos em uma única tela, sem perder dados.
+class LancamentosRepository implements MedicamentoRepository {
+  LancamentosRepository({FirebaseFirestore? firestore})
+    : _servicos = {
+        for (final tipo in TipoTratamento.values)
+          tipo: MedicamentoService(firestore: firestore, tipo: tipo),
+      };
+
+  final Map<TipoTratamento, MedicamentoService> _servicos;
+
+  @override
+  Stream<List<MedicamentoModel>> observar() {
+    final ultimos = <TipoTratamento, List<MedicamentoModel>>{};
+    final assinaturas = <StreamSubscription<List<MedicamentoModel>>>[];
+    late final StreamController<List<MedicamentoModel>> controller;
+
+    void emitir() {
+      if (ultimos.length != _servicos.length || controller.isClosed) return;
+      final produtos =
+          <MedicamentoModel>[
+            for (final entry in ultimos.entries)
+              for (final item in entry.value)
+                item.copyWith(
+                  id: '${entry.key.name}:${item.id}',
+                  tipo: entry.key,
+                ),
+          ]..sort((a, b) {
+            if (a.ativo != b.ativo) return a.ativo ? -1 : 1;
+            return a.nome.toLowerCase().compareTo(b.nome.toLowerCase());
+          });
+      controller.add(produtos);
+    }
+
+    controller = StreamController<List<MedicamentoModel>>(
+      onListen: () {
+        for (final entry in _servicos.entries) {
+          assinaturas.add(
+            entry.value.observar().listen((itens) {
+              ultimos[entry.key] = itens;
+              emitir();
+            }, onError: controller.addError),
+          );
+        }
+      },
+      onCancel: () async {
+        for (final assinatura in assinaturas) {
+          await assinatura.cancel();
+        }
+      },
+    );
+    return controller.stream;
+  }
+
+  @override
+  Future<List<CavaloModel>> listarAnimais() =>
+      _servicos[TipoTratamento.remedio]!.listarAnimais();
+
+  @override
+  Future<void> cadastrar(MedicamentoModel medicamento) =>
+      _servicos[medicamento.tipo]!.cadastrar(medicamento);
+
+  @override
+  Future<int> sincronizarTudo() async {
+    var total = 0;
+    for (final servico in _servicos.values) {
+      total += await servico.sincronizarTudo();
+    }
+    return total;
+  }
+
+  @override
+  Future<void> encerrar(String id) {
+    final separador = id.indexOf(':');
+    if (separador < 1) {
+      return _servicos[TipoTratamento.remedio]!.encerrar(id);
+    }
+    final nomeTipo = id.substring(0, separador);
+    final tipo = TipoTratamento.values.firstWhere(
+      (item) => item.name == nomeTipo,
+      orElse: () => TipoTratamento.remedio,
+    );
+    return _servicos[tipo]!.encerrar(id.substring(separador + 1));
+  }
+
+  @override
+  Future<int> limparHistorico() async {
+    var total = 0;
+    for (final servico in _servicos.values) {
+      total += await servico.limparHistorico();
+    }
+    return total;
+  }
 }
 
 class MedicamentoSalvoSemSincronizar implements Exception {
@@ -168,4 +265,21 @@ class MedicamentoService implements MedicamentoRepository {
     'ativo': false,
     'atualizadoEm': FieldValue.serverTimestamp(),
   });
+
+  @override
+  Future<int> limparHistorico() async {
+    final encerrados = await _planos
+        .where('ativo', isEqualTo: false)
+        .get(const GetOptions(source: Source.server));
+    if (encerrados.docs.isEmpty) return 0;
+
+    for (var inicio = 0; inicio < encerrados.docs.length; inicio += 400) {
+      final batch = _db.batch();
+      for (final doc in encerrados.docs.skip(inicio).take(400)) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    }
+    return encerrados.docs.length;
+  }
 }

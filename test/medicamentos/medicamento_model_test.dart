@@ -133,5 +133,11 @@ void main() {
       );
       expect(CategoriaDespesa.suplemento.label, 'Suplemento');
     });
+
+    test('ração entra nas despesas como alimento', () {
+      expect(TipoTratamento.racao.singularCapital, 'Ração');
+      expect(TipoTratamento.racao.categoriaDespesa, 'alimento');
+      expect(categoriaDespesaFromString('alimento'), CategoriaDespesa.alimento);
+    });
   });
 }

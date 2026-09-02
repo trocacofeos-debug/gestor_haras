@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../models/cliente_model.dart';
 import '../../services/cliente_service.dart';
+import '../../widgets/desktop_window.dart';
 
 import '../home/admin_home.dart';
+import 'cadastro_cliente_page.dart';
 import '../home/admin_top_bar.dart';
 import 'cliente_detalhes_page.dart';
 
@@ -62,6 +64,17 @@ class _ClientesPageDesktopState extends State<ClientesPageDesktop> {
 
   void abrirDetalhes(ClienteModel cliente) {
     abrirPopupDetalhesCliente(context, cliente);
+  }
+
+  void cadastrarCliente() {
+    openDesktopWindow(
+      context,
+      title: 'Novo cliente',
+      icon: Icons.person_add_alt_1_rounded,
+      width: 1100,
+      height: 760,
+      builder: (_) => const CadastroClientePage(),
+    );
   }
 
   String limparTexto(String valor) {
@@ -129,6 +142,15 @@ class _ClientesPageDesktopState extends State<ClientesPageDesktop> {
                 fontWeight: FontWeight.w600,
                 color: corTexto,
               ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Cadastrar cliente',
+            onPressed: cadastrarCliente,
+            icon: const Icon(
+              Icons.person_add_alt_1_rounded,
+              color: corPrimaria,
+              size: 22,
             ),
           ),
           IconButton(

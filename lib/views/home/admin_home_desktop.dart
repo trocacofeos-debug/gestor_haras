@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/dashboard_service.dart';
+import '../../models/permissao_acesso.dart';
 
 import '../auth/login_page.dart';
 import '../auth/register_page.dart';
@@ -65,10 +66,11 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
   @override
   void initState() {
     super.initState();
-    carregar();
+    if (ControleAcesso.pode(ModuloAcesso.dashboard)) carregar();
   }
 
   Future<void> carregar() async {
+    if (!ControleAcesso.pode(ModuloAcesso.dashboard)) return;
     try {
       final data = await service.getResumo();
 
@@ -89,6 +91,7 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
   }
 
   Future<void> logout() async {
+    ControleAcesso.limpar();
     await FirebaseAuth.instance.signOut();
 
     if (!mounted) return;
@@ -143,6 +146,25 @@ class _AdminHomeDesktopState extends State<AdminHomeDesktop> {
   }
 
   Widget _corpoDuasColunas() {
+    if (!ControleAcesso.pode(ModuloAcesso.dashboard)) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(28),
+          child: Column(
+            children: [
+              Icon(Icons.lock_outline_rounded, size: 40),
+              SizedBox(height: 12),
+              Text(
+                'Dashboard não liberado',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 6),
+              Text('Use o menu acima para acessar os módulos permitidos.'),
+            ],
+          ),
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

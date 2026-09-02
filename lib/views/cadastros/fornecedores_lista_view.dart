@@ -217,19 +217,20 @@ class _FornecedoresListaViewState extends State<FornecedoresListaView> {
                     ),
                   );
                 }
+                if (!widget.desktop) {
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
+                    itemCount: lista.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (_, indice) => _linhaMobile(lista[indice]),
+                  );
+                }
                 return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    widget.desktop ? 20 : 16,
-                    10,
-                    widget.desktop ? 20 : 16,
-                    30,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1440),
-                      child: widget.desktop
-                          ? _tabela(lista)
-                          : Column(children: lista.map(_linhaMobile).toList()),
+                      child: _tabela(lista),
                     ),
                   ),
                 );
