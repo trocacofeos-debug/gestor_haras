@@ -12,7 +12,13 @@ import 'financeiro_animais_mobile.dart';
 class FinanceiroAnimaisPage extends StatefulWidget {
   final Future<FinanceiroAnimaisDados> Function()? carregar;
   final Future<void> Function(NovoMovimentoAnimal movimento)? salvar;
-  const FinanceiroAnimaisPage({super.key, this.carregar, this.salvar});
+  final bool embedded;
+  const FinanceiroAnimaisPage({
+    super.key,
+    this.carregar,
+    this.salvar,
+    this.embedded = false,
+  });
 
   @override
   State<FinanceiroAnimaisPage> createState() => _FinanceiroAnimaisPageState();
@@ -163,6 +169,17 @@ class _FinanceiroAnimaisPageState extends State<FinanceiroAnimaisPage> {
     );
     final resumo = ResumoFinanceiroAnimais.calcular(movimentos);
     final semData = dados.movimentos.where((m) => m.data == null).length;
+
+    if (widget.embedded) {
+      return _conteudoCompacto(
+        dados: dados,
+        animais: animais,
+        animalId: animalId,
+        movimentos: movimentos,
+        resumo: resumo,
+        semData: semData,
+      );
+    }
 
     if (largura < 900) {
       return FinanceiroAnimaisMobile(
@@ -458,27 +475,348 @@ class _FinanceiroAnimaisPageState extends State<FinanceiroAnimaisPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFFF3F4F6),
-    appBar: AppBar(
-      title: const Text(
-        'Financeiro',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-      ),
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      actions: [
-        IconButton(
-          tooltip: 'Atualizar lançamentos',
-          onPressed: _atualizar,
-          icon: const Icon(Icons.refresh),
+  Widget _conteudoCompacto({
+    required FinanceiroAnimaisDados dados,
+    required List<MapEntry<String, String>> animais,
+    required String? animalId,
+    required List<MovimentoAnimal> movimentos,
+    required ResumoFinanceiroAnimais resumo,
+    required int semData,
+  }) => Padding(
+    padding: const EdgeInsets.all(10),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Receitas e despesas dos animais',
+                style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              ),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Atualizar',
+              onPressed: _atualizar,
+              icon: const Icon(Icons.refresh_rounded),
+            ),
+            const SizedBox(width: 3),
+            FilledButton.icon(
+              key: const ValueKey('novo-lancamento-financeiro'),
+              onPressed: () => _novoLancamento(dados),
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Novo'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7),
+        Material(
+          color: Colors.white,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(color: _borda),
+          ),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+            childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+            leading: const Icon(Icons.filter_alt_outlined, size: 20),
+            title: Text(
+              animalId == null && _tipo == null && _periodo == null
+                  ? 'Filtros'
+                  : 'Filtros ativos',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final ladoALado = constraints.maxWidth >= 650;
+                  final largura = ladoALado
+                      ? (constraints.maxWidth - 8) / 2
+                      : constraints.maxWidth;
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      SizedBox(
+                        width: largura,
+                        child: DropdownButtonFormField<String>(
+                          key: ValueKey('animal-${animalId ?? "todos"}'),
+                          initialValue: animalId ?? '',
+                          isExpanded: true,
+                          decoration: _decoracao('Animal'),
+                          items: [
+                            const DropdownMenuItem(
+                              value: '',
+                              child: Text('Todos os animais'),
+                            ),
+                            for (final animal in animais)
+                              DropdownMenuItem(
+                                value: animal.key,
+                                child: Text(
+                                  animal.value,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                          ],
+                          onChanged: (valor) => setState(
+                            () => _animalId = valor == '' ? null : valor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: largura,
+                        child: DropdownButtonFormField<String>(
+                          key: ValueKey('tipo-${_tipo?.name ?? "todos"}'),
+                          initialValue: _tipo?.name ?? '',
+                          isExpanded: true,
+                          decoration: _decoracao('Tipo'),
+                          items: const [
+                            DropdownMenuItem(
+                              value: '',
+                              child: Text('Receitas e despesas'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'receita',
+                              child: Text('Somente receitas'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'despesa',
+                              child: Text('Somente despesas'),
+                            ),
+                          ],
+                          onChanged: (valor) => setState(
+                            () => _tipo = switch (valor) {
+                              'receita' => TipoMovimentoAnimal.receita,
+                              'despesa' => TipoMovimentoAnimal.despesa,
+                              _ => null,
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 7),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _selecionarPeriodo,
+                    icon: const Icon(Icons.date_range_outlined, size: 17),
+                    label: Text(
+                      _periodo == null
+                          ? 'Todo o período'
+                          : '${_data.format(_periodo!.start)} a ${_data.format(_periodo!.end)}',
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final hoje = DateTime.now();
+                      setState(
+                        () => _periodo = DateTimeRange(
+                          start: DateTime(hoje.year, hoje.month),
+                          end: DateTime(hoje.year, hoje.month + 1, 0),
+                        ),
+                      );
+                    },
+                    child: const Text('Este mês'),
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _animalId = null;
+                      _tipo = null;
+                      _periodo = null;
+                    }),
+                    child: const Text('Limpar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            Expanded(
+              child: _cartaoCompacto(
+                'Receitas',
+                resumo.receitas,
+                const Color(0xFF15803D),
+              ),
+            ),
+            const SizedBox(width: 7),
+            Expanded(
+              child: _cartaoCompacto(
+                'Despesas',
+                resumo.despesas,
+                const Color(0xFFB91C1C),
+              ),
+            ),
+            const SizedBox(width: 7),
+            Expanded(
+              child: _cartaoCompacto(
+                'Saldo',
+                resumo.saldo,
+                resumo.saldo < 0
+                    ? const Color(0xFFB91C1C)
+                    : const Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${movimentos.length} lançamento(s)',
+                style: const TextStyle(color: _cinza, fontSize: 12),
+              ),
+            ),
+            if (dados.registrosInvalidos > 0 || semData > 0)
+              const Tooltip(
+                message: 'Existem lançamentos inválidos ou sem data.',
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  size: 18,
+                  color: Color(0xFFB45309),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Expanded(
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: movimentos.isEmpty
+                ? Center(
+                    child: Text(
+                      dados.animais.isEmpty
+                          ? 'Nenhum animal cadastrado.'
+                          : 'Nenhum lançamento encontrado.',
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _atualizar,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: movimentos.length,
+                      separatorBuilder: (_, _) => const Divider(height: 6),
+                      itemBuilder: (_, indice) =>
+                          _movimentoCompacto(movimentos[indice]),
+                    ),
+                  ),
+          ),
         ),
       ],
     ),
+  );
+
+  Widget _cartaoCompacto(String titulo, int centavos, Color cor) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: _borda),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(titulo, style: const TextStyle(color: _cinza, fontSize: 11)),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            _moeda.format(centavos / 100),
+            style: TextStyle(
+              color: cor,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _movimentoCompacto(MovimentoAnimal movimento) {
+    final receita = movimento.tipo == TipoMovimentoAnimal.receita;
+    return InkWell(
+      onTap: () => _abrirAnimal(movimento.animalId),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
+        child: Row(
+          children: [
+            Icon(
+              receita
+                  ? Icons.arrow_upward_rounded
+                  : Icons.arrow_downward_rounded,
+              size: 18,
+              color: receita
+                  ? const Color(0xFF15803D)
+                  : const Color(0xFFB91C1C),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movimento.descricao.isEmpty
+                        ? movimento.categoria
+                        : movimento.descricao,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    '${movimento.animalNome} • ${movimento.categoria} • ${movimento.data == null ? 'Sem data' : _data.format(movimento.data!)}',
+                    style: const TextStyle(color: _cinza, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _moeda.format(movimento.centavos / 100),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: receita
+                    ? const Color(0xFF15803D)
+                    : const Color(0xFFB91C1C),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: const Color(0xFFF3F4F6),
+    appBar: widget.embedded
+        ? null
+        : AppBar(
+            title: const Text(
+              'Financeiro',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            actions: [
+              IconButton(
+                tooltip: 'Atualizar lançamentos',
+                onPressed: _atualizar,
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
     body: Column(
       children: [
-        if (MediaQuery.sizeOf(context).width >= 1000) const AdminTopBar(),
+        if (!widget.embedded && MediaQuery.sizeOf(context).width >= 1000)
+          const AdminTopBar(),
         Expanded(
           child: FutureBuilder<FinanceiroAnimaisDados>(
             future: _dados,

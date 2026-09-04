@@ -599,7 +599,7 @@ void main() {
   );
 
   for (final size in [const Size(1366, 768), const Size(1024, 600)]) {
-    testWidgets('resumo do cavalo sem rolagem em $size, com histórico completo', (
+    testWidgets('detalhes do cavalo sem valores financeiros em $size', (
       tester,
     ) async {
       tester.view.physicalSize = size;
@@ -625,30 +625,17 @@ void main() {
       expect(find.text('Estrela do Haras Exemplo'), findsOneWidget);
       expect(find.text('1,65 m'), findsOneWidget);
       expect(find.text('480,5 kg'), findsOneWidget);
-      expect(find.text('R\$ 2500.00'), findsNWidgets(2));
-      expect(find.text('R\$ 0.00'), findsOneWidget);
+      expect(find.textContaining('R\$'), findsNothing);
+      expect(find.text('Resumo financeiro'), findsNothing);
+      expect(find.text('Ver despesas'), findsNothing);
+      expect(find.text('Ver receitas'), findsNothing);
       for (final state in tester.stateList<ScrollableState>(
         find.byType(Scrollable),
       )) {
         expect(state.position.maxScrollExtent, 0);
       }
-      for (final label in [
-        'Editar',
-        'Ver despesas',
-        'Ver receitas',
-        'Ler observações completas',
-      ]) {
+      for (final label in ['Editar', 'Ler observações completas']) {
         expect(find.text(label).hitTestable(), findsOneWidget);
-      }
-
-      for (final tipo in ['despesas', 'receitas']) {
-        await tester.tap(find.text('Ver $tipo'));
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        expect(find.text('Histórico de $tipo'), findsOneWidget);
-        expect(find.text('Lançamento 24'), findsOneWidget);
-        await tester.tap(find.byTooltip('Fechar histórico'));
-        await tester.pumpAndSettle();
       }
       await tester.tap(find.text('Ler observações completas'));
       await tester.pumpAndSettle();

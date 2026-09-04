@@ -7,17 +7,20 @@ import '../../services/dashboard_service.dart';
 import '../../models/permissao_acesso.dart';
 
 import '../auth/login_page.dart';
+import '../animais/acompanhamento_animais_page.dart';
 import '../clientes/clientes_page.dart';
 import '../cadastros/cavalos_list_page.dart';
 import '../cadastros/funcionarios_list_page.dart';
 import '../cadastros/fornecedores_list_page.dart';
 import '../cadastros/medicamentos_page.dart';
+import '../cadastros/lancamentos_page.dart';
 import '../cadastros/produtos_page.dart';
 import '../cadastros/permissoes_funcionarios_page.dart';
 import '../site/cavalos_venda_list_page.dart';
 import '../site/galeria_page.dart';
 import '../site/noticias_page.dart';
 import '../financeiro/financeiro_animais_page.dart';
+import '../financeiro/financeiro_geral_page.dart';
 import '../financeiro/relatorios_animais_page.dart';
 import '../financeiro/financeiro_page.dart';
 import '../financeiro/nova_conta_page.dart';
@@ -112,10 +115,13 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
   ModuloAcesso? _moduloDaPagina(Widget pagina) {
     if (pagina is ClientesPage) return ModuloAcesso.clientes;
     if (pagina is CavalosListPage) return ModuloAcesso.animais;
+    if (pagina is AcompanhamentoAnimaisPage) return ModuloAcesso.animais;
     if (pagina is FuncionariosListPage) return ModuloAcesso.funcionarios;
     if (pagina is FornecedoresListPage) return ModuloAcesso.fornecedores;
     if (pagina is ProdutosPage) return ModuloAcesso.produtos;
     if (pagina is MedicamentosPage ||
+        pagina is LancamentosPage ||
+        pagina is FinanceiroGeralPage ||
         pagina is FinanceiroAnimaisPage ||
         pagina is RelatoriosAnimaisPage ||
         pagina is FinanceiroPage ||
@@ -169,7 +175,7 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
             selectedIcon: Icon(Icons.account_balance_wallet_rounded),
             label: 'Gestão',
           ),
-          abrir: () => abrirTela(const FinanceiroAnimaisPage(), 9),
+          abrir: () => abrirTela(const FinanceiroGeralPage(), 9),
         ),
       (
         destino: const NavigationDestination(
@@ -409,12 +415,12 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                           Icons.playlist_add_check_outlined,
                           () {
                             Navigator.pop(context);
-                            abrirTela(const MedicamentosPage(), 13);
+                            abrirTela(const LancamentosPage(), 13);
                           },
                         ),
                         _drawerItem('Financeiro', Icons.bar_chart_outlined, () {
                           Navigator.pop(context);
-                          abrirTela(const FinanceiroAnimaisPage(), 9);
+                          abrirTela(const FinanceiroGeralPage(), 9);
                         }),
                         _drawerItem(
                           'Relatórios',
@@ -438,6 +444,13 @@ class _AdminHomeMobileState extends State<AdminHomeMobile> {
                         ),
                       ],
                     ),
+                  ],
+                  if (ControleAcesso.pode(ModuloAcesso.animais)) ...[
+                    const Divider(color: Colors.white12, height: 16),
+                    _drawerItem('Animais', Icons.pets_rounded, () {
+                      Navigator.pop(context);
+                      abrirTela(const AcompanhamentoAnimaisPage(), 16);
+                    }),
                   ],
                   if (ControleAcesso.pode(ModuloAcesso.site)) ...[
                     const Divider(color: Colors.white12, height: 24),

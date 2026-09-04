@@ -10,6 +10,7 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:gestor_haras/models/financeiro_animais.dart';
 import 'package:gestor_haras/services/financeiro_animais_service.dart';
 import 'package:gestor_haras/views/financeiro/financeiro_animais_page.dart';
+import 'package:gestor_haras/views/financeiro/financeiro_geral_page.dart';
 import 'package:gestor_haras/views/financeiro/financeiro_animais_mobile.dart';
 import 'package:gestor_haras/views/home/admin_top_bar.dart';
 import 'package:gestor_haras/widgets/desktop_window.dart';
@@ -567,7 +568,7 @@ void main() {
     expect(find.text('Dívidas'), findsOneWidget);
     await tester.tap(find.text('Financeiro'));
     await tester.pumpAndSettle();
-    expect(find.byType(FinanceiroAnimaisPage), findsOneWidget);
+    expect(find.byType(FinanceiroGeralPage), findsOneWidget);
     expect(find.byType(DesktopWindowScope), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

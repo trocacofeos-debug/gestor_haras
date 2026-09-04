@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../auth/login_page.dart';
+import '../animais/acompanhamento_animais_page.dart';
 import '../clientes/clientes_page.dart';
 import '../cadastros/cavalos_list_page.dart';
 import '../cadastros/funcionarios_list_page.dart';
@@ -12,10 +13,12 @@ import '../cadastros/cadastro_cavalo_page.dart';
 import '../cadastros/cadastro_funcionario_page.dart';
 import '../cadastros/cadastro_fornecedor_page.dart';
 import '../cadastros/medicamentos_page.dart';
+import '../cadastros/lancamentos_page.dart';
 import '../cadastros/produtos_page.dart';
 import '../cadastros/permissoes_funcionarios_page.dart';
 import '../financeiro/financeiro_page.dart';
 import '../financeiro/financeiro_animais_page.dart';
+import '../financeiro/financeiro_geral_page.dart';
 import '../financeiro/relatorios_animais_page.dart';
 import '../financeiro/nova_conta_page.dart';
 import '../propostas/admin/propostas_admin_page.dart';
@@ -66,13 +69,16 @@ class AdminTopBar extends StatelessWidget {
   ModuloAcesso? _moduloDaPagina(Widget pagina) {
     if (pagina is ClientesPage) return ModuloAcesso.clientes;
     if (pagina is CavalosListPage) return ModuloAcesso.animais;
+    if (pagina is AcompanhamentoAnimaisPage) return ModuloAcesso.animais;
     if (pagina is FuncionariosListPage) return ModuloAcesso.funcionarios;
     if (pagina is FornecedoresListPage) return ModuloAcesso.fornecedores;
     if (pagina is ProdutosPage) return ModuloAcesso.produtos;
     if (pagina is FinanceiroPage ||
+        pagina is FinanceiroGeralPage ||
         pagina is FinanceiroAnimaisPage ||
         pagina is RelatoriosAnimaisPage ||
         pagina is NovaContaPage ||
+        pagina is LancamentosPage ||
         pagina is MedicamentosPage) {
       return ModuloAcesso.gestao;
     }
@@ -91,11 +97,14 @@ class AdminTopBar extends StatelessWidget {
   String _tituloDaPagina(Widget pagina) {
     if (pagina is ClientesPage) return 'Clientes';
     if (pagina is CavalosListPage) return 'Animais';
+    if (pagina is AcompanhamentoAnimaisPage) return 'Animais';
     if (pagina is FuncionariosListPage) return 'Funcionários';
     if (pagina is FornecedoresListPage) return 'Fornecedores';
     if (pagina is MedicamentosPage) return pagina.titulo;
+    if (pagina is LancamentosPage) return 'Lançamentos';
     if (pagina is ProdutosPage) return pagina.titulo;
     if (pagina is FinanceiroPage) return 'Dívidas';
+    if (pagina is FinanceiroGeralPage) return 'Financeiro';
     if (pagina is FinanceiroAnimaisPage) return 'Financeiro';
     if (pagina is RelatoriosAnimaisPage) return 'Relatórios';
     if (pagina is NovaContaPage) return 'Cadastrar dívida';
@@ -111,11 +120,14 @@ class AdminTopBar extends StatelessWidget {
   IconData _iconeDaPagina(Widget pagina) {
     if (pagina is ClientesPage) return Icons.people_alt_rounded;
     if (pagina is CavalosListPage) return Icons.pets_rounded;
+    if (pagina is AcompanhamentoAnimaisPage) return Icons.pets_rounded;
     if (pagina is FuncionariosListPage) return Icons.badge_rounded;
     if (pagina is FornecedoresListPage) return Icons.storefront_rounded;
     if (pagina is MedicamentosPage) return pagina.icone;
+    if (pagina is LancamentosPage) return Icons.playlist_add_check_rounded;
     if (pagina is ProdutosPage) return pagina.icone;
     if (pagina is FinanceiroPage ||
+        pagina is FinanceiroGeralPage ||
         pagina is FinanceiroAnimaisPage ||
         pagina is RelatoriosAnimaisPage ||
         pagina is NovaContaPage) {
@@ -254,12 +266,20 @@ class AdminTopBar extends StatelessWidget {
                 context: context,
                 titulo: 'Gestão',
                 itens: [
-                  _ItemMenu('Financeiro', () => const FinanceiroAnimaisPage()),
-                  _ItemMenu('Lançamentos', () => const MedicamentosPage()),
+                  _ItemMenu('Financeiro', () => const FinanceiroGeralPage()),
+                  _ItemMenu('Lançamentos', () => const LancamentosPage()),
                   _ItemMenu('Relatórios', () => const RelatoriosAnimaisPage()),
                   _ItemMenu('Dívidas', () => const FinanceiroPage()),
                   _ItemMenu('Cadastrar dívida', () => const NovaContaPage()),
                 ],
+              ),
+            if (ControleAcesso.pode(ModuloAcesso.animais))
+              _botaoSimples(
+                context: context,
+                titulo: 'Animais',
+                icon: Icons.pets_rounded,
+                onTap: () =>
+                    _trocarTela(context, const AcompanhamentoAnimaisPage()),
               ),
             if (ControleAcesso.pode(ModuloAcesso.propostas))
               _menuDropdown(

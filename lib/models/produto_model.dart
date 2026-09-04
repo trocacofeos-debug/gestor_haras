@@ -9,6 +9,10 @@ class ProdutoModel {
     required this.tipo,
     required this.quantidadePadrao,
     required this.valorCentavos,
+    this.quantidadeEstoque = 0,
+    this.fornecedorId = '',
+    this.fornecedorNome = '',
+    this.fotoUrl = '',
     this.observacoes = '',
     this.ativo = true,
   });
@@ -18,6 +22,10 @@ class ProdutoModel {
   final TipoTratamento tipo;
   final String quantidadePadrao;
   final int valorCentavos;
+  final double quantidadeEstoque;
+  final String fornecedorId;
+  final String fornecedorNome;
+  final String fotoUrl;
   final String observacoes;
   final bool ativo;
 
@@ -29,6 +37,10 @@ class ProdutoModel {
     tipo: tipo,
     quantidadePadrao: quantidadePadrao,
     valorCentavos: valorCentavos,
+    quantidadeEstoque: quantidadeEstoque,
+    fornecedorId: fornecedorId,
+    fornecedorNome: fornecedorNome,
+    fotoUrl: fotoUrl,
     observacoes: observacoes,
     ativo: ativo ?? this.ativo,
   );
@@ -46,6 +58,10 @@ class ProdutoModel {
       valorCentavos: map['valorCentavos'] is num
           ? (map['valorCentavos'] as num).round()
           : (((map['valor'] as num?) ?? 0) * 100).round(),
+      quantidadeEstoque: (map['quantidadeEstoque'] as num?)?.toDouble() ?? 0,
+      fornecedorId: (map['fornecedorId'] ?? '').toString(),
+      fornecedorNome: (map['fornecedorNome'] ?? '').toString(),
+      fotoUrl: (map['fotoUrl'] ?? '').toString(),
       observacoes: (map['observacoes'] ?? '').toString(),
       ativo: map['ativo'] != false,
     );
@@ -57,6 +73,10 @@ class ProdutoModel {
     'quantidadePadrao': quantidadePadrao.trim(),
     'valorCentavos': valorCentavos,
     'valor': valor,
+    'quantidadeEstoque': quantidadeEstoque,
+    'fornecedorId': fornecedorId,
+    'fornecedorNome': fornecedorNome,
+    'fotoUrl': fotoUrl,
     'observacoes': observacoes.trim(),
     'ativo': ativo,
     'atualizadoEm': FieldValue.serverTimestamp(),

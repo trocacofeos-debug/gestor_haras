@@ -19,12 +19,19 @@ class MedicamentosPage extends StatefulWidget {
     this.repository,
     this.produtosRepository,
     this.tipo,
+    this.tipos,
+    this.tituloPersonalizado,
+    this.embedded = false,
   });
   final MedicamentoRepository? repository;
   final ProdutoRepository? produtosRepository;
   final TipoTratamento? tipo;
+  final Set<TipoTratamento>? tipos;
+  final String? tituloPersonalizado;
+  final bool embedded;
 
-  String get titulo => tipo?.pluralCapital ?? 'Lançamentos';
+  String get titulo =>
+      tituloPersonalizado ?? tipo?.pluralCapital ?? 'Lançamentos';
   IconData get icone => switch (tipo) {
     TipoTratamento.remedio => Icons.medication_rounded,
     TipoTratamento.vacina => Icons.vaccines_rounded,
@@ -47,6 +54,9 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
   bool limpandoHistorico = false;
   final moeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
   final data = DateFormat('dd/MM/yyyy');
+
+  bool get exibeHistoricoCompleto =>
+      widget.tipo == null && widget.tipos == null;
 
   @override
   void initState() {
@@ -92,6 +102,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
         repository: repository,
         produtosRepository: widget.produtosRepository ?? ProdutoService(),
         tipo: widget.tipo,
+        tiposPermitidos: widget.tipos,
       ),
     );
   }
@@ -174,12 +185,12 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
     final desktop = MediaQuery.sizeOf(context).width >= 900;
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
-      appBar: desktop
+      appBar: desktop || widget.embedded
           ? null
           : AppBar(
               title: Text(widget.titulo),
               actions: [
-                if (widget.tipo == null)
+                if (exibeHistoricoCompleto)
                   IconButton(
                     tooltip: 'Limpar histórico',
                     onPressed: limpandoHistorico ? null : _limparHistorico,
@@ -193,29 +204,34 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
             ),
       body: Column(
         children: [
-          if (desktop) const AdminTopBar(),
+          if (desktop && !widget.embedded) const AdminTopBar(),
           Expanded(
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1250),
                 child: Padding(
-                  padding: EdgeInsets.all(desktop ? 28 : 16),
+                  padding: EdgeInsets.all(
+                    widget.embedded ? 12 : (desktop ? 28 : 16),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (desktop)
                         Row(
                           children: [
-                            Expanded(
-                              child: Text(
-                                widget.titulo,
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
+                            if (!widget.embedded)
+                              Expanded(
+                                child: Text(
+                                  widget.titulo,
+                                  style: const TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ),
-                            if (widget.tipo == null) ...[
+                              )
+                            else
+                              const Spacer(),
+                            if (exibeHistoricoCompleto) ...[
                               OutlinedButton.icon(
                                 onPressed: limpandoHistorico
                                     ? null
@@ -258,36 +274,54 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                             ),
                           ],
                         )
-                      else
+                      else if (!widget.embedded)
                         const Text(
                           'Programe produtos para vários animais e lance as despesas automaticamente.',
                           style: TextStyle(color: Color(0xFF64748B)),
+                        )
+                      else
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                            visualDensity: VisualDensity.compact,
+                            tooltip: 'Atualizar despesas',
+                            onPressed: sincronizando ? null : _sincronizar,
+                            icon: sincronizando
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.sync_rounded),
+                          ),
                         ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEEF2FF),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFC7D2FE)),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              color: Color(0xFF4338CA),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Os usos vencidos dos produtos são lançados automaticamente nas despesas de cada animal ao abrir ou atualizar esta tela. O mesmo lançamento nunca é somado duas vezes.',
+                      SizedBox(height: widget.embedded ? 6 : 16),
+                      if (!widget.embedded)
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEEF2FF),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFC7D2FE)),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Color(0xFF4338CA),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Os usos vencidos dos produtos são lançados automaticamente nas despesas de cada animal ao abrir ou atualizar esta tela. O mesmo lançamento nunca é somado duas vezes.',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: widget.embedded ? 6 : 16),
                       Expanded(
                         child: StreamBuilder<List<MedicamentoModel>>(
                           stream: repository.observar(),
@@ -304,7 +338,13 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                                 child: CircularProgressIndicator(),
                               );
                             }
-                            final itens = snapshot.data!;
+                            final itens = snapshot.data!
+                                .where(
+                                  (item) =>
+                                      widget.tipos == null ||
+                                      widget.tipos!.contains(item.tipo),
+                                )
+                                .toList();
                             if (itens.isEmpty) {
                               return Center(
                                 child: Text(
@@ -347,6 +387,10 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
       child: SizedBox(
         width: double.infinity,
         child: DataTable(
+          headingRowHeight: 44,
+          dataRowMinHeight: 44,
+          dataRowMaxHeight: 52,
+          columnSpacing: 18,
           columns: [
             const DataColumn(label: Text('Produto')),
             if (widget.tipo == null) const DataColumn(label: Text('Tipo')),
@@ -394,12 +438,12 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
 
   Widget _lista(List<MedicamentoModel> itens) => ListView.separated(
     itemCount: itens.length,
-    separatorBuilder: (_, _) => const SizedBox(height: 10),
+    separatorBuilder: (_, _) => const SizedBox(height: 6),
     itemBuilder: (_, index) {
       final item = itens[index];
       return Card(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -419,7 +463,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
                   _status(item),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text('${item.dose} • ${item.frequencia.label}'),
               if (widget.tipo == null) ...[
                 const SizedBox(height: 5),
@@ -480,10 +524,12 @@ class CadastroMedicamentoPage extends StatefulWidget {
     required this.repository,
     this.produtosRepository,
     this.tipo,
+    this.tiposPermitidos,
   });
   final MedicamentoRepository repository;
   final ProdutoRepository? produtosRepository;
   final TipoTratamento? tipo;
+  final Set<TipoTratamento>? tiposPermitidos;
 
   @override
   State<CadastroMedicamentoPage> createState() =>
@@ -512,7 +558,11 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
   @override
   void initState() {
     super.initState();
-    tipoSelecionado = widget.tipo ?? TipoTratamento.remedio;
+    tipoSelecionado =
+        widget.tipo ??
+        (widget.tiposPermitidos == null || widget.tiposPermitidos!.isEmpty
+            ? TipoTratamento.remedio
+            : widget.tiposPermitidos!.first);
   }
 
   @override
@@ -653,13 +703,13 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
           return Form(
             key: formKey,
             child: ListView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               children: [
                 const Text(
                   'Dados do lançamento',
-                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Wrap(
                   spacing: 14,
                   runSpacing: 14,
@@ -682,7 +732,14 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
                               );
                             }
                             final ativos = snapshotProdutos.data!
-                                .where((produto) => produto.ativo)
+                                .where(
+                                  (produto) =>
+                                      produto.ativo &&
+                                      (widget.tiposPermitidos == null ||
+                                          widget.tiposPermitidos!.contains(
+                                            produto.tipo,
+                                          )),
+                                )
                                 .toList();
                             return DropdownButtonFormField<ProdutoModel>(
                               key: const ValueKey('produto_lancamento'),
@@ -739,6 +796,11 @@ class _CadastroMedicamentoPageState extends State<CadastroMedicamentoPage> {
                             border: OutlineInputBorder(),
                           ),
                           items: TipoTratamento.values
+                              .where(
+                                (tipo) =>
+                                    widget.tiposPermitidos == null ||
+                                    widget.tiposPermitidos!.contains(tipo),
+                              )
                               .map(
                                 (tipo) => DropdownMenuItem(
                                   value: tipo,

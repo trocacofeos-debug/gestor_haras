@@ -218,24 +218,24 @@ class _RelatoriosAnimaisPageState extends State<RelatoriosAnimaisPage> {
   );
 
   Widget _resumo(String titulo, int centavos, Color cor) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     decoration: BoxDecoration(
       color: Colors.white,
       border: Border.all(color: const Color(0xFFE5E7EB)),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(10),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(titulo, style: const TextStyle(color: Color(0xFF6B7280))),
-        const SizedBox(height: 7),
+        const SizedBox(height: 2),
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
             moeda.format(centavos / 100),
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
               color: cor,
             ),
@@ -243,6 +243,21 @@ class _RelatoriosAnimaisPageState extends State<RelatoriosAnimaisPage> {
         ),
       ],
     ),
+  );
+
+  Widget _botaoVisualizar(FinanceiroAnimaisDados conteudo) => FilledButton.icon(
+    key: const ValueKey('visualizar-relatorio-pdf'),
+    onPressed: preparando ? null : () => _visualizar(conteudo),
+    icon: preparando
+        ? const SizedBox.square(
+            dimension: 15,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          )
+        : const Icon(Icons.picture_as_pdf_outlined, size: 18),
+    label: const Text('Visualizar relatório'),
   );
 
   Widget _conteudo(FinanceiroAnimaisDados conteudo, bool desktop) {
@@ -263,70 +278,79 @@ class _RelatoriosAnimaisPageState extends State<RelatoriosAnimaisPage> {
       onRefresh: _atualizar,
       child: ListView(
         key: const PageStorageKey('relatorios-animais-scroll'),
-        padding: EdgeInsets.all(desktop ? 24 : 16),
+        padding: EdgeInsets.all(desktop ? 14 : 10),
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Relatórios dos animais',
-                      style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Escolha os dados, confira a prévia e decida se deseja imprimir ou salvar.',
-                      style: TextStyle(color: Color(0xFF6B7280)),
-                    ),
-                  ],
+          if (desktop)
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Relatórios dos animais',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              if (desktop) ...[
                 IconButton(
+                  visualDensity: VisualDensity.compact,
                   tooltip: 'Atualizar dados',
                   onPressed: _atualizar,
                   icon: const Icon(Icons.refresh),
                 ),
-                const SizedBox(width: 6),
-                FilledButton.icon(
-                  key: const ValueKey('visualizar-relatorio-pdf'),
-                  onPressed: preparando ? null : () => _visualizar(conteudo),
-                  icon: preparando
-                      ? const SizedBox.square(
-                          dimension: 17,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.picture_as_pdf_outlined),
-                  label: const Text('Visualizar relatório'),
+                const SizedBox(width: 4),
+                _botaoVisualizar(conteudo),
+              ],
+            )
+          else
+            Column(
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Relatórios dos animais',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      tooltip: 'Atualizar dados',
+                      onPressed: _atualizar,
+                      icon: const Icon(Icons.refresh),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  width: double.infinity,
+                  height: 40,
+                  child: _botaoVisualizar(conteudo),
                 ),
               ],
-            ],
-          ),
-          const SizedBox(height: 22),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 8),
+          Material(
+            color: Colors.white,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            child: ExpansionTile(
+              tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              leading: const Icon(Icons.filter_alt_outlined, size: 20),
+              title: Text(
+                animaisSelecionados.isEmpty &&
+                        tipo == null &&
+                        categoria == null &&
+                        periodo == null
+                    ? 'Filtros do relatório'
+                    : 'Filtros ativos',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               children: [
-                const Text(
-                  'Filtros do relatório',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 14),
                 CamposGrid(
                   maximoColunas: desktop ? 2 : 1,
                   larguraMinimaColuna: 260,
@@ -341,7 +365,7 @@ class _RelatoriosAnimaisPageState extends State<RelatoriosAnimaisPage> {
                             : '${animaisSelecionados.length} animal(is) selecionado(s)',
                       ),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(52),
+                        minimumSize: const Size.fromHeight(46),
                         alignment: Alignment.centerLeft,
                       ),
                     ),
@@ -406,7 +430,7 @@ class _RelatoriosAnimaisPageState extends State<RelatoriosAnimaisPage> {
                             : '${data.format(periodo!.start)} a ${data.format(periodo!.end)}',
                       ),
                       style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(52),
+                        minimumSize: const Size.fromHeight(46),
                         alignment: Alignment.centerLeft,
                       ),
                     ),
@@ -436,124 +460,199 @@ class _RelatoriosAnimaisPageState extends State<RelatoriosAnimaisPage> {
               ],
             ),
           ),
-          const SizedBox(height: 18),
-          CamposGrid(
-            maximoColunas: desktop ? 3 : 2,
-            larguraMinimaColuna: desktop ? 210 : 135,
-            campos: [
-              _resumo('Receitas', resumo.receitas, const Color(0xFF15803D)),
-              _resumo('Despesas', resumo.despesas, const Color(0xFFB91C1C)),
-              _resumo(
-                'Saldo',
-                resumo.saldo,
-                resumo.saldo < 0
-                    ? const Color(0xFFB91C1C)
-                    : const Color(0xFF111827),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _resumo(
+                  'Receitas',
+                  resumo.receitas,
+                  const Color(0xFF15803D),
+                ),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: _resumo(
+                  'Despesas',
+                  resumo.despesas,
+                  const Color(0xFFB91C1C),
+                ),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: _resumo(
+                  'Saldo',
+                  resumo.saldo,
+                  resumo.saldo < 0
+                      ? const Color(0xFFB91C1C)
+                      : const Color(0xFF111827),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 8),
           Text(
             '${movimentos.length} lançamento(s) de ${porAnimal.length} animal(is)',
             style: const TextStyle(color: Color(0xFF6B7280)),
           ),
-          const SizedBox(height: 10),
-          if (movimentos.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 36),
-              child: Text(
-                'Nenhum lançamento encontrado para os filtros selecionados.',
-                textAlign: TextAlign.center,
-              ),
-            )
-          else
-            ...porAnimal.map(
-              (animal) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const CircleAvatar(child: Icon(Icons.pets_outlined)),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                animal.animalNome,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${animal.lancamentos} lançamento(s)',
-                                style: const TextStyle(
-                                  color: Color(0xFF64748B),
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Receitas ${moeda.format(animal.receitas / 100)}',
-                                style: const TextStyle(
-                                  color: Color(0xFF15803D),
-                                  fontSize: 12,
-                                ),
-                              ),
-                              Text(
-                                'Despesas ${moeda.format(animal.despesas / 100)}',
-                                style: const TextStyle(
-                                  color: Color(0xFFB91C1C),
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            moeda.format(animal.saldo / 100),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: animal.saldo < 0
-                                  ? const Color(0xFFB91C1C)
-                                  : const Color(0xFF15803D),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (!desktop) ...[
-            const SizedBox(height: 14),
-            FilledButton.icon(
-              key: const ValueKey('visualizar-relatorio-pdf'),
-              onPressed: preparando ? null : () => _visualizar(conteudo),
-              icon: preparando
-                  ? const SizedBox.square(
-                      dimension: 17,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.picture_as_pdf_outlined),
-              label: const Text('Visualizar relatório'),
-            ),
-          ],
+          const SizedBox(height: 6),
+          _painelResultados(porAnimal, movimentos, desktop),
         ],
       ),
     );
   }
+
+  Widget _painelResultados(
+    List<ResumoAnimalRelatorio> porAnimal,
+    List<MovimentoAnimal> movimentos,
+    bool desktop,
+  ) => DefaultTabController(
+    length: 2,
+    child: Column(
+      children: [
+        const Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          child: TabBar(
+            tabs: [
+              Tab(height: 40, text: 'Resumo por animal'),
+              Tab(height: 40, text: 'Lançamentos detalhados'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: desktop ? 310 : 270,
+          child: TabBarView(
+            children: [_listaResumos(porAnimal), _listaMovimentos(movimentos)],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _listaResumos(List<ResumoAnimalRelatorio> itens) {
+    if (itens.isEmpty) return _vazioResultados();
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: itens.length,
+        separatorBuilder: (_, _) => const Divider(height: 8),
+        itemBuilder: (_, indice) {
+          final animal = itens[indice];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 17,
+                  child: Icon(Icons.pets_outlined, size: 17),
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        animal.animalNome,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      Text(
+                        '${animal.lancamentos} lançamento(s) • Receitas ${moeda.format(animal.receitas / 100)} • Despesas ${moeda.format(animal.despesas / 100)}',
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  moeda.format(animal.saldo / 100),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: animal.saldo < 0
+                        ? const Color(0xFFB91C1C)
+                        : const Color(0xFF15803D),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _listaMovimentos(List<MovimentoAnimal> itens) {
+    if (itens.isEmpty) return _vazioResultados();
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: itens.length,
+        separatorBuilder: (_, _) => const Divider(height: 8),
+        itemBuilder: (_, indice) {
+          final item = itens[indice];
+          final receita = item.tipo == TipoMovimentoAnimal.receita;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+            child: Row(
+              children: [
+                Icon(
+                  receita
+                      ? Icons.arrow_upward_rounded
+                      : Icons.arrow_downward_rounded,
+                  size: 18,
+                  color: receita
+                      ? const Color(0xFF15803D)
+                      : const Color(0xFFB91C1C),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.descricao,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        '${item.animalNome} • ${item.categoria} • ${item.data == null ? 'Sem data' : data.format(item.data!)}',
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  moeda.format(item.centavos / 100),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: receita
+                        ? const Color(0xFF15803D)
+                        : const Color(0xFFB91C1C),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _vazioResultados() => const Card(
+    margin: EdgeInsets.zero,
+    child: Center(
+      child: Text('Nenhum lançamento encontrado para os filtros selecionados.'),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {

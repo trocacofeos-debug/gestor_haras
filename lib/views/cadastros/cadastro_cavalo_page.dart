@@ -816,7 +816,7 @@ class _CadastroCavaloPageState extends State<CadastroCavaloPage> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      editando ? 'Editar cavalo' : 'Novo cavalo',
+                      editando ? 'Editar cavalo' : 'Novo Animal',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,

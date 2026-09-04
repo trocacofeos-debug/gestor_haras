@@ -1079,6 +1079,9 @@ class CavaloDetalhesPage extends StatelessWidget {
     );
   }
 
+  // Mantido apenas para compatibilidade interna com históricos antigos.
+  // A interface financeira fica exclusivamente no módulo Gestão.
+  // ignore: unused_element
   Widget _financeiro(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1142,8 +1145,6 @@ class CavaloDetalhesPage extends StatelessWidget {
                                     _foto(cavalo),
                                     const SizedBox(height: 16),
                                     _dados(cavalo, context),
-                                    const SizedBox(height: 16),
-                                    _financeiro(context),
                                   ],
                                 ),
                               );
@@ -1169,11 +1170,7 @@ class CavaloDetalhesPage extends StatelessWidget {
                                         Expanded(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              _foto(cavalo),
-                                              const SizedBox(height: 16),
-                                              _financeiro(context),
-                                            ],
+                                            children: [_foto(cavalo)],
                                           ),
                                         ),
                                       ],
